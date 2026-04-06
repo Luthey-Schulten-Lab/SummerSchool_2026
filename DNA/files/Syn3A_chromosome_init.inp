@@ -1,0 +1,47 @@
+#####################
+# program execution #
+#####################
+run = 2
+min_rep = 1
+max_rep = 1
+seed = 42
+
+################################
+# Lengths (units of Angstroms) #
+################################
+# DNA monomer radius
+r = 1.7E+1
+# spherocylinder radius
+r_sc = 1.7E+1
+# radius of ribosome
+R_o = 1.0E+2 
+# radius of cell (boundary)
+R_b = 1.95e+03 
+
+###########################
+# flags for configuration #
+###########################
+cyclic_shift = 0
+knot_prevent = 1
+
+########################
+# obstacle information #
+########################
+N_o = 500
+
+# optional user-provided coordinates of spherical obstacles. 
+# this is where you would plug in known coordinates of ribosomes
+obstacle_file = null
+
+#####################
+# chain information #
+#####################
+N_chains = 1
+
+# N_stages, number of stages in growth
+# below are the stages (length,number segments)
+N_stages = 4
+12,2000
+6,8000
+3,18000
+1,54338

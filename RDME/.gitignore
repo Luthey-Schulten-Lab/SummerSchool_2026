@@ -1,0 +1,5 @@
+*.pdf
+*.csv
+*.lm
+RDME/__pycache__/
+./results/*
