@@ -19,6 +19,7 @@ In ***Coupled Genetic Information Processes and Metabolism in the Minimal Cell**
 
 ## 1. Set up the tutorial on QCB Delta Gateway
 
+### 1. SSH into Delta
 
 Open a terminal on your laptop and run the following command. Replace USERNAME with your NCSA username:
 
