@@ -65,7 +65,7 @@ After logging in, choose the following settings on the resource allocation form 
 | **GPU Environment** | **4DCell (LAMMPS/LM)** |
 | **Number of GPUs** | **1** |
 | **Memory** | **64 GB** |
-| **Time limit** | **3 hours** |
+| **Time limit** | **4 hours** |
 
 <img src="../figs/Resource_Allocation.png" alt="QCB Gateway resource allocation form" width="700">
 
