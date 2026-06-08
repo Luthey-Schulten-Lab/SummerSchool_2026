@@ -13,7 +13,7 @@
 1. Set up the tutorial on QCB Delta Gateway
 2. Open the gateway in your browser
 3. Allocate compute resources on the Gateway
-4. Open the shared workshop folder on bgvl
+4. Clone the repository and connect to shared RDME data on bgvl
 5. Get familiar with RDME — Tutorials 1 and 2
 6. Analyze pre-computed 4DWCM trajectories
 7. Model overview and hybrid simulation flowchart
@@ -74,54 +74,61 @@ After logging in, choose the following settings on the resource allocation form 
 
 Click **Start** and wait for your session to launch.
 
-## 4. Open the shared workshop folder on bgvl
+## 4. Clone the repository and connect to shared RDME data on bgvl
 
-The Gateway runs on the **bgvl** allocation. All tutorial materials and pre-computed 4DWCM data live in one shared read-only folder — **no copying required**.
+Notebooks and scripts come from this GitHub repository. The large pre-computed 4DWCM files (~30 GB) live in a **separate read-only folder on bgvl** — only `data/` and `trajectory/` are shared there, not the full repository.
 
 When your Jupyter session starts, an **Untitled.ipynb** notebook will already be open in JupyterLab.
 
 <img src="../figs/jupyter_env.png" alt="JupyterLab environment with Untitled.ipynb" width="700">
 
-In a **code cell**, go to the workshop folder:
+In a **code cell**, clone the repository (skip if you already have it) and open the RDME module:
 
 ```python
-%cd /projects/bgvl/SummerSchool_2026/RDME
+!git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
+%cd SummerSchool_2026/RDME
 ```
 
-In the Jupyter file browser, open **`/projects/bgvl/SummerSchool_2026/RDME/`**. You should see:
+In the Jupyter file browser, open **`SummerSchool_2026/RDME/`**. You should see:
 
 ```
-/projects/bgvl/SummerSchool_2026/RDME/
-├── TutR1_Bimolecule/       # spatial bimolecular RDME (§5)
-├── TutR2_GIP/              # spatial GIP RDME (§5)
-├── 4DWCM_analysis.ipynb    # ensemble analysis (§6)
-├── analysis_scripts/       # Python helpers + sim_properties_1_9.pkl
-├── data/                   # 50 pre-computed counts_and_fluxes.*.csv files
-├── trajectory/             # MinCell_1–4.lm for VMD
-└── readme.md               # you are here
+SummerSchool_2026/RDME/          ← your cloned copy (notebooks & scripts)
+├── TutR1_Bimolecule/            # spatial bimolecular RDME (§5)
+├── TutR2_GIP/                   # spatial GIP RDME (§5)
+├── 4DWCM_analysis.ipynb         # ensemble analysis (§6)
+├── analysis_scripts/            # Python helpers + sim_properties_1_9.pkl
+└── readme.md                    # you are here
 ```
 
-Since the computational cost of running the whole-cell model is very high, we analyze **pre-computed trajectories** stored in `data/` and `trajectory/` above. The original data are archived on [Zenodo:15579159](https://zenodo.org/records/15579159).
+Pre-computed trajectory CSVs and VMD files are **not** in the repository (they are too large for git). Read them from the shared bgvl data folder:
+
+```
+/projects/bgvl/SummerSchool_2026/RDME/   ← shared read-only data on bgvl
+├── data/                            # 50 counts_and_fluxes.*.csv files
+└── trajectory/                      # MinCell_1–4.lm for VMD
+```
+
+`4DWCM_analysis.ipynb` reads CSVs from the bgvl `data/` path automatically. The original data are also archived on [Zenodo:15579159](https://zenodo.org/records/15579159).
 
 > [!NOTE]
 > For RDME notebooks, select the **LM 2.5 (Python 3.7)** kernel when prompted.
 
-Analysis plots are written to your personal results folder so users do not overwrite each other:
+Analysis plots are saved under `results/` in your cloned copy:
 
 ```python
 import os
-os.makedirs(f'/projects/bgvl/{os.environ["USER"]}/SummerSchool_2026/RDME/results', exist_ok=True)
+os.makedirs('results', exist_ok=True)
 ```
 
 ---
 
 ## 5. Get familiar with RDME — Tutorials 1 and 2
 
-Work through these notebooks **in order** before the 4DWCM analysis. After `%cd` to the workshop folder (§4), open the subfolders below in the **Jupyter file browser**.
+Work through these notebooks **in order** before the 4DWCM analysis. In the **Jupyter file browser**, open the subfolders below under **`SummerSchool_2026/RDME/`**.
 
 ### TutR1 — Bimolecular reactions in RDME
 
-In the Jupyter file browser, open **`/projects/bgvl/SummerSchool_2026/RDME/TutR1_Bimolecule/`** and run:
+In the Jupyter file browser, open **`SummerSchool_2026/RDME/TutR1_Bimolecule/`** and run:
 
 | Order | Notebook | Description |
 | --- | --- | --- |
@@ -130,7 +137,7 @@ In the Jupyter file browser, open **`/projects/bgvl/SummerSchool_2026/RDME/TutR1
 
 ### TutR2 — Genetic information processing in RDME
 
-In the Jupyter file browser, open **`/projects/bgvl/SummerSchool_2026/RDME/TutR2_GIP/`** and run:
+In the Jupyter file browser, open **`SummerSchool_2026/RDME/TutR2_GIP/`** and run:
 
 | Notebook | Description |
 | --- | --- |
@@ -142,7 +149,7 @@ To run a cell, press **Shift+Enter** or **Ctrl+Enter**. To run the entire notebo
 
 ## 6. Analyze pre-computed 4DWCM trajectories
 
-In the Jupyter file browser, open [`4DWCM_analysis.ipynb`](4DWCM_analysis.ipynb) in **`/projects/bgvl/SummerSchool_2026/RDME/`** (navigate there with `%cd` as in §4) to explore ensemble averages from 50 pre-computed whole-cell trajectories. Sections 7–11 below walk through the key results shown in that notebook.
+In the Jupyter file browser, open [`4DWCM_analysis.ipynb`](4DWCM_analysis.ipynb) in **`SummerSchool_2026/RDME/`** to explore ensemble averages from 50 pre-computed whole-cell trajectories. The notebook reads CSVs from **`/projects/bgvl/SummerSchool_2026/RDME/data/`** and saves plots to **`results/`** in your clone. Sections 7–11 below walk through the key results shown in that notebook.
 
 For VMD visualization of spatial trajectories, see [vmd_guide.md](vmd_guide.md).
 

@@ -83,7 +83,7 @@ In a **code cell**, run:
 %cd /projects/bgvl/SummerSchool_2026/CME
 ```
 
-In the Jupyter file browser, open **`/projects/bgvl/SummerSchool_2026/CME/`**. You should see:
+In the Jupyter file browser, open **`SummerSchool_2026/CME/`**. You should see:
 
 ```
 CME/

@@ -33,18 +33,18 @@ Since VMD requires a graphical interface, we'll use Open OnDemand's Desktop inte
 
 ## 2. Launch VMD
 
-Open a terminal and run:
+Open a terminal, go to your cloned RDME folder, and launch VMD:
 
 ```bash
-cd /projects/bgvl/SummerSchool_2026/RDME/
+cd SummerSchool_2026/RDME
 bash launch_vmd.sh
 ```
 
 ## 3. Load the trajectory
 
-Pre-computed spatial trajectories live in the shared workshop folder:
+Pre-computed spatial trajectories live in the shared bgvl data folder (not in the git repository):
 
-```bash
+```
 /projects/bgvl/SummerSchool_2026/RDME/trajectory/MinCell_1.lm
 /projects/bgvl/SummerSchool_2026/RDME/trajectory/render.vmd
 ```

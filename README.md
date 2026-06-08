@@ -62,9 +62,9 @@ After logging in, the Gateway will ask you to choose compute resources before st
 
 Click **Start**. 
 
-Jobs may take a short time to queue before your session opens. Once the server is ready, open the shared workshop folder from the notebook that starts automatically.
+Jobs may take a short time to queue before your session opens. Once the server is ready, clone the repository from the notebook that starts automatically (Step 4).
 
-**Step 4: Open the workshop folder**
+**Step 4: Clone the repository**
 
 When your Jupyter session starts, an **Untitled.ipynb** notebook will already be open in JupyterLab.
 
@@ -73,13 +73,23 @@ When your Jupyter session starts, an **Untitled.ipynb** notebook will already be
 In a **code cell**, run:
 
 ```python
-%cd /projects/bgvl/SummerSchool_2026
+!git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
+%cd SummerSchool_2026
 ```
 
-All tutorials and data are in this shared folder — no cloning or copying required. Examples:
+Open notebooks from your cloned copy in the Jupyter file browser:
 
-- **CME / RDME:** open notebooks under `CME/` or `RDME/`
-- **Martini:** open notebooks under `Martini/tutorial_1/` (etc.)
+- **CME:** `SummerSchool_2026/CME/`
+- **RDME:** `SummerSchool_2026/RDME/`
+
+RDME pre-computed trajectory data (CSVs and VMD files, not in git) is read from the shared bgvl folder:
+
+```
+/projects/bgvl/SummerSchool_2026/RDME/data/
+/projects/bgvl/SummerSchool_2026/RDME/trajectory/
+```
+
+- **Martini:** open notebooks under `SummerSchool_2026/Martini/tutorial_1/` (etc.)
 ### Useful Links
 0. [STC-QCB Official Website](https://qcb.illinois.edu/): Check out the QCB website for more events!  
 1. [Delta User Help Document](https://docs.ncsa.illinois.edu/systems/delta/en/latest/): We will use **Delta**, a high-performance computing cluster housed at the National Center for Supercomputing Applications (NCSA), UIUC, to conduct the computational tasks.  
