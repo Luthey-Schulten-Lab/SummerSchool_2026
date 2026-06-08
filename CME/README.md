@@ -10,104 +10,50 @@ In ***Coupled Genetic Information Processes and Metabolism in the Minimal Cell**
 
 ## Outline:
 
-1. Set Up the tutorial on Delta  
-2. Introduction to Lattice Microbe, a GPU-Accelerated Stochastic Simulation Platform  
-3. Tutorial: Bimolecular Reaction Solved Stochastically in CME  
-4. Tutorial: Stochastic Genetic Information Processes in CME  
-5. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A  
+1. Set Up the tutorial on QCB Delta Gateway
+2. Open the gateway in your browser
+3. Introduction to Lattice Microbe, a GPU-Accelerated Stochastic Simulation Platform  
+4. Tutorial: Bimolecular Reaction Solved Stochastically in CME  
+5. Tutorial: Stochastic Genetic Information Processes in CME  
+6. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A  
 
-## 1. Set up the tutorial on Delta
+## 1. Set up the tutorial on QCB Delta Gateway
 
-You will SSH into [NCSA Delta](https://docs.ncsa.illinois.edu/systems/delta/en/latest/quick_start.html) to conduct the computational tasks.
 
-### Log In to Delta 
-
-```bash
-ssh USERNAME@login.delta.ncsa.illinois.edu
-```
-> [!WARNING]
-> ***Replace*** `USERNAME` with your Delta username. 
-
-To successfully log in, you need to type your password for NCSA and complete two-factor authentication (2FA).
-
-###  Copy Tutorials into Your Own Directory
-
-Navigate to your user directory `/projects/beyi/$USER` that automatically created after Delta adding you to this project.
+Open a terminal on your laptop and run the following command. Replace USERNAME with your NCSA username:
 
 ```bash
-cd /projects/beyi/$USER
+ssh -L 8000:dt-svc-bbkw01.hsn.cm.delta.internal.ncsa.edu:8000 USERNAME@login.delta.ncsa.illinois.edu
 ```
 
-Copy the prepared materials to your directory. This step may take several minutes due to the precomputed CME-ODE WCM trajectories.
+You will be prompted for your **NCSA password** and **two-factor authentication (2FA)**. Once you’re in, **leave the terminal open** — closing it tears down the tunnel.
 
-```bash
-cp -r /projects/beyi/enguang/CME ./
+### 2. Open the gateway in your browser
+
+Once the SSH tunnel is up, open this URL in any browser on your laptop:
+
+```
+https://dt-svc-bbkw01.delta.ncsa.illinois.edu:8000/hub/org/
 ```
 
-### Launch Jupyter Notebook on Delta
->[!NOTE]
->You will use Jupyter Notebook to run Tutorials bimolecule, GIP, and the analysis part of Tutorial WCM. The advantage of Jupyter Notebook is that you could navigate the folders and run the `.ipynb` files with an graphical interface.
+Click on the QCB Gateway tab. You should see the **JupyterHub login page** for the QCB Delta Gateway. Click CI Logon and sign in with your NCSA Delta credentials and you’ll land in the gateway’s notebook interface.
 
-- **First**: Submit a job to a Delta GPU node.  
-    Here `srun` launches interactive job onto Delta, `partition` claims A100 GPU node, and for four hours `time`. A four digit number is randomly generated to specify the `port` for Jupyter Notebook. 
+> [!NOTE]
+> If your Gateway account is not approved, please ask the admin, Alfia Parvez, at alfiap@illinois.edu to approve it first.
 
-  ```bash
-  srun --account=beyi-delta-gpu --partition=gpuA40x4 --time=04:00:00 --mem=64g --gpus-per-node=1 --tasks-per-node=1 --cpus-per-task=16 --nodes=1 apptainer exec --nv --containall --bind /projects/beyi/$USER/:/workspace /projects/beyi/enguang/summer2025.sif bash -c "source /root/miniconda3/etc/profile.d/conda.sh && conda activate lm_2.5_dev && jupyter notebook /workspace/ --no-browser --port=$((RANDOM%9000+1000)) --ip=0.0.0.0 --allow-root"
-  ```  
-
-  Then you should wait for Delta to allocate the resources for your request, which usually takes less than 1 minute. When you see similar things as the following, you are good to proceed to the second step.
-
-  ```bash
-  srun: job 3546627 queued and waiting for resources
-  srun: job 3546627 has been allocated resources
-  WARNING: could not mount /etc/localtime: not a directory
-  [I 19:07:57.203 NotebookApp] Writing notebook server cookie secret to /u/$USER/.local/share/jupyter/runtime/notebook_cookie_secret
-  [I 19:07:58.314 NotebookApp] [jupyter_nbextensions_configurator] enabled 0.6.3
-  [I 19:07:58.316 NotebookApp] Serving notebooks from local directory: /workspace
-  [I 19:07:58.316 NotebookApp] Jupyter Notebook 6.4.12 is running at:
-  [I 19:07:58.316 NotebookApp] http://$DeltaNode.ncsa.illinois.edu:8811/?token=b2e7ca15cd9dc3a6893a1273e359c88869225bc29d66c80c
-  [I 19:07:58.316 NotebookApp]  or http://127.0.0.1:$Port/?token=b2e7ca15cd9dc3a6893a1273e359c88869225bc29d66c80c
-  [I 19:07:58.316 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
-  [C 19:07:58.329 NotebookApp]
-
-      To access the notebook, open this file in a browser:
-          file:///u/$USERNAME/.local/share/jupyter/runtime/nbserver-13-open.html
-      Or copy and paste one of these URLs:
-          http://$DeltaNode.delta.ncsa.illinois.edu:$Port/?token=b2e7ca15cd9dc3a6893a1273e359c88869225bc29d66c80c
-      or http://127.0.0.1:$Port/?token=b2e7ca15cd9dc3a6893a1273e359c88869225bc29d66c80c
-  ```
->[!NOTE]
-> The second to the last line contains the Delta GPU node `$DeltaNode`, which is assgined by Delta to run your job. The `$Port` is four digits randomly generated.
-
-- **Second**: SSH into the Delta GPU node.  
-  Open **another** terminal and run the following command after replacing.
->[!WARNING]
->***Replace*** `$DeltaNode` with the node assgined by Delta.    
->***Replace*** `$USERNAME` with your Delta username.   
->***Replace*** TWO `$Port` with the 4 digit number generated.
-
-  ```bash
-  ssh -l $USERNAME  -L 127.0.0.1:$Port:$DeltaNode.delta.internal.ncsa.edu:$Port dt-login.delta.ncsa.illinois.edu
-  ```
-  You need to type you password and do 2FA **AGAIN**.
-
-
-- **Third**: Open Jupyter Notebook in a webpage.   
-  Copy the last URL in the first terminal and paste to one browser (Firefox, Chrome, ...) to open Jupyter Notebook.
-
-## 2. Introduction to Lattice Microbe and Stochastic Simulation
+## 3. Introduction to Lattice Microbe and Stochastic Simulation
 
 **Go to [Introduction](introduction/)**
 
-## 3. Tutorial: Bimolecular Reaction Solved in ODE and CME
+## 4. Tutorial: Bimolecular Reaction Solved in ODE and CME
 
 **Go to [bimolecule](bimolecule/)**
 
-## 4. Tutorial: Genetic Information Processs in CME
+## 5. Tutorial: Genetic Information Processs in CME
 
 **Go to [Genetic Information Processes](GIP/)**
 
-## 5. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A
+## 6. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A
 
 **Go to [CME-ODE WCM of Syn3A](WCM/)**
 
