@@ -33,7 +33,7 @@ def _load_single_traj(traj_file):
 # plt.rcParams['text.latex.preamble'] = r'\usepackage[helvet]{sfmath}'
 
 plt.rcParams['font.family'] = 'sans-serif'
-plt.rcParams['font.sans-serif'] = 'Arial'
+plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
 
 mm = 1/25.4
 l_w_ratio = 1/1.618

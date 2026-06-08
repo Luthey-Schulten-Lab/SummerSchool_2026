@@ -113,11 +113,11 @@ Pre-computed trajectory CSVs and VMD files are **not** in the repository (they a
 > [!NOTE]
 > For RDME notebooks, select the **LM 2.5 (Python 3.7)** kernel when prompted.
 
-Analysis plots are saved under `results/` in your cloned copy:
+Analysis plots are saved under `my_results/` in your cloned copy:
 
 ```python
 import os
-os.makedirs('results', exist_ok=True)
+os.makedirs('my_results', exist_ok=True)
 ```
 
 ---
@@ -149,7 +149,7 @@ To run a cell, press **Shift+Enter** or **Ctrl+Enter**. To run the entire notebo
 
 ## 6. Analyze pre-computed 4DWCM trajectories
 
-In the Jupyter file browser, open [`4DWCM_analysis.ipynb`](4DWCM_analysis.ipynb) in **`SummerSchool_2026/RDME/`** to explore ensemble averages from 50 pre-computed whole-cell trajectories. The notebook reads CSVs from **`/projects/bgvl/SummerSchool_2026/RDME/data/`** and saves plots to **`results/`** in your clone. Sections 7–11 below walk through the key results shown in that notebook.
+In the Jupyter file browser, open [`4DWCM_analysis.ipynb`](4DWCM_analysis.ipynb) in **`SummerSchool_2026/RDME/`** to explore ensemble averages from 50 pre-computed whole-cell trajectories. The notebook reads CSVs from **`/projects/bgvl/SummerSchool_2026/RDME/data/`** and saves plots to **`my_results/`** in your clone. Sections 7–11 below walk through the key results shown in that notebook.
 
 For VMD visualization of spatial trajectories, see [vmd_guide.md](vmd_guide.md).
 

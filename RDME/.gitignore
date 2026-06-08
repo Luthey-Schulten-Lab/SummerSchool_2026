@@ -2,4 +2,4 @@
 *.csv
 *.lm
 RDME/__pycache__/
-./results/*
+./my_results/*
