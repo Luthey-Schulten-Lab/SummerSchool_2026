@@ -1,5 +1,7 @@
 # Bimolecular Reaction Solved Stochastically by CME
 
+> **CME track · §6** — Complete [Gateway setup](../README.md#1-set-up-the-tutorial-on-qcb-delta-gateway) and read [introduction](../introduction/README.md) before starting here.
+
 ## Biomolecular Reaction
 
 In this tutorial, we will introduce stochastic modeling using a simple bimolecular reaction. The numbers of reactant molecules are small enough that you will observe fluctuations and variance in the stochastic results compared to the deterministic ones.
@@ -23,11 +25,21 @@ Under ODE representation using concentrations of species, the rates of change of
 
 In contrast, when using the CME, we work with discrete molecular counts instead of concentrations. To make the forward rate constant compatible with molecule-based stochastic simulation, we convert it by dividing by Avogadro’s number and the system volume, yielding units of reactions per molecule per second.
 
-## Run the Jupyter Notebook
+## Run the Jupyter Notebooks
 
-Now go to Jupyter Notebook interface and navigate to directory `/CME/bimolecule/`. You will use the notebook `Tut1.1-ODEBimol.ipynb` to simulate the bimolecular reaction using ordinary differential equations (ODEs) solved with SciPy, and `Tut1.2-CMEBimol.ipynb` to simulate the same reaction using the Chemical Master Equation (CME) with jLM in Lattice Microbes.
+In the Gateway file browser, open **`SummerSchool_2026/CME/bimolecule/`** and run these notebooks **in order**:
 
-To run a Jupyter Notebook, you can use short-cut **Control+Enter** to execute the selected cell. Or, you can click **Cell-Run All** to run the entire script.
+| Order | Notebook | Description |
+| --- | --- | --- |
+| 1 | [`Tut1.1-ODEBimol.ipynb`](Tut1.1-ODEBimol.ipynb) | Deterministic ODE simulation with SciPy |
+| 2 | [`Tut1.2-CMEBimol.ipynb`](Tut1.2-CMEBimol.ipynb) | Stochastic CME simulation with jLM in Lattice Microbes |
+
+> [!NOTE]
+> Select the **LM 2.5 (Python 3.7)** kernel when opening the CME notebooks.
+
+To run a cell, press **Shift+Enter** or **Ctrl+Enter**. To run the entire notebook, click **Run → Run All Cells**.
+
+When you finish both notebooks, continue to [§7 Genetic Information Processing](../GIP/README.md).
 
 ## Recap
 

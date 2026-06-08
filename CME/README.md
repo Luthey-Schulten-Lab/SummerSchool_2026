@@ -21,9 +21,11 @@ In ***Coupled Genetic Information Processes and Metabolism in the Minimal Cell**
 
 ## 1. Set up the tutorial on QCB Delta Gateway
 
+> You are in the **CME** module. Complete steps 1–4 below once to set up the Gateway, then work through sections 5–8 in order.
+
 See the [Getting Started: QCB Delta Gateway](../README.md#getting-started-qcb-delta-gateway) section in the top-level README for full instructions. In short:
 
-Open a terminal on your laptop and run the following command. Replace USERNAME with your NCSA username:
+Open a terminal on your laptop and run the following command. Replace `USERNAME` with your NCSA username:
 
 ```bash
 ssh -L 8000:dt-svc-bbkw01.hsn.cm.delta.internal.ncsa.edu:8000 USERNAME@login.delta.ncsa.illinois.edu
@@ -39,7 +41,13 @@ Once the SSH tunnel is up, open this URL in any browser on your laptop:
 https://dt-svc-bbkw01.delta.ncsa.illinois.edu:8000/hub/org/
 ```
 
-Click on the QCB Gateway tab. You should see the **JupyterHub login page** for the QCB Delta Gateway. Click CI Logon and sign in with your NCSA Delta credentials and you’ll land in the gateway’s notebook interface.
+Click on the **QCB Gateway** tab. You should see the **JupyterHub login page** for the QCB Delta Gateway.
+
+<img src="../figs/QCB_Gateway_homepage.png" alt="QCB Gateway homepage" width="700">
+
+Click **CI Logon** and sign in with your NCSA Delta credentials.
+
+<img src="../figs/QCB_Gateway_Login.png" alt="QCB Gateway CI Logon page" width="700">
 
 > [!NOTE]
 > If your Gateway account is not approved, please ask the admin, Alfia Parvez, at alfiap@illinois.edu to approve it first.
@@ -63,7 +71,7 @@ After logging in, choose the following settings on the resource allocation form 
 
 Click **Start** and wait for your session to launch.
 
-## 4. Clone the tutorial repository
+## 4. Clone the tutorial repository and open CME
 
 When your Jupyter session starts, an **Untitled.ipynb** notebook will already be open in JupyterLab (see screenshot below).
 
@@ -74,25 +82,63 @@ In a **code cell**, run:
 ```python
 %cd /projects/beyi/$USER
 !git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
+%cd SummerSchool_2026/CME
 ```
 
-See [Step 4 in the top-level README](../README.md#getting-started-qcb-delta-gateway) for details. Then navigate to the CME tutorial folder in the Jupyter file browser and open the notebook for the section you are working on.
+In the Jupyter file browser, open **`SummerSchool_2026/CME/`**. You should see:
+
+```
+CME/
+├── introduction/          # start here (§5)
+├── bimolecule/            # Tut1.1 and Tut1.2 (§6)
+├── GIP/                   # genetic information processing (§7)
+├── WCM/                   # whole-cell CME–ODE model (§8)
+└── README.md              # you are here
+```
+
+> [!NOTE]
+> For CME notebooks, select the **LM 2.5 (Python 3.7)** kernel when prompted (shown in the Launcher under **Notebook**).
+
+If you already cloned the repo in a previous session, pull updates instead:
+
+```python
+%cd /projects/beyi/$USER/SummerSchool_2026
+!git pull origin main
+%cd CME
+```
+
+---
 
 ## 5. Introduction to Lattice Microbe and Stochastic Simulation
 
-**Go to [Introduction](introduction/)**
+**Go to [introduction/](introduction/)** and read through the material to learn how Lattice Microbe and jLM are used in the CME tutorials.
+
+---
 
 ## 6. Tutorial: Bimolecular Reaction Solved in ODE and CME
 
-**Go to [bimolecule](bimolecule/)**
+**Go to [bimolecule/](bimolecule/)** and open these notebooks in order:
+
+1. [`bimolecule/Tut1.1-ODEBimol.ipynb`](bimolecule/Tut1.1-ODEBimol.ipynb) — deterministic ODE simulation  
+2. [`bimolecule/Tut1.2-CMEBimol.ipynb`](bimolecule/Tut1.2-CMEBimol.ipynb) — stochastic CME simulation with jLM  
+
+See the [bimolecule README](bimolecule/README.md) for background and discussion questions.
+
+---
 
 ## 7. Tutorial: Genetic Information Processs in CME
 
-**Go to [Genetic Information Processes](GIP/)**
+**Go to [GIP/](GIP/)** and open:
+
+- [`GIP/Tut.2.1-GeneticInformationProcess.ipynb`](GIP/Tut.2.1-GeneticInformationProcess.ipynb)
+
+See the [GIP README](GIP/README.md) for the reaction scheme and discussion questions.
+
+---
 
 ## 8. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A
 
-**Go to [CME-ODE WCM of Syn3A](WCM/)**
+**Go to [WCM/](WCM/)** and follow the [WCM README](WCM/README.md) to launch the hybrid CME–ODE whole-cell simulation and analyze the results.
 
 ## References:
 [^breuer_metabolism]: Breuer, M., Earnest, T. M., Merryman, C., Wise, K. S., Sun, L., Lynott, M. R., Hutchison, C. A., Smith, H. O., Lapek, J. D., Gonzalez, D. J., De Crécy-Lagard, V., Haas, D., Hanson, A. D., Labhsetwar, P., Glass, J. I., & Luthey-Schulten, Z. (2019). Essential metabolism for a minimal cell. eLife, 8. https://doi.org/10.7554/elife.36842
