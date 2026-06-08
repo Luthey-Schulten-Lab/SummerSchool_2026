@@ -1,5 +1,7 @@
 # Stochastic Genetic Information Processes in CME
 
+> **CME track · §7** — Complete [Gateway setup](../README.md#1-set-up-the-tutorial-on-qcb-delta-gateway) and the [bimolecule tutorials](../bimolecule/README.md) (§6) before starting here.
+
 Open [ChatGPT](https://chatgpt.com/) and ask the following question:
 
 **Give an example of large differences in rate constants that lead to significant fluctuations.**
@@ -30,12 +32,23 @@ We assume the gene copy number is fixed at 1 and the initial mRNA count is 1, an
 
 ## Run the Jupyter Notebook
 
-Open the Jupyter Notebook interface and navigate to the directory `/CME/GIP/`. Run the notebook `Tut2.1-GeneticInformationProcess.ipynb` to simulate this toy model of genetic information processing (GIP). 
+In the Gateway file browser, open **`SummerSchool_2026/CME/GIP/`** and run:
+
+| Notebook | Description |
+| --- | --- |
+| [`Tut.2.1-GeneticInformationProcess.ipynb`](Tut.2.1-GeneticInformationProcess.ipynb) | Stochastic GIP model of transcription, translation, and degradation |
+
+> [!NOTE]
+> Select the **LM 2.5 (Python 3.7)** kernel when opening the notebook.
+
+To run a cell, press **Shift+Enter** or **Ctrl+Enter**. To run the entire notebook, click **Run → Run All Cells**.
 
 By default:
 - The total simulation time `simtime` is set to 6300 seconds, representing the full cell cycle of the minimal cell.
 - We simulate 10 independent cells (`reps = 10`).
 - Trajectories are recorded at intervals of 1 second (`writeInterval = 1`).
+
+When you finish, continue to [§8 CME–ODE Whole-Cell Model](../WCM/README.md).
 
 ## Stochastic Protein Synthesis
 

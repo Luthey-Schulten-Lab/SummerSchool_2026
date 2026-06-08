@@ -1,6 +1,11 @@
-#! /bin/bash
+#!/bin/bash
+#
+# Deprecated — RDME data is read directly from the shared workshop folder:
+#
+#   /projects/bgvl/SummerSchool_2026/RDME/
+#
+# In Jupyter, run:  %cd /projects/bgvl/SummerSchool_2026/RDME
 
-# This script is used to copy the data to the user's home directory
-
-cp -r /projects/beyi/twu4/workshop_2025_4dwcm/trajectory/ /projects/beyi/$USER/SummerSchool_2025/RDME/
-cp -r /projects/beyi/twu4/workshop_2025_4dwcm/data/ /projects/beyi/$USER/SummerSchool_2025/RDME/
+echo "[copy.sh] No copy needed." >&2
+echo "Open notebooks from: /projects/bgvl/SummerSchool_2026/RDME/" >&2
+exit 0

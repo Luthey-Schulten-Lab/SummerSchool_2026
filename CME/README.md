@@ -13,7 +13,7 @@ In ***Coupled Genetic Information Processes and Metabolism in the Minimal Cell**
 1. Set Up the tutorial on QCB Delta Gateway
 2. Open the gateway in your browser
 3. Allocate compute resources on the Gateway
-4. Clone the tutorial repository
+4. Open the shared workshop folder on bgvl
 5. Introduction to Lattice Microbe, a GPU-Accelerated Stochastic Simulation Platform  
 6. Tutorial: Bimolecular Reaction Solved Stochastically in CME  
 7. Tutorial: Stochastic Genetic Information Processes in CME  
@@ -71,7 +71,7 @@ After logging in, choose the following settings on the resource allocation form 
 
 Click **Start** and wait for your session to launch.
 
-## 4. Clone the tutorial repository and open CME
+## 4. Open the shared workshop folder and start CME
 
 When your Jupyter session starts, an **Untitled.ipynb** notebook will already be open in JupyterLab (see screenshot below).
 
@@ -80,12 +80,10 @@ When your Jupyter session starts, an **Untitled.ipynb** notebook will already be
 In a **code cell**, run:
 
 ```python
-%cd /projects/beyi/$USER
-!git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
-%cd SummerSchool_2026/CME
+%cd /projects/bgvl/SummerSchool_2026/CME
 ```
 
-In the Jupyter file browser, open **`SummerSchool_2026/CME/`**. You should see:
+In the Jupyter file browser, open **`/projects/bgvl/SummerSchool_2026/CME/`**. You should see:
 
 ```
 CME/
@@ -98,14 +96,6 @@ CME/
 
 > [!NOTE]
 > For CME notebooks, select the **LM 2.5 (Python 3.7)** kernel when prompted (shown in the Launcher under **Notebook**).
-
-If you already cloned the repo in a previous session, pull updates instead:
-
-```python
-%cd /projects/beyi/$USER/SummerSchool_2026
-!git pull origin main
-%cd CME
-```
 
 ---
 

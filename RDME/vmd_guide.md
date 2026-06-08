@@ -15,7 +15,7 @@ Since VMD requires a graphical interface, we'll use Open OnDemand's Desktop inte
 
 4. Configure the job settings and click Launch:
    - Container image: keep default
-   - Account: `beyi-delta-gpu`
+   - Account: `bgvl-delta-gpu`
    - Partition: `GPUA100x4`
    - Duration: `00-01:00:00`
    - Reservation: leave empty if none
@@ -31,29 +31,27 @@ Since VMD requires a graphical interface, we'll use Open OnDemand's Desktop inte
 
    <img src="https://docs.ncsa.illinois.edu/systems/delta/en/latest/_images/desktop-connect.png" alt="running" width="300">
 
-## 2. Load VMD Module
- Open a terminal and run:
+## 2. Launch VMD
+
+Open a terminal and run:
 
 ```bash
-cd /projects/beyi/$USER/SummerSchool_2025/RDME/
+cd /projects/bgvl/SummerSchool_2026/RDME/
 bash launch_vmd.sh
 ```
 
-## 3. 
+## 3. Load the trajectory
 
-1. Load the `MinCell_1.lm` trajectory file
+Pre-computed spatial trajectories live in the shared workshop folder:
+
 ```bash
-# it should be saved under: 
-/projects/beyi/$USER/workshop_2025_RDME/trajectory/MinCell_1.lm
+/projects/bgvl/SummerSchool_2026/RDME/trajectory/MinCell_1.lm
+/projects/bgvl/SummerSchool_2026/RDME/trajectory/render.vmd
 ```
 
-2. Load the visualization state `render.vmd`
-```bash
-/projects/beyi/$USER/workshop_2025_RDME/trajectory/render.vmd
-```
-Explore the trajectory visualization as needed. 
+Explore the trajectory visualization as needed.
 
 ![cell_traj_snapshot](./figures/VMD_render.png)
 
->[!NOTE]
->We also prepared 3 more trajectories you can explore in the same directory.
+> [!NOTE]
+> Three additional trajectories (`MinCell_2.lm` – `MinCell_4.lm`) are in the same directory.

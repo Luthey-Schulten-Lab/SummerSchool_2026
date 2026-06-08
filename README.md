@@ -62,9 +62,9 @@ After logging in, the Gateway will ask you to choose compute resources before st
 
 Click **Start**. 
 
-Jobs may take a short time to queue before your session opens. Once the server is ready, clone the tutorial materials from the notebook that opens automatically.
+Jobs may take a short time to queue before your session opens. Once the server is ready, open the shared workshop folder from the notebook that starts automatically.
 
-**Step 4: Clone the tutorials**
+**Step 4: Open the workshop folder**
 
 When your Jupyter session starts, an **Untitled.ipynb** notebook will already be open in JupyterLab.
 
@@ -73,10 +73,13 @@ When your Jupyter session starts, an **Untitled.ipynb** notebook will already be
 In a **code cell**, run:
 
 ```python
-!git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
+%cd /projects/bgvl/SummerSchool_2026
 ```
 
-This creates `SummerSchool_2026/` with all module folders (`CME/`, `RDME/`, `DNA/`, `Martini/`). Use the Jupyter file browser to open notebooks from the module you are working on.
+All tutorials and data are in this shared folder — no cloning or copying required. Examples:
+
+- **CME / RDME:** open notebooks under `CME/` or `RDME/`
+- **Martini:** open notebooks under `Martini/tutorial_1/` (etc.)
 ### Useful Links
 0. [STC-QCB Official Website](https://qcb.illinois.edu/): Check out the QCB website for more events!  
 1. [Delta User Help Document](https://docs.ncsa.illinois.edu/systems/delta/en/latest/): We will use **Delta**, a high-performance computing cluster housed at the National Center for Supercomputing Applications (NCSA), UIUC, to conduct the computational tasks.  
