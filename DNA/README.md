@@ -130,12 +130,14 @@ Each participant runs **[`submit_simulation.ipynb`](submit_simulation.ipynb)** i
 Open the notebook from the Jupyter file browser and work through it top to bottom:
 
 1. **(Gateway)** Run sections 1–3 to copy the workshop template into `/projects/bgvl/$USER/DNA_SummerSchool_2026/`.
-2. **(Delta SSH login)** Submit the job with **Slurm**. The simulation must run inside the **`DNA_summer2025.sif`** Apptainer image, and Apptainer is not available inside the Gateway's Jupyter container — so submit from a Delta login node:
+2. **(Delta SSH login)** Submit the job with **Slurm**. The simulation must run inside the **`DNA_summer2025.sif`** Apptainer image, and Apptainer is not available inside the Gateway's Jupyter container — so submit from a Delta login node. **Pass your workspace path explicitly**, because your Gateway username (e.g. `alfiap-illinois`) differs from your Delta SSH login name:
    ```bash
-   ssh <your-username>@login.delta.ncsa.illinois.edu
-   sbatch /projects/bgvl/SummerSchool_2026/DNA/files/launch_simulation.sh
+   ssh <your-NCSA-username>@login.delta.ncsa.illinois.edu
+   sbatch --output=/projects/bgvl/<your-gateway-username>/DNA_SummerSchool_2026/DNA_tutorial.log \
+          /projects/bgvl/SummerSchool_2026/DNA/files/launch_simulation.sh \
+          /projects/bgvl/<your-gateway-username>/DNA_SummerSchool_2026
    ```
-   Section 4 of the notebook prints these exact commands for you (and submits automatically if `sbatch` ever becomes available in your session).
+   Section 4 of the notebook prints this command with **your** paths already filled in (and submits automatically if `sbatch` ever becomes available in your session).
 3. **(Gateway)** Run section 5 to **`tail`** the job log and monitor progress (~14 hours on an A100). Your bgvl folder is shared, so the log is visible from the Gateway even though the job runs on a compute node.
 4. Optionally use `squeue` / `scancel` (section 6) from a Delta login to check or cancel the job.
 
@@ -145,7 +147,7 @@ Open the notebook from the Jupyter file browser and work through it top to botto
 > [!NOTE]
 > Submit the job first so it can run while you read sections 6–11. Visualize the trajectory in section 12 once the job finishes.
 
-Output appears under `DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete). The Slurm job log is written to `/projects/bgvl/$USER/DNA_tutorial.log`.
+Output appears under `DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete). The Slurm job log is written to `DNA_SummerSchool_2026/DNA_tutorial.log` inside your workspace.
 
 ---
 
