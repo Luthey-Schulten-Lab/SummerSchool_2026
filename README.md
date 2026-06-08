@@ -66,14 +66,13 @@ Jobs may take a short time to queue before your session opens. Once the server i
 
 **Step 4: Clone the tutorials**
 
-When your Jupyter session starts, an **Untitled.ipynb** notebook will already be open in JupyterLab. You can also open it from the file browser on the left.
+When your Jupyter session starts, an **Untitled.ipynb** notebook will already be open in JupyterLab.
 
 <img src="./figs/jupyter_env.png" alt="JupyterLab environment with Untitled.ipynb" width="700">
 
 In a **code cell**, run:
 
 ```python
-%cd /projects/beyi/$USER
 !git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
 ```
 
