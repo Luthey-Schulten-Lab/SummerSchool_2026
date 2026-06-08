@@ -117,11 +117,11 @@ os.makedirs(f'/projects/bgvl/{os.environ["USER"]}/SummerSchool_2026/RDME/results
 
 ## 5. Get familiar with RDME — Tutorials 1 and 2
 
-Work through these notebooks **in order** before the 4DWCM analysis.
+Work through these notebooks **in order** before the 4DWCM analysis. After `%cd` to the workshop folder (§4), open the subfolders below in the **Jupyter file browser**.
 
 ### TutR1 — Bimolecular reactions in RDME
 
-Open **`/projects/bgvl/SummerSchool_2026/RDME/TutR1_Bimolecule/`** and run:
+In the Jupyter file browser, open **`/projects/bgvl/SummerSchool_2026/RDME/TutR1_Bimolecule/`** and run:
 
 | Order | Notebook | Description |
 | --- | --- | --- |
@@ -130,7 +130,7 @@ Open **`/projects/bgvl/SummerSchool_2026/RDME/TutR1_Bimolecule/`** and run:
 
 ### TutR2 — Genetic information processing in RDME
 
-Open **`/projects/bgvl/SummerSchool_2026/RDME/TutR2_GIP/`** and run:
+In the Jupyter file browser, open **`/projects/bgvl/SummerSchool_2026/RDME/TutR2_GIP/`** and run:
 
 | Notebook | Description |
 | --- | --- |
@@ -142,7 +142,7 @@ To run a cell, press **Shift+Enter** or **Ctrl+Enter**. To run the entire notebo
 
 ## 6. Analyze pre-computed 4DWCM trajectories
 
-Open [`4DWCM_analysis.ipynb`](4DWCM_analysis.ipynb) in **`/projects/bgvl/SummerSchool_2026/RDME/`** to explore ensemble averages from 50 pre-computed whole-cell trajectories. Sections 7–11 below walk through the key results shown in that notebook.
+In the Jupyter file browser, open [`4DWCM_analysis.ipynb`](4DWCM_analysis.ipynb) in **`/projects/bgvl/SummerSchool_2026/RDME/`** (navigate there with `%cd` as in §4) to explore ensemble averages from 50 pre-computed whole-cell trajectories. Sections 7–11 below walk through the key results shown in that notebook.
 
 For VMD visualization of spatial trajectories, see [vmd_guide.md](vmd_guide.md).
 
