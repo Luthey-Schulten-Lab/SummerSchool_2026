@@ -5,22 +5,212 @@
 
 We will walk you through how to set up and run a LAMMPS simulation using GPUs on the Delta HPC cluster. We will simulate the DNA dynamics of the Minimal Cell JCVI-syn3A, including DNA replication, disentanglement of daughter chromosomes, and partitioning of daughter chromosomes into their respective daughter volumes. The coarse-grained model of the DNA, ribosomes and cell membrane will be discussed, as well as the use of LAMMPS to perform energy minimizations and Brownian dynamics. We will also go into greater detail about how we model biological mechanisms such as topoisomerase-induced strand crossing and SMC looping. After the runs complete, you will get a chance to visualize your trajectory in VMD.
 
-*This tutorial was prepared for the second edition of the STC QCB Summer School, held July 21-25, 2025.*
+*This tutorial was prepared for the STC QCB Summer School 2026.*
 
 ## Outline of tutorial:
 
-1. Introduction to DNA simulation with LAMMPS
-2. **Setting up and submitting your job to Delta (do this on Monday)**
-3. Generating an initial structure
-4. Modeling DNA replication
-5. Modeling chromosome dynamics
-6. A closer look at SMC dynamics
-7. Understanding btree_chromo commands
-8. Visualization with VMD
+**Setup (do once in JupyterLab)**
 
-Most of the content of this tutorial, including the implementation of energy terms for the DNA polymer, DNA disentanglement, and general procedure for simulating Brownian dynamics and energy minimization with LAMMPS on a GPU, is also explained in our recent manuscript[^thornburg2025] which you can check out on bioRxiv. The content on SMC blocking/bypassing and daughter chromosome partitioning without the need for an additional fictitious force is a work in progress. 
+1. Set up the tutorial on QCB Delta Gateway
+2. Open the gateway in your browser
+3. Allocate compute resources on the Gateway
+4. Clone the repository and open the DNA module
+5. **Submit the full-cell simulation** — open [`submit_simulation.ipynb`](submit_simulation.ipynb) (do this on Monday)
 
-## 1. Introduction to DNA simulation with LAMMPS
+**Background and analysis**
+
+6. Introduction to DNA simulation with LAMMPS
+7. Generating an initial structure
+8. Modeling DNA replication
+9. Modeling chromosome dynamics
+10. A closer look at SMC dynamics
+11. Understanding btree_chromo commands
+12. Visualization with VMD
+
+> Open **[`submit_simulation.ipynb`](submit_simulation.ipynb)** in the Jupyter file browser and run all cells (**Run → Run All Cells**), or follow the code blocks in section 5 below.
+
+Most of the content of this tutorial, including the implementation of energy terms for the DNA polymer, DNA disentanglement, and general procedure for simulating Brownian dynamics and energy minimization with LAMMPS on a GPU, is also explained in our recent manuscript[^thornburg2025] which you can check out on bioRxiv. The content on SMC blocking/bypassing and daughter chromosome partitioning without the need for an additional fictitious force is a work in progress.
+
+## 1. Set up the tutorial on QCB Delta Gateway
+
+> You are in the **DNA** module. Complete steps 1–5 below once to set up the Gateway and submit your simulation, then work through sections 6–12 for background and analysis.
+
+See the [Getting Started: QCB Delta Gateway](../README.md#getting-started-qcb-delta-gateway) section in the top-level README for full instructions. In short:
+
+Open a terminal on your laptop and run the following command. Replace `USERNAME` with your NCSA username:
+
+```bash
+ssh -L 8000:dt-svc-bbkw01.hsn.cm.delta.internal.ncsa.edu:8000 USERNAME@login.delta.ncsa.illinois.edu
+```
+
+You will be prompted for your **NCSA password** and **two-factor authentication (2FA)**. Once you're in, **leave the terminal open** — closing it tears down the tunnel.
+
+## 2. Open the gateway in your browser
+
+Once the SSH tunnel is up, open this URL in any browser on your laptop:
+
+```
+https://dt-svc-bbkw01.delta.ncsa.illinois.edu:8000/hub/org/
+```
+
+Click on the **QCB Gateway** tab. You should see the **JupyterHub login page** for the QCB Delta Gateway.
+
+<img src="../figs/QCB_Gateway_homepage.png" alt="QCB Gateway homepage" width="700">
+
+Click **CI Logon** and sign in with your NCSA Delta credentials.
+
+<img src="../figs/QCB_Gateway_Login.png" alt="QCB Gateway CI Logon page" width="700">
+
+> [!NOTE]
+> If your Gateway account is not approved, please ask the admin, Alfia Parvez, at alfiap@illinois.edu to approve it first.
+
+After logging in, choose compute resources before your Jupyter session starts (see **Step 3** below).
+
+## 3. Allocate compute resources on the Gateway
+
+After logging in, choose the following settings on the resource allocation form (see [Step 3 in the top-level README](../README.md#getting-started-qcb-delta-gateway) for all screenshots):
+
+| Setting | Value |
+| --- | --- |
+| **Allocation** | **A100 GPU - up to 8 (bgvl-delta-gpu)** — **Batch** (non-interactive) |
+| **Number of CPUs** | **8** |
+| **GPU Environment** | **4DCell (LAMMPS/LM)** |
+| **Number of GPUs** | **1** |
+| **Memory** | **64 GB** |
+| **Time limit** | **4 hours** |
+
+<img src="../figs/Resource_Allocation.png" alt="QCB Gateway resource allocation form" width="700">
+
+Click **Start** and wait for your session to launch.
+
+## 4. Clone the repository and open the DNA module
+
+When your Jupyter session starts, an **Untitled.ipynb** notebook will already be open in JupyterLab.
+
+<img src="../figs/jupyter_env.png" alt="JupyterLab environment with Untitled.ipynb" width="700">
+
+In a **code cell**, clone the repository (skip if you already have it) and open the DNA folder:
+
+```python
+import os
+
+if not os.path.isdir("SummerSchool_2026"):
+    !git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
+
+%cd SummerSchool_2026/DNA
+print(os.getcwd())
+```
+
+In the Jupyter file browser, open **`SummerSchool_2026/DNA/`**. You should see:
+
+```
+SummerSchool_2026/DNA/
+├── README.md                  # background and VMD instructions
+├── submit_simulation.ipynb    # start here — submit the GPU job (§5)
+├── files/
+│   ├── launch_simulation.sh
+│   ├── prelaunch_dna_workshop.sh
+│   ├── DNA_SummerSchool_2026/   # workshop template (copied to your bgvl dir)
+│   └── examples/                # shorter btree_chromo demos
+└── figures/
+```
+
+The ~4 GB Apptainer image is **not** in git. On Delta it lives at:
+
+```
+/projects/bgvl/SummerSchool_2026/DNA/files/DNA_summer2025.sif
+```
+
+Your personal simulation output will be written under `/projects/bgvl/$USER/DNA_SummerSchool_2026/`.
+
+## 5. Submit the full-cell simulation (do this on Monday)
+
+Open **[`submit_simulation.ipynb`](submit_simulation.ipynb)** from the Jupyter file browser under **`SummerSchool_2026/DNA/`** and run all cells. The notebook copies the workshop template to your bgvl directory and submits the GPU job.
+
+The simulation takes about **14 hours** on an A100 GPU, so start it early in the week.
+
+> [!NOTE]
+> Submit the job first so it can run while you read sections 6–11. Visualize the trajectory in section 12 once the job finishes.
+
+Run the cells below **in order** in a Jupyter **code cell**.
+
+**Step 1: Copy the workshop template to your bgvl directory**
+
+Run this from your cloned `SummerSchool_2026/DNA/` folder (after `%cd SummerSchool_2026/DNA` above):
+
+```python
+!bash files/prelaunch_dna_workshop.sh
+```
+
+This copies `launch_simulation.sh` and `DNA_SummerSchool_2026/` from **`files/` in the repo** into `/projects/bgvl/$USER/`.
+
+**Step 2: Check your workspace**
+
+```python
+import os
+
+work_dir = f"/projects/bgvl/{os.environ['USER']}"
+os.chdir(work_dir)
+print("Working directory:", os.getcwd())
+!ls -la
+!ls DNA_SummerSchool_2026/scripts/
+```
+
+You should see:
+
+```
+/projects/bgvl/$USER/
+├── launch_simulation.sh
+└── DNA_SummerSchool_2026/
+    ├── data/
+    │   ├── coords/
+    │   ├── loops/
+    │   └── rep_states/
+    └── scripts/
+        ├── run_btree_chromo.py
+        ├── template.inp
+        ├── run_sc_chain_generation.sh
+        ├── Syn3A_chromosome_init.inp
+        └── BD_lengths.txt
+```
+
+**Step 3: Submit the Slurm job**
+
+```python
+!sbatch launch_simulation.sh
+```
+
+The job uses allocation **`bgvl-delta-gpu`**. Output will appear under `DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete).
+
+> [!NOTE]
+> The Apptainer image `DNA_summer2025.sif` is stored at `/projects/bgvl/SummerSchool_2026/DNA/files/` (not in git because of its size).
+
+**Step 4: Monitor progress**
+
+```python
+!squeue -u $USER
+```
+
+To tail the job log:
+
+```python
+!tail -30 /projects/bgvl/$USER/DNA_tutorial.log
+```
+
+To check whether the trajectory file exists after the job finishes:
+
+```python
+import os
+
+traj = f"/projects/bgvl/{os.environ['USER']}/DNA_SummerSchool_2026/data/summerschool.lammpstrj"
+print("Trajectory ready:", os.path.exists(traj), "→", traj)
+```
+
+`sbatch` prints your **job ID** when the job is queued. Use `squeue` to see partition, node, and runtime.
+
+---
+
+## 6. Introduction to DNA simulation with LAMMPS
 
 Here, we simulate DNA replication and dynamics using [LAMMPS](https://www.lammps.org/#gsc.tab=0) (Large-scale Atomic/Molecular Massively Parallel Simulator), a molecular dynamics program from Sandia National Laboratories. We will not have to worry about writing our own LAMMPS input scripts. Instead, we will be running the C++ program `btree_chromo`, available online at https://github.com/Luthey-Schulten-Lab/btree_chromo_gpu/tree/btree_chromo_gpu_SummerSchool2025. This program was created mainly for the purposes of simulating the minimal cell chromosome, but it can be used to simulate any circular chromosome. The main purpose of the program is to model replication states of the chromosome, as well as perform simulation of chromosome dynamics by calling LAMMPS. 
 
@@ -34,72 +224,7 @@ At the core of the simulation we use LAMMPS for simulating the DNA dynamics, but
 
 At one level even deeper, LAMMPS uses Kokkos, a library that lets the same LAMMPS code run efficiently on different types of hardware, like AMD and NVIDIA GPUs. In our case, Kokkos lets us perform the force calculations for the energy minimizations and Brownian dynamics on the GPU. Running on the GPU is around an order of magnitude faster than running on the CPU, and some GPUs can be much faster than others - for example, the A100 GPUs on Delta are around 2.5 times as fast as the RTX A5000 GPUs on my office desktop computer.
 
-## 2. Setting up submitting your job to Delta
-In this section, we will log on to Delta and launch a container which has btree_chromo and LAMMPS already installed. Then, we will start running a simulation of the minimal cell chromosome. 
-
-> [!NOTE]
-The reason we are doing this first, is so that the simulation will be left running throughout the rest of day and tomorrow morning. The simulations take around 14 hours to run, even using the A100 GPUs on Delta which are very fast. Tomorrow morning/afternoon we can visualize the results of our simulations.
-> 
-
-**Step 1: Log in to Delta**
-
-Connect to the Delta HPC using the following command. You will need to type your password and do 2FA.
-
-```bash
-ssh $USERNAME@login.delta.ncsa.illinois.edu
-```
-
-> [!WARNING]
-You will need to replace $USERNAME with your own.
-> 
-
-**Step 2: Copy the workspace folder and the launch scripts**
-
-```bash
-bash /projects/beyi/prelaunch_btree_chromo.sh
-
-```
-
-This bash script copies all the necessary files into your personal directory, `/projects/beyi/$USERNAME`.
-
-**Step 3: Run the simulation**
-
-We will run our btree_chromo simulation via a bash script that submits a job to Delta.
-
-You will obtain output in the folder `/projects/beyi/${USER}/DNA_SummerSchool_2025`.
-
-```bash
-/projects/beyi/$USERNAME/
-├── launch_simulation.sh
-└── DNA_SummerSchool_2025/
-    ├── data/
-    │   ├── coords/
-    │   ├── loops/
-    │   ├── rep_states/
-    │   └── run_name.lammpstrj  # etc.
-    ├── scripts/
-    │   ├── run_btree_chromo.py
-    │   ├── template.inp
-    │   ├── run_sc_chain_generation.sh 
-    │   ├── Syn3A_chromosome_init.inp
-    │   └── BD_lengths.txt
-```
-
-Run the command
-```bash
-cd /projects/beyi/${USER}/
-sbatch launch_simulation.sh
-```
-
-If you would like to monitor the progress of your job, you can do the command
-
-```bash
-squeue -u ${USER}
-```
-which will show you your jobid, how long the job has been running, as well as what partition and GPU node it is running on.
-
-
-## 3. Generating an initial structure 
+## 7. Generating an initial structure
 
 At the start of every simulation, we need initial configuration, i.e. coordinates for the DNA, ribosomes, and cell membrane. Initial configurations for the chromosome are generated using a midpoint-displacement algorithm that creates three-dimensional, closed curves formed from overlapping spherocylinder segments. We assume a spherical cell with a known ribosome distribution (nearly randomly distributed, according to Cryo-ET), and "grow in" a self-avoiding chain of these spherocylinders. This process involves adding segments iteratively while avoiding overlaps with ribosomes and preventing knots. Spherical monomers are then interpolated along the spherocylinders. This method accurately models the "fractal globule" chromosome configuration present in Syn3A cells.
 
@@ -109,7 +234,7 @@ See the figure below for  a schematic of algorithm used to generate initial cond
 
 The very first thing that the job we submitted to Delta does is to generate initial configurations (i.e. coordinates) for the DNA and ribosomes using the program `sc_chain_generation` which was written by a previous graduate student Ben Gilbert. The code is available at [github.com/brg4/sc_chain_generation](https://github.com/brg4/sc_chain_generation). If one would like to generate coordinates for DNA, as well as ribosomes, for some other purpose, one should download, compile and run `sc_chain_generation` from the github link above. One can specify the number of ribosomes easily: just vary the number of obstacles `N_o` in the input script (`.inp` file) for `sc_chain_generation`. There are also parameters for sphere diameter, chromosome length, etc. The program `sc_chain_generation` can output the coordinates in either a `.bin`, `.dat`, or `.xyz` file format, the first of which is meant to be read by btree_chromo, and the last of which is human readable and easily read by VMD. To run an input file, you do  `/path/to/sc_chain_generation/src/gen_sc_chain --i_f=${input_fname} --o_d=${outputDirectory} --o_l=Syn3A_chromosome_init --s=10 --l=${log_fname} --n_t=8 --bin --xyz`.
 
-## 4. Modeling DNA replication
+## 8. Modeling DNA replication
 
 The JCVI-syn3A minimal cell has a 543379 bp (543 kbp) genome comprised of 493 genes. This means an unreplicated chromosome is represented as a circular polymer of 54338 beads. Replication begins at a location on the genome called the origin (_Ori_), proceeds along the DNA in the clockwise and counterclockwise directions with Y-shaped structures (Fork), and ends at the terminal site, also called the terminus (_Ter_).  It turns out the replication states of the minimal cell aren't that interesting: it undergoes one replication initiation event per cell cycle, which means it starts with one unreplicated circular chromosome, and replication proceeds from _Ori_ to _Ter_ until we have two complete circular chromosomes.
 
@@ -127,7 +252,7 @@ For our simulations, we implement the "train-track" model of bacterial DNA repli
 
 In our simulations, we update the replication state every 2 seconds of biological time. We assume the maximum replication rate of 100 bp/s for each of the replication forks, which means the replication forks each move 20 beads every time we update the replication state until they hit the Ter.
 
-## 5. Modeling chromosome dynamics
+## 9. Modeling chromosome dynamics
 
 ### Energy of the system
 
@@ -212,7 +337,7 @@ We don't have a great way of keeping track of strand crossings, but they usually
 
 <img align="center" width=250 src="./figures/4. Modeling chromosome dynamics/topo2.png">
 
-## 6. A closer look at SMC dynamics
+## 10. A closer look at SMC dynamics
 
 Consider the following toy example. Suppose we have five SMC’s that load uniformly on a segment of DNA. The SMCs will bind to the DNA and start to form loops, and as they do they will bridge progressively distant genomic sites. 
 
@@ -249,9 +374,18 @@ In the movie below, I took a chromosome state which is about 2/3 of the way repl
 
 https://github.com/user-attachments/assets/8387c708-43c8-486a-8082-b665156d4bbf
 
-## 7. Understanding btree_chromo Commands
+## 11. Understanding btree_chromo Commands
 
-On Delta, you can `vim /projects/beyi/${USER}/DNA_SummerSchool_2025/scripts/template.inp` to see the template for the input scripts we run with `btree_chromo`. The most important lines are:
+Open the input template from your Jupyter session:
+
+```python
+import os
+
+template = f"/projects/bgvl/{os.environ['USER']}/DNA_SummerSchool_2026/scripts/template.inp"
+!head -40 {template}
+```
+
+Or edit it on Delta with `vim` if you prefer. The most important lines are:
 
 ```bash
 # run for 12 seconds of bio time (6 batches of 2 seconds) with dynamics
@@ -292,9 +426,9 @@ The `repeat` commands are exactly like for loops. Each iteration represents 2 se
 
 The command `simulator_form_loops:F` reads in the loop state from `btree_chromo` into the LAMMPS simulation object. The command `simulator_minimize_topoDNA_harmonic:1000` runs a minimization with strand crossing permitted, `simulator_set_delta_t:2.5E+7` sets the timestep to 25 ns, and `{run_dynamics}` runs Brownian dynamics with strand crossings forbidden.
 
-## 8. Visualization with VMD
+## 12. Visualization with VMD
 
-Here we follow the [VMD Guide by Tianyu](../RDME/vmd_guide.md) copied below for convenience with some small modifications.
+Section 12 uses the **Open OnDemand Desktop** (graphical session), not Jupyter. Follow the [VMD Guide by Tianyu](../RDME/vmd_guide.md) with the DNA-specific paths below.
 
 ### 1. Initialize the OOD Interactive Session
 1. Navigate to the [Open OnDemand dashboard](https://openondemand.delta.ncsa.illinois.edu/pun/sys/dashboard).
@@ -305,7 +439,7 @@ Here we follow the [VMD Guide by Tianyu](../RDME/vmd_guide.md) copied below for 
 
 4. Configure the job settings and click Launch:
    - Container image: keep default
-   - Account: `beyi-delta-gpu`
+   - Account: `bgvl-delta-gpu`
    - Partition: `cpu-interactive`
    - Duration: `00-00:30:00`
    - Reservation: leave empty if none
@@ -321,32 +455,19 @@ Here we follow the [VMD Guide by Tianyu](../RDME/vmd_guide.md) copied below for 
 
    <img src="https://docs.ncsa.illinois.edu/systems/delta/en/latest/_images/desktop-connect.png" alt="running" width="300">
 
-### 2. Preprocess Trajectory and Load VMD Module
- Open a terminal and run:
+### 2. Preprocess trajectory and load VMD
+
+In the **OOD Desktop terminal** (not Jupyter), run:
 
 ```bash
-cd /projects/beyi/$USER/DNA_SummerSchool_2025/data/
-```
-
-Preprocess the trajectory by doing
-```bash
+cd /projects/bgvl/$USER/DNA_SummerSchool_2026/data/
 python3 modify_lammpstrj.py
-```
-
-This allows the DNA for the left and right daughters and mother to be colored differently. It should take ~3 minutes to run.
-
-Update the load_btree_chromo.tcl file by copying it from my directory (I made some changes to it from yesterday because it turns out Delta doesn't allow GPU accelerated rendering :-()
-```bash
-cp /projects/beyi/amaytin/DNA_SummerSchool_2025/data/load_btree_chromo.tcl .
-```
-
-Next, load and open vmd by doing:
-
-
-```bash
+cp /projects/bgvl/SummerSchool_2026/DNA/files/load_btree_chromo.tcl .
 module load vmd
 vmd
 ```
+
+`modify_lammpstrj.py` colors left, right, and mother DNA differently (~3 minutes). `load_btree_chromo.tcl` sets up the VMD representation.
 
 ### 3. Load the LAMMPS trajectory file
    In the VMD "Main" window, click on "Extensions" and then "TkConsole". In the "TkConsole" window, do 

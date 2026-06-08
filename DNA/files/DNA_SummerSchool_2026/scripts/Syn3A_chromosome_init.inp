@@ -1,0 +1,55 @@
+#####################
+# program execution #
+#####################
+# flag for serial vs. parallel execution
+run = 2
+# range of replicate systems to be generated
+min_rep = 1
+max_rep = 1
+# RNG seed
+seed = 20
+
+################################
+# Lengths (units of Angstroms) #
+################################
+# DNA monomer radius
+r = 1.7E+1
+# spherocylinder radius
+r_sc = 1.7E+1
+# radius of ribosome
+R_o = 1.0E+2
+# radius of cell (boundary)
+R_b = 1.95e+03
+
+###########################
+# flags for configuration #
+###########################
+# flag for cyclic shifts
+cyclic_shift = 0
+# flag to test for the introduction of knots
+knot_prevent = 0
+
+########################
+# obstacle information #
+########################
+# N_o, number of spherical obstacles
+N_o = 500
+
+# optional user-provided coordinates of spherical obstacles.
+# this is where you would plug in known coordinates of ribosomes
+obstacle_file = null
+
+#####################
+# chain information #
+#####################
+# N_chains, number of chains to generate simultaneously
+N_chains = 1
+
+# N_stages, number of stages in growth
+# below are the stages (length of segment in beads, number of segments)
+# length * number_of_segments = "size" of chromo at that step (in number of beads)
+N_stages = 4
+12,2000
+6,8000
+3,18000
+1,54338
