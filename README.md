@@ -36,11 +36,11 @@ https://dt-svc-bbkw01.delta.ncsa.illinois.edu:8000/hub/org/
 
 Click on the **QCB Gateway** tab. You should see the **JupyterHub login page** for the QCB Delta Gateway.
 
-<img src="./figs/QCB_Gateway_homepage.png" alt="QCB Gateway homepage" width="700">
+<img src="./figs/QCB_Gateway_Login.png" alt="QCB Gateway homepage" width="700">
 
 Click **CI Logon** and sign in with your NCSA Delta credentials.
 
-<img src="./figs/QCB_Gateway_Login.png" alt="QCB Gateway CI Logon page" width="700">
+<img src="./figs/QCB_Gateway_homepage.png" alt="QCB Gateway CI Logon page" width="700">
 
 > [!NOTE]
 > If your Gateway account is not approved, please ask the admin, Alfia Parvez, at alfiap@illinois.edu to approve it first.
@@ -60,10 +60,24 @@ After logging in, the Gateway will ask you to choose compute resources before st
 
 <img src="./figs/Resource_Allocation.png" alt="QCB Gateway resource allocation form" width="700">
 
-Click **Start**. Batch jobs may take a short time to queue before your session opens. Once the server is ready, use the Jupyter file browser to navigate to the tutorial folder for your module (for example, `SummerSchool_2026/CME/bimolecule/` or `SummerSchool_2026/RDME/TutR1_Bimolecule/`).
+Click **Start**. 
 
-> [!NOTE]
-> Batch (non-interactive) sessions can run up to 48 hours, but **3 hours** is enough for the CME and RDME notebook tutorials.
+Jobs may take a short time to queue before your session opens. Once the server is ready, clone the tutorial materials from the notebook that opens automatically.
+
+**Step 4: Clone the tutorials**
+
+When your Jupyter session starts, an **Untitled.ipynb** notebook will already be open in JupyterLab. You can also open it from the file browser on the left.
+
+<img src="./figs/jupyter_env.png" alt="JupyterLab environment with Untitled.ipynb" width="700">
+
+In a **code cell**, run:
+
+```python
+%cd /projects/beyi/$USER
+!git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
+```
+
+This creates `SummerSchool_2026/` with all module folders (`CME/`, `RDME/`, `DNA/`, `Martini/`). Use the Jupyter file browser to open notebooks from the module you are working on — for example, `SummerSchool_2026/CME/bimolecule/` or `SummerSchool_2026/RDME/TutR1_Bimolecule/`.
 
 ### Useful Links
 0. [STC-QCB Official Website](https://qcb.illinois.edu/): Check out the QCB website for more events!  

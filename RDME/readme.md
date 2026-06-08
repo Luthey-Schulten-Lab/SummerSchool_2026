@@ -26,9 +26,10 @@ First, we need to get the data from this github repository:
 > Don't forget to login to Delta first!
 
 ```bash
-git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2025.git
+cd /projects/beyi/$USER
+git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
 
-cd ./SummerSchool_2025/RDME/
+cd ./SummerSchool_2026/RDME/
 ```
 
 Since the computational cost of running the whole cell model is very high, we won't actually run the RDME hybrid 4DWCM live. Instead, I will briefly introduce the logic of the 4DWCM and analyze 50 trajectories as averages stored in Zenodo.
@@ -57,7 +58,14 @@ Then launch **Jupyter Notebook** through the QCB Delta Gateway (same setup as th
 
 3. On the resource allocation form, choose **A100 GPU - up to 8 (bgvl-delta-gpu)** under **Batch** (non-interactive), then set **8 CPUs**, **1 GPU**, **64 GB** memory, **4DCell (LAMMPS/LM)** environment, and a **3 hour** time limit. See [Step 3](../README.md#getting-started-qcb-delta-gateway) in the top-level README for screenshots. Click **Start** and wait for your session to launch.
 
-4. Navigate to the RDME tutorial folder (for example, `SummerSchool_2026/RDME/TutR1_Bimolecule/`) and open the notebook you want to run.
+4. In the **Untitled.ipynb** notebook that opens with your session, run this in a code cell (see [Step 4](../README.md#getting-started-qcb-delta-gateway) in the top-level README):
+
+   ```python
+   %cd /projects/beyi/$USER
+   !git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
+   ```
+
+5. Navigate to the RDME tutorial folder (for example, `SummerSchool_2026/RDME/TutR1_Bimolecule/`) and open the notebook you want to run.
 
 > [!NOTE]
 > If your Gateway account is not approved, please ask the admin, Alfia Parvez, at alfiap@illinois.edu to approve it first.

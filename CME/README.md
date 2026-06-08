@@ -13,10 +13,11 @@ In ***Coupled Genetic Information Processes and Metabolism in the Minimal Cell**
 1. Set Up the tutorial on QCB Delta Gateway
 2. Open the gateway in your browser
 3. Allocate compute resources on the Gateway
-4. Introduction to Lattice Microbe, a GPU-Accelerated Stochastic Simulation Platform  
-5. Tutorial: Bimolecular Reaction Solved Stochastically in CME  
-6. Tutorial: Stochastic Genetic Information Processes in CME  
-7. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A  
+4. Clone the tutorial repository
+5. Introduction to Lattice Microbe, a GPU-Accelerated Stochastic Simulation Platform  
+6. Tutorial: Bimolecular Reaction Solved Stochastically in CME  
+7. Tutorial: Stochastic Genetic Information Processes in CME  
+8. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A  
 
 ## 1. Set up the tutorial on QCB Delta Gateway
 
@@ -60,21 +61,36 @@ After logging in, choose the following settings on the resource allocation form 
 
 <img src="../figs/Resource_Allocation.png" alt="QCB Gateway resource allocation form" width="700">
 
-Click **Start** and wait for your session to launch. Then navigate to the CME tutorial folder in the Jupyter file browser and open the notebook for the section you are working on.
+Click **Start** and wait for your session to launch.
 
-## 4. Introduction to Lattice Microbe and Stochastic Simulation
+## 4. Clone the tutorial repository
+
+When your Jupyter session starts, an **Untitled.ipynb** notebook will already be open in JupyterLab (see screenshot below).
+
+<img src="../figs/jupyter_env.png" alt="JupyterLab environment with Untitled.ipynb" width="700">
+
+In a **code cell**, run:
+
+```python
+%cd /projects/beyi/$USER
+!git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
+```
+
+See [Step 4 in the top-level README](../README.md#getting-started-qcb-delta-gateway) for details. Then navigate to the CME tutorial folder in the Jupyter file browser and open the notebook for the section you are working on.
+
+## 5. Introduction to Lattice Microbe and Stochastic Simulation
 
 **Go to [Introduction](introduction/)**
 
-## 5. Tutorial: Bimolecular Reaction Solved in ODE and CME
+## 6. Tutorial: Bimolecular Reaction Solved in ODE and CME
 
 **Go to [bimolecule](bimolecule/)**
 
-## 6. Tutorial: Genetic Information Processs in CME
+## 7. Tutorial: Genetic Information Processs in CME
 
 **Go to [Genetic Information Processes](GIP/)**
 
-## 7. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A
+## 8. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A
 
 **Go to [CME-ODE WCM of Syn3A](WCM/)**
 
