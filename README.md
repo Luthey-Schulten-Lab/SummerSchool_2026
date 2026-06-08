@@ -1,4 +1,4 @@
-# <img src="./figs/STC_logo.png" alt="STC-QCB logo" height="65"> STC-QCB Summer School 2025: Modeling the Minimal Bacterial Cell JCVI-Syn3A
+# <img src="./figs/STC_logo.png" alt="STC-QCB logo" height="65"> STC-QCB Summer School 2026: Modeling the Minimal Bacterial Cell JCVI-Syn3A
 
 **Welcome to the STC-QCB Summer School 2026!**
 
@@ -10,7 +10,60 @@ In this computational study of the genetically minimized bacterium, JCVI-Syn3A, 
 
 1. Simulate the chromosome dynamics of Syn3A using LAMMPS  
 2. Simulate coupled gene expression and metabolism of Syn3A with a spatially homogeneous whole-cell model (WCM) implemented by [**Lattice Microbe**](https://github.com/Luthey-Schulten-Lab/Lattice_Microbes)  
-3. Analyze spatially heterogeneous trajectories from the 4DWCM (3D in space plus time) of Syn3A  
+3. Analyze spatially heterogeneous trajectories from the 4DWCM (3D in space plus time) of Syn3A 
+
+### Getting Started: QCB Delta Gateway
+
+The CME and RDME Jupyter tutorials run through the **QCB Delta Gateway** — a JupyterHub front-end on Delta. Set it up once, then open notebooks from any module.
+
+**Step 1: Open an SSH tunnel**
+
+Open a terminal on your laptop and run the following command. Replace `USERNAME` with your NCSA username:
+
+```bash
+ssh -L 8000:dt-svc-bbkw01.hsn.cm.delta.internal.ncsa.edu:8000 USERNAME@login.delta.ncsa.illinois.edu
+```
+
+You will be prompted for your **NCSA password** and **two-factor authentication (2FA)**. Once you're in, **leave the terminal open** — closing it tears down the tunnel.
+
+**Step 2: Open the gateway in your browser**
+
+Once the SSH tunnel is up, open this URL in any browser on your laptop:
+
+```
+https://dt-svc-bbkw01.delta.ncsa.illinois.edu:8000/hub/org/
+```
+
+Click on the **QCB Gateway** tab. You should see the **JupyterHub login page** for the QCB Delta Gateway.
+
+<img src="./figs/QCB_Gateway_homepage.png" alt="QCB Gateway homepage" width="700">
+
+Click **CI Logon** and sign in with your NCSA Delta credentials.
+
+<img src="./figs/QCB_Gateway_Login.png" alt="QCB Gateway CI Logon page" width="700">
+
+> [!NOTE]
+> If your Gateway account is not approved, please ask the admin, Alfia Parvez, at alfiap@illinois.edu to approve it first.
+
+**Step 3: Allocate resources**
+
+After logging in, the Gateway will ask you to choose compute resources before starting your Jupyter session. Use the settings below:
+
+| Setting | Value |
+| --- | --- |
+| **Allocation** | **A100 GPU - up to 8 (bgvl-delta-gpu)** — choose the **Batch** (non-interactive) option, not Interactive |
+| **Number of CPUs** | **8** |
+| **GPU Environment** | **4DCell (LAMMPS/LM)** |
+| **Number of GPUs** | **1** |
+| **Memory** | **64 GB** |
+| **Time limit** | **3 hours** |
+
+<img src="./figs/Resource_Allocation.png" alt="QCB Gateway resource allocation form" width="700">
+
+Click **Start**. Batch jobs may take a short time to queue before your session opens. Once the server is ready, use the Jupyter file browser to navigate to the tutorial folder for your module (for example, `SummerSchool_2026/CME/bimolecule/` or `SummerSchool_2026/RDME/TutR1_Bimolecule/`).
+
+> [!NOTE]
+> Batch (non-interactive) sessions can run up to 48 hours, but **3 hours** is enough for the CME and RDME notebook tutorials.
 
 ### Useful Links
 0. [STC-QCB Official Website](https://qcb.illinois.edu/): Check out the QCB website for more events!  

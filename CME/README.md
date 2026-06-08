@@ -12,14 +12,15 @@ In ***Coupled Genetic Information Processes and Metabolism in the Minimal Cell**
 
 1. Set Up the tutorial on QCB Delta Gateway
 2. Open the gateway in your browser
-3. Introduction to Lattice Microbe, a GPU-Accelerated Stochastic Simulation Platform  
-4. Tutorial: Bimolecular Reaction Solved Stochastically in CME  
-5. Tutorial: Stochastic Genetic Information Processes in CME  
-6. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A  
+3. Allocate compute resources on the Gateway
+4. Introduction to Lattice Microbe, a GPU-Accelerated Stochastic Simulation Platform  
+5. Tutorial: Bimolecular Reaction Solved Stochastically in CME  
+6. Tutorial: Stochastic Genetic Information Processes in CME  
+7. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A  
 
 ## 1. Set up the tutorial on QCB Delta Gateway
 
-### 1. SSH into Delta
+See the [Getting Started: QCB Delta Gateway](../README.md#getting-started-qcb-delta-gateway) section in the top-level README for full instructions. In short:
 
 Open a terminal on your laptop and run the following command. Replace USERNAME with your NCSA username:
 
@@ -29,7 +30,7 @@ ssh -L 8000:dt-svc-bbkw01.hsn.cm.delta.internal.ncsa.edu:8000 USERNAME@login.del
 
 You will be prompted for your **NCSA password** and **two-factor authentication (2FA)**. Once you’re in, **leave the terminal open** — closing it tears down the tunnel.
 
-### 2. Open the gateway in your browser
+## 2. Open the gateway in your browser
 
 Once the SSH tunnel is up, open this URL in any browser on your laptop:
 
@@ -42,19 +43,38 @@ Click on the QCB Gateway tab. You should see the **JupyterHub login page** for t
 > [!NOTE]
 > If your Gateway account is not approved, please ask the admin, Alfia Parvez, at alfiap@illinois.edu to approve it first.
 
-## 3. Introduction to Lattice Microbe and Stochastic Simulation
+After logging in, choose compute resources before your Jupyter session starts (see **Step 3** below).
+
+## 3. Allocate compute resources on the Gateway
+
+After logging in, choose the following settings on the resource allocation form (see [Step 3 in the top-level README](../README.md#getting-started-qcb-delta-gateway) for all screenshots):
+
+| Setting | Value |
+| --- | --- |
+| **Allocation** | **A100 GPU - up to 8 (bgvl-delta-gpu)** — **Batch** (non-interactive) |
+| **Number of CPUs** | **8** |
+| **GPU Environment** | **4DCell (LAMMPS/LM)** |
+| **Number of GPUs** | **1** |
+| **Memory** | **64 GB** |
+| **Time limit** | **3 hours** |
+
+<img src="../figs/Resource_Allocation.png" alt="QCB Gateway resource allocation form" width="700">
+
+Click **Start** and wait for your session to launch. Then navigate to the CME tutorial folder in the Jupyter file browser and open the notebook for the section you are working on.
+
+## 4. Introduction to Lattice Microbe and Stochastic Simulation
 
 **Go to [Introduction](introduction/)**
 
-## 4. Tutorial: Bimolecular Reaction Solved in ODE and CME
+## 5. Tutorial: Bimolecular Reaction Solved in ODE and CME
 
 **Go to [bimolecule](bimolecule/)**
 
-## 5. Tutorial: Genetic Information Processs in CME
+## 6. Tutorial: Genetic Information Processs in CME
 
 **Go to [Genetic Information Processes](GIP/)**
 
-## 6. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A
+## 7. Tutorial: CME-ODE Whole-Cell Model of a Genetically Minimal Cell, JCVI-Syn3A
 
 **Go to [CME-ODE WCM of Syn3A](WCM/)**
 

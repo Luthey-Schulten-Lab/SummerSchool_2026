@@ -43,55 +43,25 @@ If it works properly, you should find two directories created: `data` and `traje
 
 ---
 
-Then we launch the server for **jupyter notebook** (This is the same process as CME part): 
+Then launch **Jupyter Notebook** through the QCB Delta Gateway (same setup as the CME tutorials). Follow the [Getting Started: QCB Delta Gateway](../README.md#getting-started-qcb-delta-gateway) instructions in the top-level README:
 
+1. Open an SSH tunnel from your laptop:
 
-- **First**: Submit a job to a Delta GPU node.  
-    Here `srun` launches interactive job onto Delta, `partition` claims A100 GPU node, and for four hours `time`. A four digit number is randomly generated to specify the `port` for Jupyter Notebook. 
-
-  ```bash
-  srun --account=beyi-delta-gpu --partition=gpuA100x4 --time=04:00:00 --mem=64g --gpus-per-node=1 --tasks-per-node=1 --cpus-per-task=16 --nodes=1 apptainer exec --nv --containall --bind  /projects/beyi/$USER/:/workspace /projects/beyi/$USER/CME/summer2025.sif bash -c "source /root/miniconda3/etc/profile.d/conda.sh && conda activate lm_2.5_dev && jupyter notebook /workspace/ --no-browser --port=$((RANDOM%9000+1000)) --ip=0.0.0.0 --allow-root"
+   ```bash
+   ssh -L 8000:dt-svc-bbkw01.hsn.cm.delta.internal.ncsa.edu:8000 USERNAME@login.delta.ncsa.illinois.edu
    ```
 
-Then you should wait for Delta to allocate the resources for your request, which usually takes less than 1 minute. When you see similar things as the following, you are good to proceed to the second step.
+   Replace `USERNAME` with your NCSA username. Leave the terminal open while you work.
 
-  ```bash
-  srun: job 3546627 queued and waiting for resources
-  srun: job 3546627 has been allocated resources
-  WARNING: could not mount /etc/localtime: not a directory
-  [I 19:07:57.203 NotebookApp] Writing notebook server cookie secret to /u/$USER/.local/share/jupyter/runtime/notebook_cookie_secret
-  [I 19:07:58.314 NotebookApp] [jupyter_nbextensions_configurator] enabled 0.6.3
-  [I 19:07:58.316 NotebookApp] Serving notebooks from local directory: /workspace
-  [I 19:07:58.316 NotebookApp] Jupyter Notebook 6.4.12 is running at:
-  [I 19:07:58.316 NotebookApp] http://`DeltaNode`.ncsa.illinois.edu:8811/?token=b2e7ca15cd9dc3a6893a1273e359c88869225bc29d66c80c
-  [I 19:07:58.316 NotebookApp]  or http://127.0.0.1:$Port/?token=b2e7ca15cd9dc3a6893a1273e359c88869225bc29d66c80c
-  [I 19:07:58.316 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
-  [C 19:07:58.329 NotebookApp]
+2. In your browser, go to `https://dt-svc-bbkw01.delta.ncsa.illinois.edu:8000/hub/org/`, open the **QCB Gateway** tab, click **CI Logon**, and sign in with your NCSA Delta credentials.
 
-      To access the notebook, open this file in a browser:
-          file:///u/$USERNAME/.local/share/jupyter/runtime/nbserver-13-open.html
-      Or copy and paste one of these URLs:
-          http://$DeltaNode.delta.ncsa.illinois.edu:$Port/?token=b2e7ca15cd9dc3a6893a1273e359c88869225bc29d66c80c
-      or http://127.0.0.1:$Port/?token=b2e7ca15cd9dc3a6893a1273e359c88869225bc29d66c80c
-  ```
->[!NOTE]
-> The last two line contains the Delta GPU node `DeltaNode`, which is the node assgined by Delta to run your job. The `Port` is four digits randomly generated.
+3. On the resource allocation form, choose **A100 GPU - up to 8 (bgvl-delta-gpu)** under **Batch** (non-interactive), then set **8 CPUs**, **1 GPU**, **64 GB** memory, **4DCell (LAMMPS/LM)** environment, and a **3 hour** time limit. See [Step 3](../README.md#getting-started-qcb-delta-gateway) in the top-level README for screenshots. Click **Start** and wait for your session to launch.
 
-- **Second**: SSH into the Delta GPU node.  
-  Open **another** terminal and run the following command after replacing.
->[!WARNING]
->***Replace*** `DeltaNode` with the node assgined by Delta.    
->***Replace*** `USERNAME` with your Delta username.   
->***Replace*** `Port` with the 4 digit number generated.
+4. Navigate to the RDME tutorial folder (for example, `SummerSchool_2026/RDME/TutR1_Bimolecule/`) and open the notebook you want to run.
 
-  ```bash
-  ssh -l $USERNAME  -L 127.0.0.1:$Port:$DeltaNode.delta.internal.ncsa.edu:$Port dt-login.delta.ncsa.illinois.edu
-  ```
-  You need to type you password and do 2FA **AGAIN**.
+> [!NOTE]
+> If your Gateway account is not approved, please ask the admin, Alfia Parvez, at alfiap@illinois.edu to approve it first.
 
-
-- **Third**: Open Jupyter Notebook in a webpage.   
-  Copy the last URL in the first terminal and paste to one browser (Firefox, Chrome, ...) to open Jupyter Notebook.
 ---
 
 ## 2. RDME tutorials
