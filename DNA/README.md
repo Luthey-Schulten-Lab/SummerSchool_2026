@@ -125,88 +125,24 @@ Your personal simulation output will be written under `/projects/bgvl/$USER/DNA_
 
 ## 5. Submit the full-cell simulation (do this on Monday)
 
-Open **[`submit_simulation.ipynb`](submit_simulation.ipynb)** from the Jupyter file browser under **`SummerSchool_2026/DNA/`** and run all cells. The notebook copies the workshop template to your bgvl directory and submits the GPU job.
+Each participant runs **[`submit_simulation.ipynb`](submit_simulation.ipynb)** in **their own Gateway session**. Simulation output is written only to your personal folder `/projects/bgvl/$USER/DNA_SummerSchool_2026/` — not shared with other users.
 
-The simulation takes about **14 hours** on an A100 GPU, so start it early in the week.
+Open the notebook from the Jupyter file browser and **Run All Cells**.
+
+The notebook follows the same Gateway pattern as the [4DWCM Gateway tutorial](https://github.com/alfia14/NCSA_Delta_Gateway_Tutorials/blob/main/4D%20Whole%20Cell/Tutorial_4dwcm_gateway.ipynb):
+
+1. Copy the workshop template to `/projects/bgvl/$USER/DNA_SummerSchool_2026/`
+2. Start the simulation with **`nohup`** as a background process (no `sbatch`)
+3. **`tail`** the log file to monitor progress (~14 hours on an A100)
+4. Optionally **`pgrep` / `kill`** to cancel a mistaken run
 
 > [!NOTE]
 > Submit the job first so it can run while you read sections 6–11. Visualize the trajectory in section 12 once the job finishes.
 
-Run the cells below **in order** in a Jupyter **code cell**.
-
-**Step 1: Copy the workshop template to your bgvl directory**
-
-Run this from your cloned `SummerSchool_2026/DNA/` folder (after `%cd SummerSchool_2026/DNA` above):
-
-```python
-!bash files/prelaunch_dna_workshop.sh
-```
-
-This copies `launch_simulation.sh` and `DNA_SummerSchool_2026/` from **`files/` in the repo** into `/projects/bgvl/$USER/`.
-
-**Step 2: Check your workspace**
-
-```python
-import os
-
-work_dir = f"/projects/bgvl/{os.environ['USER']}"
-os.chdir(work_dir)
-print("Working directory:", os.getcwd())
-!ls -la
-!ls DNA_SummerSchool_2026/scripts/
-```
-
-You should see:
-
-```
-/projects/bgvl/$USER/
-├── launch_simulation.sh
-└── DNA_SummerSchool_2026/
-    ├── data/
-    │   ├── coords/
-    │   ├── loops/
-    │   └── rep_states/
-    └── scripts/
-        ├── run_btree_chromo.py
-        ├── template.inp
-        ├── run_sc_chain_generation.sh
-        ├── Syn3A_chromosome_init.inp
-        └── BD_lengths.txt
-```
-
-**Step 3: Submit the Slurm job**
-
-```python
-!sbatch launch_simulation.sh
-```
-
-The job uses allocation **`bgvl-delta-gpu`**. Output will appear under `DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete).
+Output appears under `DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete). Logs are in `DNA_SummerSchool_2026/logs/`.
 
 > [!NOTE]
-> The Apptainer image `DNA_summer2025.sif` is stored at `/projects/bgvl/SummerSchool_2026/DNA/files/` (not in git because of its size).
-
-**Step 4: Monitor progress**
-
-```python
-!squeue -u $USER
-```
-
-To tail the job log:
-
-```python
-!tail -30 /projects/bgvl/$USER/DNA_tutorial.log
-```
-
-To check whether the trajectory file exists after the job finishes:
-
-```python
-import os
-
-traj = f"/projects/bgvl/{os.environ['USER']}/DNA_SummerSchool_2026/data/summerschool.lammpstrj"
-print("Trajectory ready:", os.path.exists(traj), "→", traj)
-```
-
-`sbatch` prints your **job ID** when the job is queued. Use `squeue` to see partition, node, and runtime.
+> `launch_simulation.sh` in your bgvl directory is an optional **Slurm** wrapper for Delta SSH login nodes. The Gateway notebook does not use it.
 
 ---
 

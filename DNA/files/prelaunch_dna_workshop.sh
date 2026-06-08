@@ -43,5 +43,5 @@ mkdir -p "${DEST_BASE}"
 cp -p "${LAUNCH_SCRIPT}" "${DEST_BASE}/"
 cp -rp "${TEMPLATE_DIR}" "${DEST_BASE}/"
 
-echo "Workshop files copied to ${DEST_BASE}"
+echo "Workshop files copied for user ${USER} → ${DEST_BASE}"
 echo "Template source: ${TEMPLATE_DIR}"
