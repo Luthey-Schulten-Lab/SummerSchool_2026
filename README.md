@@ -93,7 +93,7 @@ RDME pre-computed trajectory data (CSVs and VMD files, not in git) is read from 
 
 ### DNA tutorial (QCB Gateway)
 
-Open **[`DNA/submit_simulation.ipynb`](DNA/submit_simulation.ipynb)** on the Gateway and run all cells. The simulation starts as a background `nohup` job (same pattern as the [4DWCM Gateway tutorial](https://github.com/alfia14/NCSA_Delta_Gateway_Tutorials/blob/main/4D%20Whole%20Cell/Tutorial_4dwcm_gateway.ipynb)). See [`DNA/README.md`](DNA/README.md).
+Open **[`DNA/submit_simulation.ipynb`](DNA/submit_simulation.ipynb)** on the Gateway to copy the workshop template into your bgvl folder, then submit the GPU simulation as a **Slurm** job (`sbatch DNA/files/launch_simulation.sh`) from a Delta SSH login — it runs inside the `DNA_summer2025.sif` Apptainer image. Monitor the log back on the Gateway. See [`DNA/README.md`](DNA/README.md).
 ### Useful Links
 0. [STC-QCB Official Website](https://qcb.illinois.edu/): Check out the QCB website for more events!  
 1. [Delta User Help Document](https://docs.ncsa.illinois.edu/systems/delta/en/latest/): We will use **Delta**, a high-performance computing cluster housed at the National Center for Supercomputing Applications (NCSA), UIUC, to conduct the computational tasks.  

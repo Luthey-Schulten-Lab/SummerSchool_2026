@@ -9,7 +9,7 @@
 #SBATCH --gpus-per-node=1
 #SBATCH --gpu-bind=closest
 #SBATCH --nodes=1
-#SBATCH --output=/projects/bgvl/${USER}/DNA_tutorial.log
+#SBATCH --output=/projects/bgvl/%u/DNA_tutorial.log
 
 apptainer run \
     --nv \

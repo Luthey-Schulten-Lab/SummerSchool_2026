@@ -27,7 +27,7 @@ We will walk you through how to set up and run a LAMMPS simulation using GPUs on
 11. Understanding btree_chromo commands
 12. Visualization with VMD
 
-> Open **[`submit_simulation.ipynb`](submit_simulation.ipynb)** in the Jupyter file browser and run all cells (**Run → Run All Cells**), or follow the code blocks in section 5 below.
+> Open **[`submit_simulation.ipynb`](submit_simulation.ipynb)** in the Jupyter file browser. Run sections 1–3 on the Gateway, submit the Slurm job from a Delta SSH login (section 4), then monitor from the Gateway (section 5). See section 5 below for details.
 
 Most of the content of this tutorial, including the implementation of energy terms for the DNA polymer, DNA disentanglement, and general procedure for simulating Brownian dynamics and energy minimization with LAMMPS on a GPU, is also explained in our recent manuscript[^thornburg2025] which you can check out on bioRxiv. The content on SMC blocking/bypassing and daughter chromosome partitioning without the need for an additional fictitious force is a work in progress.
 
@@ -127,22 +127,25 @@ Your personal simulation output will be written under `/projects/bgvl/$USER/DNA_
 
 Each participant runs **[`submit_simulation.ipynb`](submit_simulation.ipynb)** in **their own Gateway session**. Simulation output is written only to your personal folder `/projects/bgvl/$USER/DNA_SummerSchool_2026/` — not shared with other users.
 
-Open the notebook from the Jupyter file browser and **Run All Cells**.
+Open the notebook from the Jupyter file browser and work through it top to bottom:
 
-The notebook follows the same Gateway pattern as the [4DWCM Gateway tutorial](https://github.com/alfia14/NCSA_Delta_Gateway_Tutorials/blob/main/4D%20Whole%20Cell/Tutorial_4dwcm_gateway.ipynb):
+1. **(Gateway)** Run sections 1–3 to copy the workshop template into `/projects/bgvl/$USER/DNA_SummerSchool_2026/`.
+2. **(Delta SSH login)** Submit the job with **Slurm**. The simulation must run inside the **`DNA_summer2025.sif`** Apptainer image, and Apptainer is not available inside the Gateway's Jupyter container — so submit from a Delta login node:
+   ```bash
+   ssh <your-username>@login.delta.ncsa.illinois.edu
+   sbatch /projects/bgvl/SummerSchool_2026/DNA/files/launch_simulation.sh
+   ```
+   Section 4 of the notebook prints these exact commands for you (and submits automatically if `sbatch` ever becomes available in your session).
+3. **(Gateway)** Run section 5 to **`tail`** the job log and monitor progress (~14 hours on an A100). Your bgvl folder is shared, so the log is visible from the Gateway even though the job runs on a compute node.
+4. Optionally use `squeue` / `scancel` (section 6) from a Delta login to check or cancel the job.
 
-1. Copy the workshop template to `/projects/bgvl/$USER/DNA_SummerSchool_2026/`
-2. Start the simulation with **`nohup`** as a background process (no `sbatch`)
-3. **`tail`** the log file to monitor progress (~14 hours on an A100)
-4. Optionally **`pgrep` / `kill`** to cancel a mistaken run
+> [!IMPORTANT]
+> The `btree_chromo` build inside the Gateway container is the newer **4DWCM** version, which removed the loop-extrusion (`translocate`) commands this 2025 tutorial uses. The matching binary lives only inside `DNA_summer2025.sif`, which is why the job runs through Apptainer via Slurm rather than as a plain background process on the Gateway.
 
 > [!NOTE]
 > Submit the job first so it can run while you read sections 6–11. Visualize the trajectory in section 12 once the job finishes.
 
-Output appears under `DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete). Logs are in `DNA_SummerSchool_2026/logs/`.
-
-> [!NOTE]
-> `launch_simulation.sh` in your bgvl directory is an optional **Slurm** wrapper for Delta SSH login nodes. The Gateway notebook does not use it.
+Output appears under `DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete). The Slurm job log is written to `/projects/bgvl/$USER/DNA_tutorial.log`.
 
 ---
 
