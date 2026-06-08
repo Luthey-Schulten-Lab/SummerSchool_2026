@@ -76,8 +76,7 @@ In a **code cell**, run:
 !git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
 ```
 
-This creates `SummerSchool_2026/` with all module folders (`CME/`, `RDME/`, `DNA/`, `Martini/`). Use the Jupyter file browser to open notebooks from the module you are working on — for example, `SummerSchool_2026/CME/bimolecule/` or `SummerSchool_2026/RDME/TutR1_Bimolecule/`.
-
+This creates `SummerSchool_2026/` with all module folders (`CME/`, `RDME/`, `DNA/`, `Martini/`). Use the Jupyter file browser to open notebooks from the module you are working on.
 ### Useful Links
 0. [STC-QCB Official Website](https://qcb.illinois.edu/): Check out the QCB website for more events!  
 1. [Delta User Help Document](https://docs.ncsa.illinois.edu/systems/delta/en/latest/): We will use **Delta**, a high-performance computing cluster housed at the National Center for Supercomputing Applications (NCSA), UIUC, to conduct the computational tasks.  
