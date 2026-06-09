@@ -56,7 +56,7 @@ After logging in, the Gateway will ask you to choose compute resources before st
 | **GPU Environment** | **4DCell (LAMMPS/LM)** |
 | **Number of GPUs** | **1** |
 | **Memory** | **64 GB** |
-| **Time limit** | **3 hours** |
+| **Time limit** | **4 hours** |
 
 <img src="./figs/Resource_Allocation.png" alt="QCB Gateway resource allocation form" width="700">
 
