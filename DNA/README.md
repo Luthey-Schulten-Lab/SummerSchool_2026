@@ -124,21 +124,21 @@ The ~4 GB Apptainer image is **not** in git. On Delta it lives at:
 /projects/bgvl/SummerSchool_2026/DNA/files/DNA_summer2025.sif
 ```
 
-Your personal simulation output will be written under `/projects/bgvl/$USER/DNA_SummerSchool_2026/`.
+Your personal simulation output will be written under `/projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026/`, where `<your-delta-username>` is your **Delta SSH login** (the folder named after you under `/projects/bgvl/`), not your Gateway login name.
 
 ## 5. Submit the full-cell simulation (do this on Monday)
 
-Each participant runs **[`submit_simulation.ipynb`](submit_simulation.ipynb)** in **their own Gateway session**. Simulation output is written only to your personal folder `/projects/bgvl/$USER/DNA_SummerSchool_2026/` — not shared with other users.
+Each participant runs **[`submit_simulation.ipynb`](submit_simulation.ipynb)** in **their own Gateway session**. In the notebook you set **`DELTA_USER`** to your Delta SSH login; output is written only to your personal folder `/projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026/` — not shared with other users.
 
 Open the notebook from the Jupyter file browser and work through it top to bottom:
 
-1. **(Gateway)** Run sections 1–3 to copy the workshop template into `/projects/bgvl/$USER/DNA_SummerSchool_2026/`.
-2. **(Delta SSH login)** Submit the job with **Slurm**. The simulation must run inside the **`DNA_summer2025.sif`** Apptainer image, and Apptainer is not available inside the Gateway's Jupyter container — so submit from a Delta login node. **Pass your workspace path explicitly**, because your Gateway username (e.g. `alfiap-illinois`) differs from your Delta SSH login name:
+1. **(Gateway)** Set `DELTA_USER` to your Delta SSH login, then run sections 1–3 to copy the workshop template into `/projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026/`.
+2. **(Delta SSH login)** Submit the job with **Slurm**. The simulation must run inside the **`DNA_summer2025.sif`** Apptainer image, and Apptainer is not available inside the Gateway's Jupyter container — so submit from a Delta login node. **Pass your workspace path explicitly** using your **Delta username** (the `/projects/bgvl/<user>` folder name — the same `DELTA_USER` from the notebook):
    ```bash
-   ssh <your-NCSA-username>@login.delta.ncsa.illinois.edu
-   sbatch --output=/projects/bgvl/<your-gateway-username>/DNA_SummerSchool_2026/DNA_tutorial.log \
+   ssh <your-delta-username>@login.delta.ncsa.illinois.edu
+   sbatch --output=/projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026/DNA_tutorial.log \
           /projects/bgvl/SummerSchool_2026/DNA/files/launch_simulation.sh \
-          /projects/bgvl/<your-gateway-username>/DNA_SummerSchool_2026
+          /projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026
    ```
    Section 4 of the notebook prints this command with **your** paths already filled in (and submits automatically if `sbatch` ever becomes available in your session).
 3. **(Gateway)** Run section 5 to **`tail`** the job log and monitor progress (~14 hours on an A100). Your bgvl folder is shared, so the log is visible from the Gateway even though the job runs on a compute node.

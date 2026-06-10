@@ -146,7 +146,7 @@ In the Jupyter file browser, open **`SummerSchool_2026/RDME/TutR2_GIP/`** and ru
 | --- | --- |
 | [`TutR2_GeneticInfoProcessing.ipynb`](TutR2_GIP/TutR2_GeneticInfoProcessing.ipynb) | Spatial genetic information processing with RDME |
 
-To run a cell, press **Shift+Enter** or **Ctrl+Enter**. To run the entire notebook, click **Run → Run All Cells**.
+To run a cell, press **Shift+Enter** or **Ctrl+Enter**.
 
 ---
 

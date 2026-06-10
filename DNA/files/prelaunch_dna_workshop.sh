@@ -1,8 +1,11 @@
 #!/bin/bash
 
 # Copy the full-cell DNA workshop template into the user's bgvl directory.
+# Pass the DELTA username as $1 (the /projects/bgvl/<user> folder name). On the
+# Gateway $USER is the shared service account, so it must be given explicitly.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DEST_BASE="/projects/bgvl/${USER}"
+DEST_USER="${1:-$USER}"
+DEST_BASE="/projects/bgvl/${DEST_USER}"
 
 # Template may live next to this script (git clone) or on the shared bgvl copy.
 for TEMPLATE_DIR in \
@@ -43,5 +46,5 @@ mkdir -p "${DEST_BASE}"
 cp -p "${LAUNCH_SCRIPT}" "${DEST_BASE}/"
 cp -rp "${TEMPLATE_DIR}" "${DEST_BASE}/"
 
-echo "Workshop files copied for user ${USER} → ${DEST_BASE}"
+echo "Workshop files copied for user ${DEST_USER} → ${DEST_BASE}"
 echo "Template source: ${TEMPLATE_DIR}"

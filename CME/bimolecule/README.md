@@ -37,7 +37,7 @@ In the Gateway file browser, open **`SummerSchool_2026/CME/bimolecule/`** and ru
 > [!NOTE]
 > Select the **LM 2.5 (Python 3.7)** kernel when opening the CME notebooks.
 
-To run a cell, press **Shift+Enter** or **Ctrl+Enter**. To run the entire notebook, click **Run → Run All Cells**.
+To run a cell, press **Shift+Enter** or **Ctrl+Enter**.
 
 When you finish both notebooks, continue to [§7 Genetic Information Processing](../GIP/README.md).
 

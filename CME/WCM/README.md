@@ -29,8 +29,8 @@ For the ODE simulation, we use **[odecell](https://github.com/Luthey-Schulten-La
 
 #### Launch and Analyze on the Gateway
 
-- `Tut.3.1-WCM-CMEODE.ipynb` — Notebook you Run All to launch the replicates in parallel (set time length, number of replicates, and communication interval here).
-- `analysis/analysis.ipynb` — Notebook you Run All to analyze 10 pre-run replicates and reproduce the figures in this README.
+- `Tut.3.1-WCM-CMEODE.ipynb` — Notebook you run to launch the replicates (set time length, number of replicates, and communication interval here).
+- `analysis/analysis.ipynb` — Notebook you run to analyze 10 pre-run replicates and reproduce the figures in this README.
 - `programs/mpirun.sh` — The underlying `mpirun` command the run notebook reproduces (kept for reference / non-Gateway use).
 
 #### Main Driver
@@ -85,7 +85,7 @@ You will launch and analyze the model from two notebooks in this folder, just li
 > [!NOTE]
 > Select the **`LM 2.5 (Python 3.7)`** kernel (top-right of the notebook) when prompted.
 
-+ **Second**: Click **Run → Run All Cells**. The notebook launches the 4 replicates in parallel with `mpirun` (one MPI rank per replicate) by calling `programs/WCM_CMEODE_Hook.py`. The run takes about **10 minutes** on the single Gateway GPU.
++ **Second**: Run the notebook. It runs the 4 replicates by calling `programs/WCM_CMEODE_Hook.py`, and takes about **10 minutes**.
 
 + **Third**: The notebook writes all output to an **`output_4replicates/`** folder *inside your cloned copy* of the repository (the shared workshop folder is read-only). Section 3 of the notebook lists the files and prints the tail of `log_1.txt`, where you will see the parsed input information, the reactions constructed in CME, and the simulation timing.
 
@@ -359,7 +359,7 @@ Your 60-second run in `Tut.3.1` only demonstrates that the simulation works — 
 
 + **First**: In the Jupyter file browser, open [`analysis/analysis.ipynb`](analysis/analysis.ipynb) and select the **`LM 2.5 (Python 3.7)`** kernel.
 
-+ **Second**: Click **Run → Run All Cells**, and compare the generated plots with the figures in this README file.
++ **Second**: Run the notebook, and compare the generated plots with the figures in this README file.
 
 > [!NOTE]
 > The ten prepared replicates (`WCM_10Cells.pkl`, ~2 GB) are too large for git, so the notebook reads them from the shared read-only folder `/projects/bgvl/SummerSchool_2026/CME/WCM/analysis/` (the same pattern as the RDME pre-computed data). The analysis routines live in [`../analyze_scripts/`](../analyze_scripts/).
