@@ -67,6 +67,9 @@ After logging in, choose the following settings on the resource allocation form 
 | **Memory** | **64 GB** |
 | **Time limit** | **4 hours** |
 
+> [!IMPORTANT]
+> Always select the **non-interactive** session with the **8-GPU** (`A100 GPU - up to 8 (bgvl-delta-gpu)`) option.
+
 <img src="../figs/Resource_Allocation.png" alt="QCB Gateway resource allocation form" width="700">
 
 Click **Start** and wait for your session to launch.
@@ -77,11 +80,7 @@ When your Jupyter session starts, an **Untitled.ipynb** notebook will already be
 
 <img src="../figs/jupyter_env.png" alt="JupyterLab environment with Untitled.ipynb" width="700">
 
-In a **code cell**, run:
 
-```python
-%cd /projects/bgvl/SummerSchool_2026/CME
-```
 
 In the Jupyter file browser, open **`SummerSchool_2026/CME/`**. You should see:
 

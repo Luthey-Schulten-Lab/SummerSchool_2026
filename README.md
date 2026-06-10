@@ -58,6 +58,9 @@ After logging in, the Gateway will ask you to choose compute resources before st
 | **Memory** | **64 GB** |
 | **Time limit** | **4 hours** |
 
+> [!IMPORTANT]
+> Always select the **non-interactive** session with the **8-GPU** (`A100 GPU - up to 8 (bgvl-delta-gpu)`) option.
+
 <img src="./figs/Resource_Allocation.png" alt="QCB Gateway resource allocation form" width="700">
 
 Click **Start**. 
@@ -77,17 +80,6 @@ In a **code cell**, run:
 %cd SummerSchool_2026
 ```
 
-Open notebooks from your cloned copy in the Jupyter file browser:
-
-- **CME:** `SummerSchool_2026/CME/`
-- **RDME:** `SummerSchool_2026/RDME/`
-
-RDME pre-computed trajectory data (CSVs and VMD files, not in git) is read from the shared bgvl folder:
-
-```
-/projects/bgvl/SummerSchool_2026/RDME/data/
-/projects/bgvl/SummerSchool_2026/RDME/trajectory/
-```
 
 - **Martini:** open notebooks under `SummerSchool_2026/Martini/tutorial_1/` (etc.)
 
