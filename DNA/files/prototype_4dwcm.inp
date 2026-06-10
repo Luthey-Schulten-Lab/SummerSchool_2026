@@ -26,11 +26,12 @@ new_chromo:5000
 # --- load the small example chromosome (5000 monomers, 50 ribosomes, 900A) ---
 load_BD_lengths:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/BD_lengths.txt
 
-# 4DWCM requires orientations (quats) in addition to coordinates
+# Coordinates only — the GPU/Kokkos _kk DNA model does NOT support ellipsoids,
+# so we do NOT load orientation quats (the ellipsoid example files would trigger
+# "No ellipsoids allowed with this atom style"). Ellipsoids/twisting are disabled
+# below, matching the 2025 GPU tutorial.
 load_mono_coords:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/x_mono_5000mono_50ribo_bdry900A.bin,row
-load_mono_quats:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/q_mono_5000mono_50ribo_bdry900A.bin,row
 load_ribo_coords:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/x_ribo_5000mono_50ribo_bdry900A.bin,row
-load_ribo_quats:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/q_ribo_5000mono_50ribo_bdry900A.bin,row
 
 # --- simulator setup ---
 # The Gateway btree_chromo is the GPU/Kokkos build, so it needs the Kokkos-enabled
