@@ -27,9 +27,11 @@ For the ODE simulation, we use **[odecell](https://github.com/Luthey-Schulten-La
 <details open> 
 <summary><strong>Click to COLLAPSE: Explanation of All Scripts </strong></summary>
 
-#### Launch Simulation in Parallel
+#### Launch and Analyze on the Gateway
 
-- `mpirun.sh` — Bash file to specify the time length, number of replicates, and communication interval
+- `Tut.3.1-WCM-CMEODE.ipynb` — Notebook you Run All to launch the replicates in parallel (set time length, number of replicates, and communication interval here).
+- `analysis/analysis.ipynb` — Notebook you Run All to analyze 10 pre-run replicates and reproduce the figures in this README.
+- `programs/mpirun.sh` — The underlying `mpirun` command the run notebook reproduces (kept for reference / non-Gateway use).
 
 #### Main Driver
 
@@ -72,38 +74,23 @@ For the ODE simulation, we use **[odecell](https://github.com/Luthey-Schulten-La
 
 The spatially homogeneous simulations can be efficiently parallelized across up to 25 independent cell replicates or more, with each replicate requiring less than 2 GB of RAM. On systems equipped with AMD EPYC 7763 “Milan” processors on **[Delta](https://docs.ncsa.illinois.edu/systems/delta/en/latest/index.html)**, or Intel Xeon Gold 6154 CPUs @ 3.00 GHz on a standard workstation, a 2-hour biological simulation with 1-second communication intervals typically completes within **6 physical hours**.
 
-Due to time constraints, you will run a 2-minute simulation with 4 cell replicates in a separate job. You are encouraged to modify the parameters to run longer simulations or more replicates.
+Due to time constraints, you will run a short 60-second simulation with 4 cell replicates from a Jupyter notebook on the Gateway. You are encouraged to modify the parameters to run longer simulations or more replicates.
 
 ---
 
-+ **First**: Open **another** terminal window and log in to Delta again.
+You will launch and analyze the model from two notebooks in this folder, just like the other CME tutorials — no SSH or `sbatch` needed.
 
-+ **Second**: Navigate to the program directory and submit the batch script:
-
-    ```bash
-    cd /projects/beyi/$USER/CME/WCM/programs
-    sbatch sbatch.sh
-    ```
++ **First**: In the Jupyter file browser, open [`Tut.3.1-WCM-CMEODE.ipynb`](Tut.3.1-WCM-CMEODE.ipynb).
 
 > [!NOTE]
-> The `sbatch.sh` script executes the `mpirun.sh` script, which launches the parallel CME-ODE whole-cell model simulations using `mpirun`.
+> Select the **`LM 2.5 (Python 3.7)`** kernel (top-right of the notebook) when prompted.
 
-+ **Third**: Check the status of your submitted job:
++ **Second**: Click **Run → Run All Cells**. The notebook launches the 4 replicates in parallel with `mpirun` (one MPI rank per replicate) by calling `programs/WCM_CMEODE_Hook.py`. The run takes about **10 minutes** on the single Gateway GPU.
 
-    ```bash
-    squeue -u $USER
-    ```
-    - The job named `WCM_4_replicates` runs the WCM.
-    - `PD` indicates the job is pending.
-    - `R` means it is currently running.
-    - If the job disappears from the list, it has finished.
++ **Third**: The notebook writes all output to an **`output_4replicates/`** folder *inside your cloned copy* of the repository (the shared workshop folder is read-only). Section 3 of the notebook lists the files and prints the tail of `log_1.txt`, where you will see the parsed input information, the reactions constructed in CME, and the simulation timing.
 
-    Then, list the output files under the `output_4replicates` folder:
-
-    ```bash
-    ls ../output_4replicates
-    ```
-    The simulation will finish around 10 minutes. Navigate to `/projects/beyi/$USER/CME/WCM/output_4replicates` in the Jupyter Notebook webpage, and open the files as you want. In the log files, you will see the parsed input information, reactions constructed in CME, and timing of the simulation.
+> [!TIP]
+> To run a longer simulation or more replicates, edit `SIMTIME` (and `NREP`) in section 1 of the notebook and re-run. Keep `SIMTIME` a multiple of `RESTART`, and `RESTART` a multiple of `HOOK`.
 
 ---
 
@@ -114,7 +101,7 @@ Each simulation replicate with index *i* will generate the following output file
 - `Flux_i.csv`: Time trajectories of fluxes through ODE reactions, in units of mM/s.
 - `log_i.txt`: Log file including timestamps, reaction prints, runtime, and any warnings or errors.
 
-All output files are saved to the directory `../output_4replicates/`, which is defined and created in `mpirun.sh`. For a 7200-second simulation with 1-second hook intervals, the typical CSV file size ranges from **100–200 MB**.
+All output files are saved to the `output_4replicates/` directory in your cloned copy, which the notebook creates automatically. For a 7200-second simulation with 1-second hook intervals, the typical CSV file size ranges from **100–200 MB**.
 
 ### Input Files
 
@@ -366,11 +353,16 @@ One extra thing to notice is that the CME rates are also updated per second afte
 
 ## 6. Analysis and Discussion
 
-### Run Notebook `analysis.ipynb` on Ten Prepared Cell Replicates
+### Run Notebook `analysis/analysis.ipynb` on Ten Prepared Cell Replicates
 
-+ **First**: Open `analysis.ipynb` in Jupyter Notebook Interface under directory `/CME/WCM/analysis/`.
-  
-+ **Second**: Run ALL and Compare the generated plots with figures in this README file.
+Your 60-second run in `Tut.3.1` only demonstrates that the simulation works — it is far too short to show cell-cycle behavior. For the analysis we instead use **ten pre-run replicates simulated over a full cell cycle**.
+
++ **First**: In the Jupyter file browser, open [`analysis/analysis.ipynb`](analysis/analysis.ipynb) and select the **`LM 2.5 (Python 3.7)`** kernel.
+
++ **Second**: Click **Run → Run All Cells**, and compare the generated plots with the figures in this README file.
+
+> [!NOTE]
+> The ten prepared replicates (`WCM_10Cells.pkl`, ~2 GB) are too large for git, so the notebook reads them from the shared read-only folder `/projects/bgvl/SummerSchool_2026/CME/WCM/analysis/` (the same pattern as the RDME pre-computed data). The analysis routines live in [`../analyze_scripts/`](../analyze_scripts/).
 
 ***The following figures are plotted of ~ 100 cell replicates to make accurate statistics.***
 
