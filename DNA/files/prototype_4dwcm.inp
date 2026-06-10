@@ -32,11 +32,14 @@ load_mono_quats:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_c
 load_ribo_coords:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/x_ribo_5000mono_50ribo_bdry900A.bin,row
 load_ribo_quats:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/q_ribo_5000mono_50ribo_bdry900A.bin,row
 
-# --- simulator setup (note: DNA model is a DIRECTORY in 4DWCM, not the _kk path) ---
+# --- simulator setup ---
+# The Gateway btree_chromo is the GPU/Kokkos build, so it needs the Kokkos-enabled
+# DNA model (_kk), as in the 2025 template. The plain LAMMPS_DNA_model/ (CPU) fails
+# with "KOKKOS package requires a Kokkos-enabled atom_style".
 prepare_simulator:/home/user/workspace/dna_4dwcm_prototype/proto.log
 simulator_set_prng_seed:10
 simulator_set_nProc:8
-simulator_set_DNA_model:/Software/btree_chromo/LAMMPS_DNA_model/
+simulator_set_DNA_model:/Software/btree_chromo/LAMMPS_DNA_model_kk
 simulator_set_delta_t:1.0E+5
 
 # --- loop-extrusion parameters come from a FILE in 4DWCM (keeps the tutorial's values) ---
