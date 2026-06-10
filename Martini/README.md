@@ -22,36 +22,28 @@ School (2026).*
 
 ## Outline:
 
-1. Set up the tutorial on Delta
+1. Run the tutorials on the QCB Delta Gateway
 2. Tutorial 1 - Basic packing of lysozyme in a water box
 3. Tutorial 2 - Membrane packing of Aquaporin Z in a POPE/POPC bilayer
 4. Tutorial 3 - Multi-compartment POPC vesicle + GROMACS MD on a GPU node
+5. Visualize the results in Open OnDemand
 
-## 1. Set up the tutorial on Delta
+## 1. Run the tutorials on the QCB Delta Gateway
 
-You will SSH into [NCSA Delta](https://docs.ncsa.illinois.edu/systems/delta/en/latest/quick_start.html)
-to run the tutorials.
+You run these tutorials in **JupyterLab on the QCB Delta Gateway** (the
+browser environment you already use for the other Summer School tutorials) and
+then visualize the results in **Delta Open OnDemand**. No SSH is needed to run
+the packing tutorials.
 
-### Log in to Delta
+### Open the tutorial in the Gateway
 
-```bash
-ssh USERNAME@login.delta.ncsa.illinois.edu
-```
-> [!WARNING]
-> ***Replace*** `USERNAME` with your Delta username.
+1. Open the **QCB Delta Gateway** and start a JupyterLab session.
+2. Make sure the `SummerSchool_2026` repository is in your Gateway workspace
+   (clone it, or `git pull` if you already have it).
+3. Navigate to `SummerSchool_2026/Martini/tutorial_1/` and open
+   [`tutorial_1_basic_packing.ipynb`](tutorial_1/tutorial_1_basic_packing.ipynb).
 
-### Copy the tutorial materials into your own directory
-
-The workshop master copy lives at
-`/projects/bgvl/alfiaparvez/SummerSchool_2026/Martini/`. Copy it into your own
-user space with the helper script:
-
-```bash
-bash /projects/bgvl/alfiaparvez/SummerSchool_2026/Martini/copy.sh
-```
-
-This creates `/projects/bgvl/$USER/SummerSchool_2026/Martini/` containing
-three self-contained tutorial folders plus a shared `data/` directory:
+Each `tutorial_<N>/` folder ships the inputs it needs:
 
 ```
 Martini/
@@ -59,55 +51,46 @@ Martini/
 ├── tutorial_1/               # tutorial_1_basic_packing.ipynb + vis_t1.tcl
 ├── tutorial_2/               # tutorial_2_membrane_packing.ipynb + vis_t2.tcl
 ├── tutorial_3/               # tutorial_3_multi_compartment.ipynb + vis_t3.tcl + run_md.slurm
-├── copy.sh
-├── scripts/build_notebooks.py
 └── README.md
 ```
 
 Inside each `tutorial_<N>/` folder, `structures/`, `topology/` and `mdp_files/`
-are symlinks back to `data/`, so you only carry one copy of the inputs.
+point back to `data/`, so you only carry one copy of the inputs.
 
 ### Bentopy environment
 
-A shared Python virtual environment with `bentopy` (and all its CLI tools:
-`bentopy-pack`, `bentopy-render`, `bentopy-solvate`, `bentopy-mask`,
-`bentopy-merge`) is preinstalled at:
+The notebooks need the `bentopy` CLI tools (`bentopy-pack`, `bentopy-render`,
+`bentopy-solvate`, `bentopy-mask`, `bentopy-merge`). The first cell of every
+notebook puts them on `$PATH`: it uses a `bentopy` virtual environment if one
+is already active, and otherwise falls back to the shared workshop venv at
+`/projects/bgvl/alfiaparvez/bentopy_tutorial/.venv/`.
 
-```
-/projects/bgvl/alfiaparvez/bentopy_tutorial/.venv/
-```
-
-The first cell of every notebook prepends
-`/projects/bgvl/alfiaparvez/bentopy_tutorial/.venv/bin` to `$PATH`, so the
-notebooks work out of the box on Delta with the default `python3` kernel -
-no custom kernel registration required.
-
-If you want to recreate the venv yourself (e.g. on a different machine):
+To create your own venv instead:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv bentopy-venv
+source bentopy-venv/bin/activate
 pip install bentopy
 ```
 
-### Launch Jupyter Notebook on Delta
+### Where your results are saved
 
-Submit a Jupyter session to a Delta GPU (or CPU) node. Tutorials 1 and 2 are
-fast and only need a CPU; tutorial 3 calls `bentopy-render` and benefits from
-a GPU node, and the optional MD step requires a GPU.
+You can't write into `/projects/bgvl/<your-NCSA-name>` from the Gateway, so the
+first cell of every notebook writes all outputs into your **Gateway project
+home** instead:
 
-> [!NOTE]
-> The simplest path is to use the **Delta Open OnDemand** Jupyter app at
-> <https://openondemand.delta.ncsa.illinois.edu/>:
->
-> 1. *Interactive Apps -> Jupyter Notebook (Project)*
-> 2. Account: `bgvl-delta-cpu` (Tut. 1, 2) or `bgvl-delta-gpu` (Tut. 3)
-> 3. Working directory: `/projects/bgvl/$USER/SummerSchool_2026/Martini`
-> 4. Open `tutorial_1/tutorial_1_basic_packing.ipynb` (etc.) and run cells.
+```
+/projects/bgvl/$USER/Martini/tutorial_<N>/
+```
 
-If you prefer the command-line route (an `srun` + SSH tunnel), follow the
-recipe described in the [CME README](../CME/README.md#launch-jupyter-notebook-on-delta)
-and replace `/projects/beyi` with `/projects/bgvl`.
+On the Gateway, `$USER` is your Gateway account name (which differs from your
+NCSA login name). The setup cell creates that folder, copies the inputs and the
+VMD script next to the outputs, switches into it, and **prints the exact path**
+so you know where everything lands. The folder is created group-readable
+(`umask 002`), which is what lets your real Delta account open the results in
+Open OnDemand for visualization (see Section 5).
+
+Then work through the notebook cell by cell.
 
 ## 2. Tutorial 1 - Basic packing
 
@@ -148,20 +131,44 @@ You will
 - run an energy minimization, NPT equilibration and 1 ns production MD on
   a Delta GPU node by submitting [`run_md.slurm`](tutorial_3/run_md.slurm).
 
-## Visualization with VMD
+## 5. Visualize the results in Open OnDemand
 
-A VMD installation is available on Delta at
-`/projects/bgvl/alfiaparvez/software/vmd/`. From a Delta OnDemand desktop
-session:
+The Gateway can't run an interactive 3-D viewer, so visualization is done in
+**Delta Open OnDemand**, where the session runs as your own Delta account and
+can read the files the Gateway wrote into your Gateway project home.
+
+1. Open <https://openondemand.delta.ncsa.illinois.edu/> and start an
+   **Interactive Apps → Desktop** session.
+2. Open a terminal in that desktop and run the command **printed by the setup
+   cell of the notebook** (it points at
+   `/projects/bgvl/<your-gateway-home>/Martini/tutorial_<N>`):
 
 ```bash
 export PATH=/projects/bgvl/alfiaparvez/software/vmd/bin:$PATH
-cd /projects/bgvl/$USER/SummerSchool_2026/Martini/tutorial_1
+cd /projects/bgvl/<your-gateway-home>/Martini/tutorial_1
 vmd -e vis_t1.tcl solvated_system.gro
 ```
 
-(replace `tutorial_1`/`vis_t1.tcl` with the corresponding files for the
-other tutorials.)
+(replace `tutorial_1`/`vis_t1.tcl` with the corresponding files for the other
+tutorials). A VMD installation with GPU acceleration is available on Delta at
+`/projects/bgvl/alfiaparvez/software/vmd/`.
+
+> [!NOTE]
+> `<your-gateway-home>` is your Gateway account name, **not** your NCSA login
+> name. Copy the exact path from the setup cell's output.
+
+### Optional: GROMACS MD (Tutorial 3)
+
+Tutorial 3 finishes with an optional energy minimization / equilibration /
+production MD run. That step uses SLURM on a GPU node, which the Gateway can't
+submit, so run it from a **Delta login shell**:
+
+```bash
+ssh USERNAME@login.delta.ncsa.illinois.edu
+cd /projects/bgvl/<your-gateway-home>/Martini/tutorial_3
+sbatch run_md.slurm
+squeue -u $USER
+```
 
 ## References:
 
