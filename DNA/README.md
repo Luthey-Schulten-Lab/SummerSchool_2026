@@ -113,7 +113,7 @@ SummerSchool_2026/DNA/
 ├── files/
 │   ├── launch_simulation.sh
 │   ├── prelaunch_dna_workshop.sh
-│   ├── DNA_SummerSchool_2026/   # workshop template (copied to your bgvl dir)
+│   ├── DNA_SummerSchool_2026/   # workshop template (staged into your bgvl dir by the job)
 │   └── examples/                # shorter btree_chromo demos
 └── figures/
 ```
@@ -132,15 +132,16 @@ Each participant runs **[`submit_simulation.ipynb`](submit_simulation.ipynb)** i
 
 Open the notebook from the Jupyter file browser and work through it top to bottom:
 
-1. **(Gateway)** Set `DELTA_USER` to your Delta SSH login, then run sections 1–3 to copy the workshop template into `/projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026/`.
-2. **(Delta SSH login)** Submit the job with **Slurm**. The simulation must run inside the **`DNA_summer2025.sif`** Apptainer image, and Apptainer is not available inside the Gateway's Jupyter container — so submit from a Delta login node. **Pass your workspace path explicitly** using your **Delta username** (the `/projects/bgvl/<user>` folder name — the same `DELTA_USER` from the notebook):
+1. **(Gateway)** Set `DELTA_USER` to your NCSA username, then run sections 1–2 to confirm your paths. **Nothing is written to your folder from the Gateway** — the Gateway kernel runs as a shared service account and cannot create files your job could read.
+2. **(Delta SSH login)** Submit the job with **Slurm**. The simulation must run inside the **`DNA_summer2025.sif`** Apptainer image, and neither Apptainer nor `sbatch` is available inside the Gateway container — so submit from a Delta login node. **Easiest: open a Terminal in JupyterLab** (*File → New → Terminal*) and `ssh` from there (no separate laptop terminal needed). When you `ssh` you become your **real Delta user**, so the job stages the workshop template into and writes all output to `/projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026/`. **Pass your workspace path explicitly** using your **NCSA username**:
    ```bash
-   ssh <your-delta-username>@login.delta.ncsa.illinois.edu
-   sbatch --output=/projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026/DNA_tutorial.log \
+   ssh <your-ncsa-username>@login.delta.ncsa.illinois.edu
+   mkdir -p /projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026
+   sbatch --output=/projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026/DNA_tutorial.log \
           /projects/bgvl/SummerSchool_2026/DNA/files/launch_simulation.sh \
-          /projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026
+          /projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026
    ```
-   Section 4 of the notebook prints this command with **your** paths already filled in (and submits automatically if `sbatch` ever becomes available in your session).
+   Section 3 of the notebook prints this command with **your** paths already filled in (and submits automatically if `sbatch` ever becomes available in your session).
 3. **(Gateway)** Run section 5 to **`tail`** the job log and monitor progress (~14 hours on an A100). Your bgvl folder is shared, so the log is visible from the Gateway even though the job runs on a compute node.
 4. Optionally use `squeue` / `scancel` (section 6) from a Delta login to check or cancel the job.
 
@@ -150,7 +151,7 @@ Open the notebook from the Jupyter file browser and work through it top to botto
 > [!NOTE]
 > Submit the job first so it can run while you read sections 6–11. Visualize the trajectory in section 12 once the job finishes.
 
-Output appears under `DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete). The Slurm job log is written to `DNA_SummerSchool_2026/DNA_tutorial.log` inside your workspace.
+Output appears under `/projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete). The Slurm job log is written to `/projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026/DNA_tutorial.log`.
 
 ---
 
@@ -320,16 +321,14 @@ https://github.com/user-attachments/assets/8387c708-43c8-486a-8082-b665156d4bbf
 
 ## 11. Understanding btree_chromo Commands
 
-Open the input template from your Jupyter session:
+View the shared input template from your Jupyter session (this read-only copy is what the job stages into your `DNA_SummerSchool_2026/scripts/` folder):
 
 ```python
-import os
-
-template = f"/projects/bgvl/{os.environ['USER']}/DNA_SummerSchool_2026/scripts/template.inp"
+template = "/projects/bgvl/SummerSchool_2026/DNA/files/DNA_SummerSchool_2026/scripts/template.inp"
 !head -40 {template}
 ```
 
-Or edit it on Delta with `vim` if you prefer. The most important lines are:
+The most important lines are:
 
 ```bash
 # run for 12 seconds of bio time (6 batches of 2 seconds) with dynamics
@@ -401,17 +400,39 @@ Section 12 uses the **Open OnDemand Desktop** (graphical session), not Jupyter. 
 
 ### 2. Preprocess trajectory and load VMD
 
-In the **OOD Desktop terminal** (not Jupyter), run:
+VMD runs on the **OOD Desktop** (not Jupyter) and is launched through **VirtualGL** so it renders on the node's GPU — the default software renderer (`llvmpipe`) makes the full ~96k-bead cell sluggish to rotate. Make sure your Desktop session requested a **GPU** (GPUs: `1`), then set up VirtualGL (a user-space build is provided — no install or root needed) and load VMD:
 
 ```bash
-cd /projects/bgvl/$USER/DNA_SummerSchool_2026/data/
-python3 modify_lammpstrj.py
-cp /projects/bgvl/SummerSchool_2026/DNA/files/load_btree_chromo.tcl .
+source /projects/bgvl/SummerSchool_2026/DNA/files/VirtualGL/setup_env.sh
 module load vmd
-vmd
 ```
 
-`modify_lammpstrj.py` colors left, right, and mother DNA differently (~3 minutes). `load_btree_chromo.tcl` sets up the VMD representation.
+You can then visualize a **pre-run sample trajectory** (no simulation needed) or **your own run**.
+
+#### Option A — pre-run sample (recommended if you did not run the full simulation)
+
+A ready-to-load, full-model trajectory (`full_model.lammpstrj`, ~100 frames) is staged in the shared folder:
+
+```bash
+cd /projects/bgvl/SummerSchool_2026/DNA/files/sample_trajectory/
+vglrun -d egl vmd
+```
+
+This folder already contains both `full_model.lammpstrj` (already preprocessed) and a matching `load_btree_chromo.tcl`, so you can skip `modify_lammpstrj.py` and go straight to step 3.
+
+#### Option B — your own run
+
+```bash
+cd /projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026/data/
+python3 modify_lammpstrj.py
+cp /projects/bgvl/SummerSchool_2026/DNA/files/load_btree_chromo.tcl .
+mv modified.lammpstrj full_model.lammpstrj
+vglrun -d egl vmd
+```
+
+`modify_lammpstrj.py` colors left, right, and mother DNA differently (~3 minutes) and writes `modified.lammpstrj`; renaming it to `full_model.lammpstrj` matches the filename `load_btree_chromo.tcl` expects. `load_btree_chromo.tcl` sets up the VMD representation.
+
+**Confirm the GPU is active:** VMD's startup log (or `display glinfo` in the Tk Console) should report `OpenGL renderer: NVIDIA A100...`, *not* `llvmpipe`. If `vglrun -d egl` cannot reach the GPU, list devices with `eglinfo -e` and pass one explicitly, e.g. `vglrun -d /dev/dri/card0 vmd`.
 
 ### 3. Load the LAMMPS trajectory file
    In the VMD "Main" window, click on "Extensions" and then "TkConsole". In the "TkConsole" window, do 

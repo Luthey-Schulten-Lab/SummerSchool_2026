@@ -91,8 +91,8 @@ missing = [d for d in ("structures", "topology", "mdp_files")
 if missing:
     raise FileNotFoundError(
         f"Missing input directories in {{NB_DIR}}: {{missing}}.\\n"
-        f"Run  bash Martini/copy.sh  first, then open the notebook from "
-        f"/projects/bgvl/$USER/SummerSchool_2026/Martini/{0}/."
+        f"Open this notebook from inside the cloned Martini/{0}/ folder, "
+        f"e.g.  <repo>/Martini/{0}/{0}_*.ipynb ."
     )
 
 print("Working dir :", NB_DIR)

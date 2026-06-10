@@ -17,6 +17,17 @@
 #   sbatch --output=<WORKSPACE>/DNA_tutorial.log launch_simulation.sh <WORKSPACE>
 SIM_ROOT="${1:-/projects/bgvl/${USER}/DNA_SummerSchool_2026}"
 
+# Stage the workshop template into SIM_ROOT. This runs as the submitting Delta
+# user (via Slurm), so the staged files get the correct owner/group — unlike a
+# copy made on the Gateway, where the kernel runs as a shared service account
+# and produces files the job cannot read. Existing files are left untouched.
+TEMPLATE_DIR="/projects/bgvl/SummerSchool_2026/DNA/files/DNA_SummerSchool_2026"
+mkdir -p "${SIM_ROOT}"
+if [[ ! -d "${SIM_ROOT}/scripts" ]]; then
+    echo "Staging workshop template into ${SIM_ROOT}"
+    cp -rp "${TEMPLATE_DIR}/." "${SIM_ROOT}/"
+fi
+
 apptainer run \
     --nv \
     --writable-tmpfs \
