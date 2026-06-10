@@ -47,6 +47,13 @@ simulator_load_loop_params:/projects/bgvl/SummerSchool_2026/DNA/files/loop_param
 
 simulator_set_output_details:/home/user/workspace/dna_4dwcm_prototype/,proto
 
+# The Kokkos (_kk) GPU atom style does not support ellipsoids, so disable
+# ellipsoids and twisting angles before writing the LAMMPS data file (the 2025
+# template did the same for the GPU build). Otherwise read_data aborts with
+# "No ellipsoids allowed with this atom style".
+switch_twisting_angles:F
+switch_ellipsoids:F
+
 # fixed spherical boundary (the full tutorial grows/divides this; fixed here for the prototype)
 spherical_bdry:900.0,0.0,0.0,0.0
 
