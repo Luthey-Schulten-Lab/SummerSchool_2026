@@ -1,0 +1,30 @@
+# ============================================================================
+# Probe: does the Gateway's 4DWCM btree_chromo still understand the 2025
+# tutorial's commands? If COMMAND PARAMETER VALIDATION accepts all of these,
+# the original template.inp can run in the Gateway with minimal changes and no
+# full API port is needed.
+#
+#   mkdir -p /home/user/workspace/dna_4dwcm_prototype
+# ============================================================================
+
+btree_prng_seed:10
+replicator_prng_seed:10
+new_chromo:5000
+load_BD_lengths:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/BD_lengths.txt
+load_mono_coords:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/x_mono_5000mono_50ribo_bdry900A.bin,row
+load_ribo_coords:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/x_ribo_5000mono_50ribo_bdry900A.bin,row
+prepare_simulator:/home/user/workspace/dna_4dwcm_prototype/probe.log
+simulator_set_prng_seed:10
+simulator_set_nProc:8
+simulator_set_DNA_model:/Software/btree_chromo/LAMMPS_DNA_model_kk
+simulator_set_output_details:/home/user/workspace/dna_4dwcm_prototype/,probe
+simulator_set_delta_t:2.0E+7
+dump_topology:/home/user/workspace/dna_4dwcm_prototype/chromo_topo.dat,1
+switch_twisting_angles:F
+switch_ellipsoids:F
+spherical_bdry:900.0,0.0,0.0,0.0
+sys_write_sim_read_LAMMPS_data:/home/user/workspace/dna_4dwcm_prototype/data.probe
+simulator_run_soft_harmonic:10000,1000,10000,noappend,first
+translocate:50,T
+simulator_form_loops:F
+simulator_minimize_topoDNA_harmonic:1000
