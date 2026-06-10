@@ -10,11 +10,10 @@
 #SBATCH --gpu-bind=closest
 #SBATCH --nodes=1
 
-# Pass your workspace as the first argument. This makes the job independent of
-# your username, which differs between the Gateway (e.g. alfiap-illinois) and
-# your Delta SSH login. The template is copied there by the notebook / prelaunch.
-# Also send the job log into that workspace so it is visible from the Gateway:
-#   sbatch --output=<WORKSPACE>/DNA_tutorial.log launch_simulation.sh <WORKSPACE>
+# Submit from a Delta login node (where $USER is your NCSA username) with:
+#   cd /projects/bgvl/$USER && sbatch launch_simulation.sh
+# Output goes to /projects/bgvl/$USER/DNA_SummerSchool_2026. You may override the
+# workspace by passing it as the first argument: sbatch launch_simulation.sh <DIR>
 SIM_ROOT="${1:-/projects/bgvl/${USER}/DNA_SummerSchool_2026}"
 
 # Stage the workshop template into SIM_ROOT. This runs as the submitting Delta

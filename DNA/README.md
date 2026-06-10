@@ -15,7 +15,7 @@ We will walk you through how to set up and run a LAMMPS simulation using GPUs on
 2. Open the gateway in your browser
 3. Allocate compute resources on the Gateway
 4. Clone the repository and open the DNA module
-5. **Submit the full-cell simulation** — open [`submit_simulation.ipynb`](submit_simulation.ipynb) (do this on Monday)
+5. **Run the full-cell simulation** — submit the Slurm job over SSH (do this on Monday)
 
 **Background and analysis**
 
@@ -27,7 +27,7 @@ We will walk you through how to set up and run a LAMMPS simulation using GPUs on
 11. Understanding btree_chromo commands
 12. Visualization with VMD
 
-> Open **[`submit_simulation.ipynb`](submit_simulation.ipynb)** in the Jupyter file browser. Run sections 1–3 on the Gateway, submit the Slurm job from a Delta SSH login (section 4), then monitor from the Gateway (section 5). See section 5 below for details.
+> The full simulation runs as a **Slurm batch job**. From a Delta login node (`ssh`), copy the launch files into your folder and `sbatch launch_simulation.sh`; the job runs on a GPU node independently of your Gateway session. See section 5 below for the exact commands.
 
 Most of the content of this tutorial, including the implementation of energy terms for the DNA polymer, DNA disentanglement, and general procedure for simulating Brownian dynamics and energy minimization with LAMMPS on a GPU, is also explained in our recent manuscript[^thornburg2025] which you can check out on bioRxiv. The content on SMC blocking/bypassing and daughter chromosome partitioning without the need for an additional fictitious force is a work in progress.
 
@@ -80,7 +80,7 @@ After logging in, choose the following settings on the resource allocation form 
 | **Time limit** | **4 hours** |
 
 > [!IMPORTANT]
-> Always select the **non-interactive** session with the **8-GPU** (`A100 GPU - up to 8 (bgvl-delta-gpu)`) option.
+> Select the **non-interactive** session with the **`A100 GPU - up to 8 (bgvl-delta-gpu)`** option. The DNA simulation itself runs as a **separate Slurm batch job** (section 5) on its own GPU node, so this Gateway session is only for browsing the repo and reading — the default time limit is fine and you do not need to keep it open while the job runs.
 
 <img src="../figs/Resource_Allocation.png" alt="QCB Gateway resource allocation form" width="700">
 
@@ -108,13 +108,12 @@ In the Jupyter file browser, open **`SummerSchool_2026/DNA/`**. You should see:
 
 ```
 SummerSchool_2026/DNA/
-├── README.md                  # background and VMD instructions
-├── submit_simulation.ipynb    # start here — submit the GPU job (§5)
+├── README.md                       # background, run steps (§5), and VMD instructions
 ├── files/
-│   ├── launch_simulation.sh
-│   ├── prelaunch_dna_workshop.sh
-│   ├── DNA_SummerSchool_2026/   # workshop template (staged into your bgvl dir by the job)
-│   └── examples/                # shorter btree_chromo demos
+│   ├── prelaunch_btree_chromo.sh   # copies the launch script + template to your folder (§5 step 2)
+│   ├── launch_simulation.sh        # the Slurm job you submit (§5 step 3)
+│   ├── DNA_SummerSchool_2026/      # workshop template (scripts + inputs)
+│   └── examples/                   # shorter btree_chromo demos
 └── figures/
 ```
 
@@ -124,34 +123,66 @@ The ~4 GB Apptainer image is **not** in git. On Delta it lives at:
 /projects/bgvl/SummerSchool_2026/DNA/files/DNA_summer2025.sif
 ```
 
-Your personal simulation output will be written under `/projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026/`, where `<your-delta-username>` is your **Delta SSH login** (the folder named after you under `/projects/bgvl/`), not your Gateway login name.
+Your simulation **output** is written under your personal folder `/projects/bgvl/$USER/DNA_SummerSchool_2026/`, where `$USER` is your **NCSA username** (the folder named after you under `/projects/bgvl/`). Each participant has their own folder, so outputs never collide.
 
-## 5. Submit the full-cell simulation (do this on Monday)
+## 5. Run the full-cell simulation (do this on Monday)
 
-Each participant runs **[`submit_simulation.ipynb`](submit_simulation.ipynb)** in **their own Gateway session**. In the notebook you set **`DELTA_USER`** to your Delta SSH login; output is written only to your personal folder `/projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026/` — not shared with other users.
+The full simulation runs as a **Slurm batch job** on a Delta GPU node, submitted with `sbatch`. The Gateway's Jupyter container has no Slurm client, so you submit from a **Delta login node** over SSH. Once submitted, the job runs on its own — you can close the Gateway and your laptop, and it does not tie up your interactive session.
 
-Open the notebook from the Jupyter file browser and work through it top to bottom:
+### Step 1 — Log in to Delta
 
-1. **(Gateway)** Set `DELTA_USER` to your NCSA username, then run sections 1–2 to confirm your paths. **Nothing is written to your folder from the Gateway** — the Gateway kernel runs as a shared service account and cannot create files your job could read.
-2. **(Delta SSH login)** Submit the job with **Slurm**. The simulation must run inside the **`DNA_summer2025.sif`** Apptainer image, and neither Apptainer nor `sbatch` is available inside the Gateway container — so submit from a Delta login node. **Easiest: open a Terminal in JupyterLab** (*File → New → Terminal*) and `ssh` from there (no separate laptop terminal needed). When you `ssh` you become your **real Delta user**, so the job stages the workshop template into and writes all output to `/projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026/`. **Pass your workspace path explicitly** using your **NCSA username**:
-   ```bash
-   ssh <your-ncsa-username>@login.delta.ncsa.illinois.edu
-   mkdir -p /projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026
-   sbatch --output=/projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026/DNA_tutorial.log \
-          /projects/bgvl/SummerSchool_2026/DNA/files/launch_simulation.sh \
-          /projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026
-   ```
-   Section 3 of the notebook prints this command with **your** paths already filled in (and submits automatically if `sbatch` ever becomes available in your session).
-3. **(Gateway)** Run section 5 to **`tail`** the job log and monitor progress (~14 hours on an A100). Your bgvl folder is shared, so the log is visible from the Gateway even though the job runs on a compute node.
-4. Optionally use `squeue` / `scancel` (section 6) from a Delta login to check or cancel the job.
+Connect to Delta and complete your password + 2FA. Replace `USERNAME` with your NCSA username:
 
-> [!IMPORTANT]
-> The `btree_chromo` build inside the Gateway container is the newer **4DWCM** version, which removed the loop-extrusion (`translocate`) commands this 2025 tutorial uses. The matching binary lives only inside `DNA_summer2025.sif`, which is why the job runs through Apptainer via Slurm rather than as a plain background process on the Gateway.
+```bash
+ssh USERNAME@login.delta.ncsa.illinois.edu
+```
+
+(You can also open a terminal inside JupyterLab — *File → New → Terminal* — and run the same `ssh` there, instead of a separate laptop terminal.)
+
+### Step 2 — Copy the launch script and template into your folder
+
+```bash
+bash /projects/bgvl/SummerSchool_2026/DNA/files/prelaunch_btree_chromo.sh
+```
+
+This copies `launch_simulation.sh` and the `DNA_SummerSchool_2026/` template into your personal directory, `/projects/bgvl/$USER/` (on a login node `$USER` is already your NCSA username).
+
+### Step 3 — Submit the simulation
+
+```bash
+cd /projects/bgvl/$USER/
+sbatch launch_simulation.sh
+```
+
+The job runs `run_sc_chain_generation.sh` then `run_btree_chromo.py` inside `DNA_summer2025.sif` (~14 h on one A100) and writes output under `/projects/bgvl/$USER/DNA_SummerSchool_2026/`:
+
+```
+/projects/bgvl/$USER/
+├── launch_simulation.sh
+└── DNA_SummerSchool_2026/
+    ├── data/
+    │   ├── coords/
+    │   ├── loops/
+    │   ├── rep_states/
+    │   └── *.lammpstrj         # trajectory (when complete)
+    └── scripts/
+        ├── run_btree_chromo.py
+        ├── template.inp
+        ├── run_sc_chain_generation.sh
+        ├── Syn3A_chromosome_init.inp
+        └── BD_lengths.txt
+```
+
+Monitor your job (job id, run time, partition, GPU node):
+
+```bash
+squeue -u $USER
+```
+
+The Slurm log (`slurm-<jobid>.out`) is written in `/projects/bgvl/$USER/`.
 
 > [!NOTE]
-> Submit the job first so it can run while you read sections 6–11. Visualize the trajectory in section 12 once the job finishes.
-
-Output appears under `/projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete). The Slurm job log is written to `/projects/bgvl/<your-ncsa-username>/DNA_SummerSchool_2026/DNA_tutorial.log`.
+> Submit the job first so it runs while you read sections 6–11. Visualize the trajectory in section 12 once it finishes.
 
 ---
 
@@ -165,7 +196,7 @@ The DNA that btree_chromo simulates is coarse-grained at a 10 bp resolution. Thi
 
 Today you will run a simulation using a variant of LAMMPS which utilizes the GPUs on the Delta HPC cluster. We will simulate the cell cycle of the minimal cell including the effects of SMC proteins, topoisomerase, and Brownian dynamics. We will start by generating an initial configuration for the DNA and ribosomes of the minimal cell in a spherical cell membrane. The DNA will replicate, disentangle, and partition, and the cell membrane will grow and divide. At the end of the simulation we should have two cells that each look roughly like the cell we started with.
 
-At the core of the simulation we use LAMMPS for simulating the DNA dynamics, but their are several layers code wrapped around LAMMPS that are designed to make our lives easier. These layers are as follows: we will submit a slurm script that launches an Apptainer container. This container runs the fortran program to generate the initial DNA/ribosome coordinates, and then runs a python script which writes and executes 90 `btree_chromo` input scripts, each of which correspond to 1 biological minute of the Syn3A cell cycle. Each `btree_chromo` script involves writing and executing 6 LAMMPS input scripts (each of which correspond to 2 biological seconds of DNA replication and SMC looping).
+At the core of the simulation we use LAMMPS for simulating the DNA dynamics, but there are several layers of code wrapped around LAMMPS that are designed to make our lives easier. These layers are as follows: we submit a Slurm script that launches an Apptainer container. This container runs the Fortran program to generate the initial DNA/ribosome coordinates, and then runs a Python script which writes and executes 90 `btree_chromo` input scripts, each of which corresponds to 1 biological minute of the Syn3A cell cycle. Each `btree_chromo` script involves writing and executing 6 LAMMPS input scripts (each of which corresponds to 2 biological seconds of DNA replication and SMC looping).
 
 At one level even deeper, LAMMPS uses Kokkos, a library that lets the same LAMMPS code run efficiently on different types of hardware, like AMD and NVIDIA GPUs. In our case, Kokkos lets us perform the force calculations for the energy minimizations and Brownian dynamics on the GPU. Running on the GPU is around an order of magnitude faster than running on the CPU, and some GPUs can be much faster than others - for example, the A100 GPUs on Delta are around 2.5 times as fast as the RTX A5000 GPUs on my office desktop computer.
 
@@ -321,7 +352,7 @@ https://github.com/user-attachments/assets/8387c708-43c8-486a-8082-b665156d4bbf
 
 ## 11. Understanding btree_chromo Commands
 
-View the shared input template from your Jupyter session (this read-only copy is what the job stages into your `DNA_SummerSchool_2026/scripts/` folder):
+The job's Python driver (`run_btree_chromo.py`) fills in the directive **`template.inp`** for each biological minute and runs it. View the shared copy from your Jupyter session (it is also staged into your `DNA_SummerSchool_2026/scripts/` folder):
 
 ```python
 template = "/projects/bgvl/SummerSchool_2026/DNA/files/DNA_SummerSchool_2026/scripts/template.inp"
@@ -422,8 +453,10 @@ This folder already contains both `full_model.lammpstrj` (already preprocessed) 
 
 #### Option B — your own run
 
+Your run (section 5) writes its trajectory under `/projects/bgvl/$USER/DNA_SummerSchool_2026/data/`, which the OOD Desktop can read directly:
+
 ```bash
-cd /projects/bgvl/<your-delta-username>/DNA_SummerSchool_2026/data/
+cd /projects/bgvl/$USER/DNA_SummerSchool_2026/data/
 python3 modify_lammpstrj.py
 cp /projects/bgvl/SummerSchool_2026/DNA/files/load_btree_chromo.tcl .
 mv modified.lammpstrj full_model.lammpstrj
