@@ -18,6 +18,11 @@
 # reproducible seed
 btree_prng_seed:10
 
+# initialize a circular chromosome (5000 monomers) so the btree is ready before
+# any load_* command (4DWCM requires btree_initialized=1). The 2025 template did
+# this implicitly via input_state; here we start fresh like the examples.
+new_chromo:5000
+
 # --- load the small example chromosome (5000 monomers, 50 ribosomes, 900A) ---
 load_BD_lengths:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/BD_lengths.txt
 
