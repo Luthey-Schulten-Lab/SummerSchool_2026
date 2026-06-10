@@ -1,0 +1,69 @@
+# ============================================================================
+# 4DWCM btree_chromo API prototype  (port of the 2025 translocate-based tutorial)
+# ----------------------------------------------------------------------------
+# Goal: prove the *new* 4DWCM btree_chromo (the one already inside the Gateway
+# container at /Software/btree_chromo) can run the tutorial's two core motions —
+# loop extrusion + replication — directly in the Gateway (no SSH, no SIF).
+#
+# It uses the small 5000-monomer example structure (fast, ~minutes) and the
+# tutorial's own loop_params.txt, so the command flow can be validated before
+# scaling to the full Syn3A chromosome.
+#
+# Inputs are read from the shared read-only example folder; ALL output goes to a
+# writable workspace dir (the Gateway service account cannot write to /projects).
+# Create it first:
+#   mkdir -p /home/user/workspace/dna_4dwcm_prototype
+# ============================================================================
+
+# reproducible seed
+btree_prng_seed:10
+
+# --- load the small example chromosome (5000 monomers, 50 ribosomes, 900A) ---
+load_BD_lengths:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/BD_lengths.txt
+
+# 4DWCM requires orientations (quats) in addition to coordinates
+load_mono_coords:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/x_mono_5000mono_50ribo_bdry900A.bin,row
+load_mono_quats:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/q_mono_5000mono_50ribo_bdry900A.bin,row
+load_ribo_coords:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/x_ribo_5000mono_50ribo_bdry900A.bin,row
+load_ribo_quats:/projects/bgvl/SummerSchool_2026/DNA/files/examples/simulating_chromosome_with_loops_and_topo/q_ribo_5000mono_50ribo_bdry900A.bin,row
+
+# --- simulator setup (note: DNA model is a DIRECTORY in 4DWCM, not the _kk path) ---
+prepare_simulator:/home/user/workspace/dna_4dwcm_prototype/proto.log
+simulator_set_prng_seed:10
+simulator_set_nProc:8
+simulator_set_DNA_model:/Software/btree_chromo/LAMMPS_DNA_model/
+simulator_set_delta_t:1.0E+5
+
+# --- loop-extrusion parameters come from a FILE in 4DWCM (keeps the tutorial's values) ---
+simulator_load_loop_params:/projects/bgvl/SummerSchool_2026/DNA/files/loop_params.txt
+
+simulator_set_output_details:/home/user/workspace/dna_4dwcm_prototype/,proto
+
+# fixed spherical boundary (the full tutorial grows/divides this; fixed here for the prototype)
+spherical_bdry:900.0,0.0,0.0,0.0
+
+# write the LAMMPS data file and read it into the simulator
+sys_write_sim_read_LAMMPS_data:/home/user/workspace/dna_4dwcm_prototype/data.proto
+
+# relax the initial structure
+simulator_relax_progressive:10000,5000
+
+# ============================================================================
+# Phase 1 — loop extrusion (replaces 2025: translocate + form_loops + dynamics)
+#   simulator_run_loops:<#loop updates>,<#timesteps>,<thermo every>,<dump every>,append?,first?
+# ============================================================================
+simulator_run_loops:10,100000,10000,25000,noappend,first
+
+# ============================================================================
+# Phase 2 — replication (UNCHANGED from 2025: map the fork forward, then relax/run)
+# ============================================================================
+sync_simulator_and_system
+set_initial_state
+transform:m_cw250_ccw250
+set_final_state
+map_replication
+sys_write_sim_read_LAMMPS_data:/home/user/workspace/dna_4dwcm_prototype/data.proto
+simulator_relax_progressive:10000,10000
+
+# Phase 3 — continue loop extrusion on the now-replicating chromosome
+simulator_run_loops:10,100000,10000,25000,append,nofirst
