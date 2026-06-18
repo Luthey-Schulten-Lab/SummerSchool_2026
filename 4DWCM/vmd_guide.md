@@ -79,12 +79,9 @@ Ribosomes as spheres, yellow for actively translating and purple for free.
 
 The membrane is drawn as a **half cut-away** (lower hemisphere) so the chromosomes and ribosomes inside stay visible.
 
-Here is what the final movie looks like:
+https://github.com/user-attachments/assets/0e08dab4-935d-48d3-914c-053d8e1222dc
 
-<video src="https://github.com/Luthey-Schulten-Lab/SummerSchool_2026/edit/main/4DWCM/render/mincell.mp4" controls muted loop width="600">
-  Your browser can't play embedded video —
-  <a href="render/mincell.mp4">download mincell.mp4</a> instead.
-</video>
+[Download mincell.mp4](render/mincell.mp4)
 
 Finally, let's make a cool movie to see the dynamics over the cell cycle. Personalize your `$MovieName`. 
 
