@@ -435,7 +435,8 @@ VMD runs on the **OOD Desktop** (not Jupyter) and is launched through **VirtualG
 
 ```bash
 source /projects/bgvl/SummerSchool_2026/DNA/files/VirtualGL/setup_env.sh
-module load vmd
+module use /projects/bgvl/alfiaparvez/modulefiles
+module load vmd/2.0.0
 ```
 
 You can then visualize a **pre-run sample trajectory** (no simulation needed) or **your own run**.
