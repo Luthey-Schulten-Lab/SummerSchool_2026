@@ -1,0 +1,6 @@
+*.pdf
+*.csv
+*.lm
+RDME/__pycache__/
+trajectory/
+*.tga
