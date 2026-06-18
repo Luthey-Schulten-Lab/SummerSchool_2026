@@ -11,7 +11,7 @@ Since VMD requires a graphical interface, we'll use Open OnDemand's Desktop inte
 
 2. Log in through CILogon with your NCSA username, password, and Duo MFA.
 
-3. Open the Interactive Apps menu and click Desktop.
+3. Open the Interactive Apps menu and click **Desktop**.
 
 4. Configure the job settings and click Launch:
    - Container image: keep default
@@ -20,8 +20,8 @@ Since VMD requires a graphical interface, we'll use Open OnDemand's Desktop inte
    - Duration: `00-01:00:00`
    - Reservation: leave empty if none
    - CPUs: `4`
-   - RAM: `32GB`
-   - GPUs: `2`
+   - RAM: `64G`
+   - GPUs: `1`
 
 5. Wait for the job status to change from "starting" to "running" in My Interactive Sessions. 
 
