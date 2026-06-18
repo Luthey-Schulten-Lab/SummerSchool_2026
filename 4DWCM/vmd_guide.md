@@ -34,12 +34,14 @@ Since VMD requires a graphical interface, we'll use Open OnDemand's Desktop inte
 
 ## 2. Launch VMD
 
-Open a terminal, go to your cloned RDME folder, and launch ffmpeg (movie maker) and VMD:
+Open a terminal, launch ffmpeg (movie maker) and VMD:
 
 ```bash
 source /projects/bgvl/SummerSchool_2026/DNA/files/VirtualGL/setup_env.sh
+module use /projects/bgvl/alfiaparvez/modulefiles
 module load ffmpeg
-module load vmd
+module load vmd/2.0.0
+vglrun -d egl vmd
 ```
 
 ## 3. Load the trajectory
@@ -53,13 +55,12 @@ Pre-computed spatial trajectories live in the shared bgvl data folder:
 
 Load in the traj by source TCL script:
 
-1. Open TK console in VMD by clicking Plugins-TK console.
-2. Source TCL script
-
 ```bash
-cd render/
+cd /projects/bgvl/SummerSchool_2026/4DWCM/render/
 source load_and_sync.tcl
 ```
+
+The given TCL script load in the frames at a per-minute frenquency, a downsample of the actual 4D simulation for easy visualization.
 
 By default, all the particles in both files are rendered as Points, which are not pretty and intuitive to understand.
 
@@ -91,5 +92,5 @@ This ray-traces every frame to `render/frames/` and encodes it. For an `mp4`, ru
 Run this command on your laptop to download the Movie:
 
 ```bash
-scp $DeltaUserName@login.delta.ncsa.illinois.edu:/projects/bgvl/SummerSchool/4DWCM/render/$MovieName ./
+scp $DeltaUserName@login.delta.ncsa.illinois.edu:/projects/bgvl/SummerSchool_2026/4DWCM/render/$MovieName.mp4 ./
 ```
