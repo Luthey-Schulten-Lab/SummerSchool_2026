@@ -79,15 +79,19 @@ Ribosomes as spheres, yellow for actively translating and purple for free.
 
 The membrane is drawn as a **half cut-away** (lower hemisphere) so the chromosomes and ribosomes inside stay visible.
 
+Here is what the final movie looks like:
+
+<video src="https://github.com/Luthey-Schulten-Lab/SummerSchool_2026/raw/main/4DWCM/render/mincell.mp4" controls muted loop width="600">
+  Your browser can't play embedded video —
+  <a href="render/mincell.mp4">download mincell.mp4</a> instead.
+</video>
+
 Finally, let's make a cool movie to see the dynamics over the cell cycle. Personalize your `$MovieName`. 
 
 ```bash
 set movie_name $MovieName
 source make_movie.tcl 
 ```
-
-This ray-traces every frame to `render/frames/` and encodes it. For an `mp4`, run
-`module load ffmpeg` **before** launching VMD; otherwise you get a `mincell.gif`.
 
 Run this command on your laptop to download the Movie:
 
