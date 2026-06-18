@@ -81,7 +81,7 @@ The membrane is drawn as a **half cut-away** (lower hemisphere) so the chromosom
 
 Here is what the final movie looks like:
 
-<video src="https://github.com/Luthey-Schulten-Lab/SummerSchool_2026/raw/main/4DWCM/render/mincell.mp4" controls muted loop width="600">
+<video src="https://github.com/Luthey-Schulten-Lab/SummerSchool_2026/edit/main/4DWCM/render/mincell.mp4" controls muted loop width="600">
   Your browser can't play embedded video —
   <a href="render/mincell.mp4">download mincell.mp4</a> instead.
 </video>
