@@ -7,6 +7,7 @@ VMD and the [VMD plugin](https://github.com/Luthey-Schulten-Lab/LMVMDPlugin) are
 Since VMD requires a graphical interface, we'll use Open OnDemand's Desktop interactive app to access a Linux GUI for launching VMD and viewing trajectories.
 
 ## 1. Initialize the OOD Interactive Session
+
 1. Navigate to the [Open OnDemand dashboard](https://openondemand.delta.ncsa.illinois.edu/pun/sys/dashboard).
 
 2. Log in through CILogon with your NCSA username, password, and Duo MFA.
@@ -17,9 +18,9 @@ Since VMD requires a graphical interface, we'll use Open OnDemand's Desktop inte
    - Container image: keep default
    - Account: `bgvl-delta-gpu`
    - Partition: `GPUA100x4`
-   - Duration: `00-01:00:00`
+   - Duration: `00-02:00:00`
    - Reservation: leave empty if none
-   - CPUs: `4`
+   - CPUs: `16`
    - RAM: `64G`
    - GPUs: `1`
 
@@ -33,14 +34,22 @@ Since VMD requires a graphical interface, we'll use Open OnDemand's Desktop inte
 
 ## 2. Launch VMD
 
-Open a terminal, go to your cloned RDME folder, and launch VMD:
+Open a terminal, go to your cloned RDME folder, and launch ffmpeg (movie maker) and VMD:
 
 ```bash
-cd SummerSchool_2026/4DWCM
-bash launch_vmd.sh
+source /projects/bgvl/SummerSchool_2026/DNA/files/VirtualGL/setup_env.sh
+module load ffmpeg
+module load vmd
 ```
 
 ## 3. Load the trajectory
+
+Pre-computed spatial trajectories live in the shared bgvl data folder:
+
+```
+/projects/bgvl/SummerSchool_2026/4DWCM/trajectory/Mar31_1/MinCell.lm
+/projects/bgvl/SummerSchool_2026/4DWCM/trajectory/Mar31_1/DNA/chromosome.lammpstrj
+```
 
 Load in the traj by source TCL script:
 
@@ -52,19 +61,11 @@ cd render/
 source load_and_sync.tcl
 ```
 
-Pre-computed spatial trajectories live in the shared bgvl data folder (not in the git repository):
-
-```
-/projects/bgvl/SummerSchool_2026/4DWCM/trajectory/Mar31_1/MinCell.lm
-/projects/bgvl/SummerSchool_2026/4DWCM/trajectory/Mar31_1/DNA/chromosome.lammpstrj
-```
-
-![cell_traj_snapshot](./figures/VMD_render.png)
-
+By default, all the particles in both files are rendered as Points, which are not pretty and intuitive to understand.
 
 ## 4. Set up the representations and make a movie
 
-By default, all the particles in both files are rendered as Points, which are not pretty and intuitive to understand. In the same TK console
+In 4DWCM, so many things can be visualized. Use the given TCL script
 
 ```bash
 source representations.tcl
@@ -75,19 +76,20 @@ Left and right chromosomes as blue and red polymers of 10 bp/bead;
 Membrane as a green shell of 10 nm;
 Ribosomes as spheres, yellow for actively translating and purple for free.
 
-The membrane is drawn as a **half cut-away** (lower hemisphere) so the chromosomes and
-ribosomes inside stay visible, and a tuned camera angle is restored automatically. To see
-the full shell instead, edit the `name membrane and y < 3200` selection in
-`representations.tcl` (drop the `and y < 3200`).
+The membrane is drawn as a **half cut-away** (lower hemisphere) so the chromosomes and ribosomes inside stay visible.
 
-
-Let's make a cool movie to see the dynamics over the cell cycle:
+Finally, let's make a cool movie to see the dynamics over the cell cycle. Personalize your `$MovieName`. 
 
 ```bash
-source make_movie.tcl
+set movie_name $MovieName
+source make_movie.tcl 
 ```
 
 This ray-traces every frame to `render/frames/` and encodes it. For an `mp4`, run
 `module load ffmpeg` **before** launching VMD; otherwise you get a `mincell.gif`.
-Re-source to resume an interrupted render. Tune resolution/`fps`/`stride` in the
-parameter block at the top of `make_movie.tcl`.
+
+Run this command on your laptop to download the Movie:
+
+```bash
+scp $DeltaUserName@login.delta.ncsa.illinois.edu:/projects/bgvl/SummerSchool/4DWCM/render/$MovieName ./
+```

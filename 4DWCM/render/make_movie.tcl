@@ -8,23 +8,28 @@
 #
 #  Target: Open OnDemand interactive desktop on a Delta A100 GPU node.
 #    * Runs in the VMD GUI TkConsole (no batch -e needed).
-#    * A100 (Ampere) has no RT cores, but OptiX still runs CUDA-accelerated, so
-#      the in-process OptiX renderer is the right choice.
+#    * Uses the in-process CPU ray tracer (TachyonInternal) so it works
+#      regardless of OptiX/GPU availability in the VMD build.
 #
-#  Run order in the VMD TkConsole (cwd = render_scripts):
+#  Run order in the VMD TkConsole (cwd = render):
 #      source load_and_sync.tcl       ;# load + sync, sets $lm_mol/$dna_mol
 #      source representations.tcl      ;# visuals + camera
+#      set movie_name celldiv          ;# OPTIONAL: name the output (default: mincell)
 #      source make_movie.tcl          ;# THIS: lighting + render + encode
 # =============================================================================
 
 # ------------------------------- PARAMETERS ----------------------------------
 set outdir     frames                  ;# image-sequence output directory
-set basename   mincell                 ;# frame stem -> mincell.00000.tga
-set renderer   auto                    ;# auto = pick best available; or force one:
-                                        ;#   TachyonLOptiXInternal  (A100 GPU)
-                                        ;#   TachyonLOSPRayInternal (CPU, high quality)
-                                        ;#   TachyonInternal        (CPU)
-                                        ;#   snapshot               (GL grab, fastest)
+# Movie name -- override by `set movie_name <name>` before sourcing (default: mincell).
+# Sets the frame stem and output file, e.g. celldiv -> celldiv.00000.tga / celldiv.mp4.
+if {[info exists movie_name] && $movie_name ne ""} {
+    set basename $movie_name
+} else {
+    set basename mincell
+}
+set renderer   TachyonInternal          ;# enforced CPU ray tracer (no GPU/OptiX needed).
+                                        ;# Alternatives: TachyonLOptiXInternal (A100 GPU),
+                                        ;# TachyonLOSPRayInternal (CPU), snapshot (GL grab).
 set width      1920                     ;# render size; capped to the OOD desktop size
 set height     1080                     ;#   for the in-process renderers (see note below)
 set fps        30                       ;# playback frame rate for encoding
@@ -141,7 +146,7 @@ foreach f $frames {
         puts [format "  %d/%d  frame %d  elapsed %ds  eta ~%ds" $done $total $f $el $eta]
     }
 }
-puts "make_movie: done, $total images in $outdir/  (first frame includes OptiX kernel compile)"
+puts "make_movie: done, $total images in $outdir/"
 
 
 # --------------------------------- ENCODE ------------------------------------
