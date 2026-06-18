@@ -1,0 +1,35 @@
+WCM Naming Scheme
+=================
+
+Particle naming convention for the 4DWCM whole-cell model.
+XXXX = 4-digit gene/locus index (e.g. RB_0001).
+Source: WCM_naming_scheme.xlsx (polysome-specific names removed).
+
+NAME       DESCRIPTION
+---------  --------------------------------------------------------------------------
+G_XXXX     gene
+R_XXXX     mRNA
+R_XXXX_d   mRNA that has just been translated.  Undergoes a fast reaction to convert
+           to R_XXXX in cytoplasm, makes sure mRNA leaves ribosome after translation
+           instead of binding again immediately.
+P_XXXX     cytoplasmic proteins
+C_P_XXXX   cytoplasmic version of membrane protein.  Becomes P_XXXX through reaction
+           with secY and then stays in the membrane
+P_XXXX_TC  Cost particle product of translation that gets placed on lattice. Gets
+           replaced by P_XXXX or C_P_XXXX as soon as its counted into the translation
+           costs
+RP_XXXX    RNAP:gene bound state
+RP_XXXX_f  tracker particle in gCME to say that transcription of RP_XXXX has
+           completed.  Immediately gets replaced by G_XXXX + R_XXXX + RNAP, so should
+           always be 0
+D_XXXX     Degradosome:mRNA bound state
+DT_XXXX    Degradosome:mRNA bound state tracking particle to calculate costs of
+           degradation, rlated to DM_XXXX
+RB_XXXX    ribosome:mRNA bound state. Reads full mRNA in mono-ribosomes
+S_XXXX     secY:protein bbound state
+RPM_XXXX   Cumulatice counter for the number of R_XXXX made
+DM_XXXX    Cumulative counter of the number of D_XXXX
+PM_XXXX    Cumulative counter of number of P_XXXX/C_P_XXXX made
+ribosomeP  Free Ribosomes
+decay      Decay partitle to annihilation
+Regions	   cytoplasm, outer_cytoplasm, membrane, DNA, ribo_centers, ribosomes
