@@ -17,10 +17,12 @@ color scale min 0.0
 color scale midpoint 0.5
 color scale max 1.0
 display projection Orthographic
+display height     4.0          ;# Display menu: Screen Hgt
+display distance   -2.0         ;# Display menu: Screen Dist
 
 # Depth-fog look carried over from movie.vmd (save_state).
 display depthcue         on
-display cuemode          Exp2
+display cuemode          Linear
 display cuestart         0.5
 display cueend           10.0
 display cuedensity       0.32

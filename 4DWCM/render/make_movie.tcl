@@ -6,10 +6,10 @@
 #  an .mp4.  Changes ONLY lighting + render quality -- it does NOT touch
 #  molecules, representations, or the camera.
 #
-#  Target: Open OnDemand interactive desktop on a Delta A100 GPU node.
+#  Target: Open OnDemand interactive desktop on a Delta A100 or A40 GPU node.
 #    * Runs in the VMD GUI TkConsole (no batch -e needed).
-#    * Uses the in-process CPU ray tracer (TachyonInternal) so it works
-#      regardless of OptiX/GPU availability in the VMD build.
+#    * Uses the in-process OptiX ray tracer (TachyonLOptiXInternal), which runs
+#      on BOTH A100 (CUDA path, no RT cores) and A40 (hardware RT cores).
 #
 #  Run order in the VMD TkConsole (cwd = render):
 #      source load_and_sync.tcl       ;# load + sync, sets $lm_mol/$dna_mol
@@ -19,7 +19,16 @@
 # =============================================================================
 
 # ------------------------------- PARAMETERS ----------------------------------
-set outdir     frames                  ;# image-sequence output directory
+# Image-sequence output directory.  Defaults to a shared, group-writable area
+# (group delta_bgvl, setgid) with a PER-USER subdir so bgvl users don't clobber
+# each other's frames.  Override with `setenv MOVIE_OUTDIR /path` or
+# `set outdir /path` before sourcing.
+if {[info exists ::env(MOVIE_OUTDIR)]} {
+    set outdir $::env(MOVIE_OUTDIR)
+} elseif {![info exists outdir]} {
+    set _movies /projects/bgvl/SummerSchool_2026/4DWCM/render/movies
+    set outdir [file join $_movies $::env(USER)]
+}
 # Movie name -- override by `set movie_name <name>` before sourcing (default: mincell).
 # Sets the frame stem and output file, e.g. celldiv -> celldiv.00000.tga / celldiv.mp4.
 if {[info exists movie_name] && $movie_name ne ""} {
@@ -27,9 +36,10 @@ if {[info exists movie_name] && $movie_name ne ""} {
 } else {
     set basename mincell
 }
-set renderer   TachyonInternal          ;# enforced CPU ray tracer (no GPU/OptiX needed).
-                                        ;# Alternatives: TachyonLOptiXInternal (A100 GPU),
-                                        ;# TachyonLOSPRayInternal (CPU), snapshot (GL grab).
+set renderer   TachyonLOptiXInternal    ;# GPU OptiX ray tracer; runs on BOTH A100 (CUDA,
+                                        ;# no RT cores) and A40 (hardware RT cores).
+                                        ;# Fallbacks if a build lacks OptiX: TachyonInternal
+                                        ;# (CPU, any node), TachyonLOSPRayInternal, snapshot.
 set width      1920                     ;# render size; capped to the OOD desktop size
 set height     1080                     ;#   for the in-process renderers (see note below)
 set fps        30                       ;# playback frame rate for encoding
@@ -103,7 +113,23 @@ proc _try_render {method fn} {
 }
 
 set last [expr {[molinfo top get numframes]-1}]
-file mkdir $outdir
+
+# Create the output dir and confirm WE can actually write there.  The in-process
+# renderers report a misleading "Could not open file ... for writing!" (and the
+# script then claims "no working renderer") when the outdir isn't writable.
+if {[catch {file mkdir $outdir} _e]} {
+    error "make_movie: cannot create output dir '$outdir': $_e\
+          \n  Fix: setenv MOVIE_OUTDIR /projects/bgvl/$::env(USER)/mincell_movie , then re-source."
+}
+set outdir [file normalize $outdir]
+set _probe [file join $outdir .write_test]
+if {[catch {set _fh [open $_probe w]} _e]} {
+    error "make_movie: output dir is not writable by you: $outdir\
+          \n  ($_e)\
+          \n  Fix: setenv MOVIE_OUTDIR /projects/bgvl/$::env(USER)/mincell_movie , then re-source."
+}
+close $_fh
+file delete -- $_probe
 
 # Build the frame list up front (so ETA knows the total).
 set frames {}
