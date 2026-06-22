@@ -10,22 +10,24 @@ In the ***4D Whole-Cell Model (4DWCM) of JCVI-syn3A*** tutorial, you will explor
 
 ## Outline:
 
-1. Clone the repository and connect to shared RDME data on bgvl
-2. Analyze pre-computed 4DWCM trajectories
-3. Model overview and hybrid simulation flowchart
-4. Geometry: surface area, volume and DNA doubling
-5. Complex assembly and active counts
-6.  Proteomics relative to replication initiation
-7.  Whole-cell energetics: ATP production and expenditure
+1. File Organization
+2. Visualize 3D trajectories over the cell cycle
+3. Analyze pre-computed 4DWCM trajectories
+4. Model overview and hybrid simulation flowchart
+5. Geometry: surface area, volume and DNA doubling
+6. Complex assembly and active counts
+7.  Proteomics relative to replication initiation
+8.  Whole-cell energetics: ATP production and expenditure
 
-## 1. File Organization o shared RDME data on bgvl
+## 1. File Organization
 
 For 4DWCM module, you should see:
 
 ```
 SummerSchool_2026/4DWCM/          ← your cloned copy (notebooks & scripts)
-├── 4DWCM_analysis.ipynb         # ensemble analysis (§6)
+├── 4DWCM_analysis.ipynb         # analyze ensemble statistics (§6)
 ├── analysis_scripts/            # Python helpers + sim_properties_1_9.pkl
+├── vmd_guide.md                 # visualize and render 4D traj in VMD2
 └── readme.md                    # you are here
 ```
 
@@ -37,31 +39,15 @@ Pre-computed trajectories (CSVs, LM and LAMMPS files) are **NOT** in the git-clo
 └── trajectory/                      # MinCell_1–4.lm for VMD
 ```
 
-`4DWCM_analysis.ipynb` reads CSVs from the bgvl `data/` path automatically. The original data are also archived on [Zenodo:15579159](https://zenodo.org/records/15579159).
-
-> [!NOTE]
-> For RDME notebooks, select the **LM 2.5 (Python 3.7)** kernel when prompted.
-
-Analysis plots are saved under `my_results/` in your cloned copy:
-
-```python
-import os
-os.makedirs('my_results', exist_ok=True)
-```
-
 ---
 
 ## 2. Visualize 3D trajectories over the cell cycle
 
 Visualize 4DWCM trajs on Open OnDemand platform: see [vmd_guide.md](vmd_guide.md).
 
-## 3. Analyze pre-computed 4DWCM trajectories
-
-In the Jupyter file browser, open [`4DWCM_analysis.ipynb`](4DWCM_analysis.ipynb) in **`SummerSchool_2026/RDME/`** to explore ensemble averages from 50 pre-computed whole-cell trajectories. The notebook reads CSVs from **`/projects/bgvl/SummerSchool_2026/RDME/data/`** and saves plots to **`my_results/`** in your clone. Sections 7–11 below walk through the key results shown in that notebook.
-
 ---
 
-## 4. Model Overview and Hybrid Simulation Flowchart
+## 3. Hybrid 4D Simulation incorporating RDME, BD, CME, and ODE
 
 The 4DWCM [1] integrates four numerical algorithms so that every molecular event of a living minimal cell can be followed for its entire 105-min division cycle:
 
@@ -69,7 +55,7 @@ The 4DWCM [1] integrates four numerical algorithms so that every molecular event
 
 2. A **global chemical-master-equation module** for low-copy, well-stirred reactions such as transcription initiation and tRNA charging
 
-3. An **ordinary-differential-equation solver** for the 493-reaction metabolic network
+3. An **ordinary-differential-equation solver** for the essential metabolic network
 
 4. A **Brownian-dynamics simulation** running on a second GPU that evolves the coarse-grained chromosome, replication forks and SMC-loop extrusion
 
@@ -77,12 +63,12 @@ The 4DWCM [1] integrates four numerical algorithms so that every molecular event
 ![4DWCM Flowchart](./figures/4DWCM_flowchart_v1.3.png)
 
 
-### 4.1 Initialization
+### 3.1 Initialization
 
 * The simulation begins by **initializing the model**
 * **RDME state is copied to the GPU**, and the first **4-second LAMMPS simulation** is launched (LAMMPS handles particle-level dynamics for DNA and its interaction with cell membrane)
 
-### 4.2 Core Hybrid Loop (Iterates over 2 hours of biological time)
+### 3.2 Core Hybrid Loop (Iterates over 2 hours of biological time)
 
 #### Hook Timings:
 
@@ -102,7 +88,7 @@ The 4DWCM [1] integrates four numerical algorithms so that every molecular event
   * Run **ODE metabolism** (glycolysis, nucleotide/lipid synthesis)
   * **Communicate new concentrations** back to global counts
 
-### 4.3 Spatial Cell Modeling with Brownian Dynamics
+### 3.3 Spatial Cell Modeling with Brownian Dynamics
 
 * When **growth or division** is triggered:
   * **Cell surface area and volume (SA/V)** are updated from lipid/protein data
@@ -113,21 +99,32 @@ The 4DWCM [1] integrates four numerical algorithms so that every molecular event
     * **Move particles to stay inside** the membrane
   * **New 4-second LAMMPS simulation** is triggered in the background
 
-### 4.4 Output and Termination
+### 3.4 Output and Termination
 
 * Every second, the workflow checks whether **data should be written**
 * If simulation time exceeds **2 biological hours**, the run ends
 * If not, it loops back to the next 50 μs RDME step
 
-### 4.5 Functional Process Handling 
+### 3.5 Functional Process Handling 
 
 | Module                       | Processes Handled                                     |
 | ---------------------------- | ----------------------------------------------------- |
-| **Global CME**               | Transcription, tRNA charging, cost propagation       |
-| **ODE**                      | Metabolism, nucleotide & lipid synthesis             |
-| **RDME**                     | Translation, protein insertion, mRNA degradation     |
-| **Brownian Dynamics/LAMMPS** | DNA replication, chromosome movement, topoisomerases |
-| **Free-DTS**                 | Cell morphology                                       |
+| **RDME**                     | Replication initiation, Transcription initiation, Translation, Protein translocation, mRNA degradation     |
+| **Global CME**               | Transcription elongation, tRNA charging, cost propagation       |
+| **ODE**                      | Metabolism: nucleotide, lipid synthesis, ...             |
+| **Brownian Dynamics** | DNA replication, chromosome motions, ,SMC extrusions, topoisomerases |
+| **Free-DTS**                 | Cell morphology (Alternative methods not used)                                       |
+
+---
+
+## 4. Analyze Ensemble Statistics from pre-computed 4DWCM trajectories
+
+`4DWCM_analysis.ipynb` reads CSVs of multi-omics of 50 cells from the bgvl `data/` path automatically. The original data are also archived on [Zenodo:15579159](https://zenodo.org/records/15579159).
+
+> [!NOTE]
+> For RDME notebooks, select the **LM 2.5 (Python 3.7)** kernel when prompted.
+
+In the Jupyter file browser, open [`4DWCM_analysis.ipynb`](4DWCM_analysis.ipynb) in **`SummerSchool_2026/RDME/`** to explore ensemble averages from 50 pre-computed whole-cell trajectories. The notebook reads CSVs from **`/projects/bgvl/SummerSchool_2026/RDME/data/`** and saves plots to **`my_results/`** in your clone. Sections below walk through the key results.
 
 ---
 
@@ -137,7 +134,6 @@ The simulated cell begins as a sphere of radius 200 nm and grows isotropically u
 
 **Figure 2:** Cell geometry dynamics showing surface area, volume, and DNA doubling over time.
 ![Surface Area, Volume and DNA](./figures/DNA_V_SA.png)
-
 
 ## 6. Complex Assembly and Active Counts
 
