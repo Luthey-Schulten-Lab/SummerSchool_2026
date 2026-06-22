@@ -10,14 +10,14 @@ In the ***4D Whole-Cell Model (4DWCM) of JCVI-syn3A*** tutorial, you will explor
 
 ## Outline:
 
-1. File Organization
-2. Visualize 3D trajectories over the cell cycle
-3. Analyze pre-computed 4DWCM trajectories
-4. Model overview and hybrid simulation flowchart
-5. Geometry: surface area, volume and DNA doubling
-6. Complex assembly and active counts
-7.  Proteomics relative to replication initiation
-8.  Whole-cell energetics: ATP production and expenditure
+1. [File Organization](#1-file-organization)
+2. [Visualize 3D trajectories over the cell cycle](#2-visualize-3d-trajectories-over-the-cell-cycle)
+3. [Hybrid 4D Simulation incorporating RDME, BD, CME, and ODE](#3-hybrid-4d-simulation-incorporating-rdme-bd-cme-and-ode)
+4. [Analyze Ensemble Statistics from pre-computed 4DWCM trajectories](#4-analyze-ensemble-statistics-from-pre-computed-4dwcm-trajectories)
+5. [Cell growth: surface area, volume and DNA doubling](#5-cell-growth-surface-area-volume-and-dna-doubling)
+6. [Complex assembly and their activities](#6-complex-assembly-and-their-activities)
+7. [Proteomics doubling at the end of cell cycle](#7-proteomics-doubling-at-the-end-of-cell-cycle)
+8. [Whole-cell energetics: ATP production and expenditure](#8-whole-cell-energetics-atp-production-and-expenditure)
 
 ## 1. File Organization
 
@@ -49,7 +49,7 @@ Visualize 4DWCM trajs on Open OnDemand platform: see [vmd_guide.md](vmd_guide.md
 
 ## 3. Hybrid 4D Simulation incorporating RDME, BD, CME, and ODE
 
-The 4DWCM [1] integrates four numerical algorithms so that every molecular event of a living minimal cell can be followed for its entire 105-min division cycle:
+The 4DWCM[^thornburg_4DWCM] integrates four numerical algorithms so that every molecular event of a living minimal cell can be followed for its entire 105-min division cycle:
 
 1. A **reaction-diffusion master-equation (RDME) solver** on the GPU advances Brownian motion and local reactions in 10 nm lattice voxels with 50 µs steps. Every 12.5 ms of biological time the RDME is paused and three auxiliary solvers are called:
 
@@ -59,8 +59,10 @@ The 4DWCM [1] integrates four numerical algorithms so that every molecular event
 
 4. A **Brownian-dynamics simulation** running on a second GPU that evolves the coarse-grained chromosome, replication forks and SMC-loop extrusion
 
-**Figure 1:** 4DWCM hybrid simulation flowchart showing the integration of four numerical algorithms [^thornburg2025].
-![4DWCM Flowchart](./figures/4DWCM_flowchart_v1.3.png)
+<p align="center">
+  <img src="./figures/4DWCM_flowchart_v1.3.png" alt="4DWCM Flowchart" width="600"> <br>
+  <b>Figure 1. 4DWCM hybrid simulation flowchart showing the integration of four numerical algorithms[^thornburg_4DWCM].</b>
+</p>
 
 
 ### 3.1 Initialization
@@ -128,33 +130,41 @@ In the Jupyter file browser, open [`4DWCM_analysis.ipynb`](4DWCM_analysis.ipynb)
 
 ---
 
-## 5. Geometry: Surface Area, Volume and DNA Doubling
+## 5. Cell growth: Surface Area, Volume and DNA Doubling
 
 The simulated cell begins as a sphere of radius 200 nm and grows isotropically until its volume doubles (~68 min), after which an invagination appears and constriction proceeds until cytokinesis at ~106 min. Membrane synthesis continues throughout, so surface area does not plateau until division is complete. DNA replication initiates after a short B-period of ~5 min, finishes at ~51 min, and the combined timing of DNA and membrane growth predicts an ori:ter ratio of 1.28, remarkably close to the experimental value of 1.21. The staggered vertical lines in the figure below mark, respectively, the mean times at which DNA, volume and surface area have doubled in the 50-cell ensemble.
 
-**Figure 2:** Cell geometry dynamics showing surface area, volume, and DNA doubling over time.
-![Surface Area, Volume and DNA](./figures/DNA_V_SA.png)
+<p align="center">
+  <img src="./figures/DNA_V_SA.png" alt="Surface Area, Volume and DNA" width="600"> <br>
+  <b>Figure 2. Cell geometry dynamics showing surface area, volume, and DNA doubling over time.</b>
+</p>
 
-## 6. Complex Assembly and Active Counts
+## 6. Complex assembly and their activities
 
 By the time the average cell reaches the division point (~105 min) it contains 881 ribosomes, 176 RNA polymerases and 192 degradosomes. Because the subunits of RNAP and the degradosome are placed unassembled at t = 0, these complexes self-assemble within the first biological second and then track gene expression demand throughout the cycle. Roughly 55% of ribosomes are translating, 70% of RNAP are elongating, and 10% of degradosomes are actively degrading at any instant, values that fall within the broad ranges measured for bacteria with richer proteomes.
 
-**Figure 3:** Complex assembly statistics and active counts for the first 5 trajectories.
-![Complex Assembly Statistics](./figures/GIP_statistics_first5.png)
+<p align="center">
+  <img src="./figures/GIP_statistics_first5.png" alt="Complex Assembly Statistics" width="600"> <br>
+  <b>Figure 3. Complex assembly statistics and active counts for the first 5 trajectories.</b>
+</p>
 
-## 7. Proteomics Relative to Replication Initiation
+## 7. Proteomics doubling at the end of cell cycle
 
 Replication typically starts five minutes after birth but can be delayed to as late as 46 min in outlier cells.  When the same cells are inspected at 105 min, the distribution of the "scaled protein count" (protein copies at 105 min divided by the initial copy number) peaks just below two, revealing that the model falls slightly short of perfect protein doubling for the average gene, especially for long, slow-translated proteins . The corresponding mRNA distribution is broader—owing to stochastic transcription–degradation—but its median also lies beneath 2, confirming that underproduction of transcripts is a principal cause of the modest protein shortfall.
 
-**Figure 4:** Protein distribution relative to replication initiation timing.
-![Protein Distribution](./figures/protein_distribution.png)
+<p align="center">
+  <img src="./figures/protein_distribution.png" alt="Protein Distribution" width="600"> <br>
+  <b>Figure 4. Protein distribution relative to replication initiation timing.</b>
+</p>
 
 ## 8. Whole-Cell Energetics: ATP Production and Expenditure
 
 The figure below parses every ATP-consuming reaction each second of the cycle. Averaged over the population, the biosynthetic and maintenance costs of translation, transcription, transport, lipid insertion and other processes nearly match the ATP made by glycolysis and substrate-level phosphorylation; a narrow surplus keeps the nucleotide triphosphate pool from depletion. Because DNA synthesis draws ATP only while forks are active, a transient shoulder appears in the fractional-cost curve during replication. The shoulder broadens into a 60–90 min plateau because the one cell that delayed initiation until 46 min remained in C-period after its peers had already finished. In single-cell traces (Subfigure C) the ATP demand fluctuates sharply with bursts of gene expression and septal growth, whereas the population mean appears smooth, highlighting the role of stochastic expression in metabolic load balancing.
 
-**Figure 5:** ATP production and expenditure analysis showing whole-cell energetics.
-![ATP Costs](./figures/atp_costs.png)
+<p align="center">
+  <img src="./figures/atp_costs.png" alt="ATP Costs" width="600"> <br>
+  <b>Figure 5. ATP production and expenditure analysis showing whole-cell energetics.</b>
+</p>
 
 ## References
-[^thornburg2025]: Thornburg, Z.R. et al. (2025) 'Bringing the genetically minimal cell to life on a computer in 4D', bioRxiv, p. 2025.06.10.658899. Available at: https://doi.org/10.1101/2025.06.10.658899.
+[^thornburg_4DWCM]: Thornburg, Z. R., Maytin, A., Kwon, J., Brier, T. A., Gilbert, B. R., Fu, E., Gao, Y.-L., Quenneville, J., Wu, T., Li, H., Long, T., Pezeshkian, W., Sun, L., Glass, J. I., Mehta, A. P., Ha, T., & Luthey-Schulten, Z. (2026). Bringing the genetically minimal cell to life on a computer in 4D. Cell, 189(9), 2582–2597.e27. https://doi.org/10.1016/j.cell.2026.02.009
