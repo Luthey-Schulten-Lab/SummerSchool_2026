@@ -79,7 +79,7 @@ Ribosomes as spheres, yellow for actively translating and purple for free.
 
 The membrane is drawn as a **half cut-away** (lower hemisphere) so the chromosomes and ribosomes inside stay visible.
 
-https://github.com/user-attachments/assets/0e08dab4-935d-48d3-914c-053d8e1222dc
+https://github.com/user-attachments/assets/257d09f5-e3fc-4b90-82ac-8b0f173c0b21
 
 [Download mincell.mp4](render/mincell.mp4)
 
