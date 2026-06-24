@@ -36,10 +36,11 @@ if {[info exists movie_name] && $movie_name ne ""} {
 } else {
     set basename mincell
 }
-set renderer   TachyonLOptiXInternal    ;# GPU OptiX ray tracer; runs on BOTH A100 (CUDA,
-                                        ;# no RT cores) and A40 (hardware RT cores).
-                                        ;# Fallbacks if a build lacks OptiX: TachyonInternal
-                                        ;# (CPU, any node), TachyonLOSPRayInternal, snapshot.
+set renderer   auto                    ;# auto = pick best available; or force one:
+                                        ;#   TachyonLOptiXInternal  (A100 GPU)
+                                        ;#   TachyonLOSPRayInternal (CPU, high quality)
+                                        ;#   TachyonInternal        (CPU)
+                                        ;#   snapshot               (GL grab, fastest)
 set width      1920                     ;# render size; capped to the OOD desktop size
 set height     1080                     ;#   for the in-process renderers (see note below)
 set fps        30                       ;# playback frame rate for encoding
@@ -116,17 +117,20 @@ set last [expr {[molinfo top get numframes]-1}]
 
 # Create the output dir and confirm WE can actually write there.  The in-process
 # renderers report a misleading "Could not open file ... for writing!" (and the
-# script then claims "no working renderer") when the outdir isn't writable.
+# script then claims "no working renderer") when the outdir isn't writable --
+# usually because VMD was launched from someone else's directory.
 if {[catch {file mkdir $outdir} _e]} {
     error "make_movie: cannot create output dir '$outdir': $_e\
-          \n  Fix: setenv MOVIE_OUTDIR /projects/bgvl/$::env(USER)/mincell_movie , then re-source."
+          \n  Fix: setenv MOVIE_OUTDIR /projects/bgvl/$::env(USER)/mincell_movie\
+          \n       (or 'cd' to a directory you own), then re-source."
 }
 set outdir [file normalize $outdir]
 set _probe [file join $outdir .write_test]
 if {[catch {set _fh [open $_probe w]} _e]} {
     error "make_movie: output dir is not writable by you: $outdir\
           \n  ($_e)\
-          \n  Fix: setenv MOVIE_OUTDIR /projects/bgvl/$::env(USER)/mincell_movie , then re-source."
+          \n  Fix: setenv MOVIE_OUTDIR /projects/bgvl/$::env(USER)/mincell_movie\
+          \n       (or 'cd' to a directory you own), then re-source."
 }
 close $_fh
 file delete -- $_probe
