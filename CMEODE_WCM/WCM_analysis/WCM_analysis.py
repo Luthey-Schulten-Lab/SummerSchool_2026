@@ -174,17 +174,12 @@ class WCM_ensemble:
         self.volumes = in_ensemble['volumes']
         self.conc_factors = in_ensemble['conc_factors']
 
-        # Resolve the .npy files NEXT TO this pkl: basename() strips any stale
-        # absolute directory an older pkl may have baked in, then we join with the
-        # dir we are actually reading from. So the trio (.pkl + _x.npy + _fx.npy)
-        # can be copied/moved to any folder and still load. Fall back to the stored
-        # path for the in-place case where the .npy is not beside the pkl.
-        x_path = os.path.join(in_dir, os.path.basename(in_ensemble['x_path']))
-        fx_path = os.path.join(in_dir, os.path.basename(in_ensemble['fx_path']))
-        if not os.path.exists(x_path):
-            x_path = in_ensemble['x_path']
-        if not os.path.exists(fx_path):
-            fx_path = in_ensemble['fx_path']
+        # Infer the .npy paths purely from in_dir + in_label: the files are always
+        # named <in_label>_x.npy / <in_label>_fx.npy and live next to the pkl, so
+        # the trio (.pkl + _x.npy + _fx.npy) can be copied/moved to any folder and
+        # still load. The pkl's stored x_path/fx_path are not used.
+        x_path = os.path.join(in_dir, in_label + '_x.npy')
+        fx_path = os.path.join(in_dir, in_label + '_fx.npy')
 
         # Lazy load large arrays using memory mapping (READ ONLY)
         self.x = np.load(x_path, mmap_mode='r')   # shape: (N_species, Nt, N_reps)
