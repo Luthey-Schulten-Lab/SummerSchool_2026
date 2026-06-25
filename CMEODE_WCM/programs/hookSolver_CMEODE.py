@@ -6,9 +6,12 @@ Date: March 2024
 user defined solver where hookSimulation performs every hookInterval
 """
 
+import time as phys_time
+
 import communicate
 import hook_CMEODE
 import GIP_rates
+import filesaving
 
 # import pyLM.units to make lm.GillespieDSolver readabe by python
 from pyLM.units import *
@@ -96,13 +99,15 @@ class MyOwnSolver(lm.GillespieDSolver):
             
 
     def hookSimulation(self, time): # hookSimulation method here will override the ones in the C++ code
-        
+
+        _hook_start = phys_time.time()  # PROFILING: whole-hook wall time
+
         restartNum = self.sim_properties['restartNum'][-1]
         restartInterval = self.sim_properties['restartInterval']
-      
+
         print('*******************************************************************')
         print(f'HookSimulation is called at {restartNum*restartInterval+time:.3f} second')
-        
+
         self.update_countarray()
 
         # using self.CMECounts to update CME counts and write them into sim_properties which will be used in ODE
@@ -116,6 +121,22 @@ class MyOwnSolver(lm.GillespieDSolver):
 
         # update CME rates per communication step after ODE
         self.update_rateconstants()
+
+        # Periodic CSV output (replaces the old CME restart): every outputInterval
+        # seconds, append the new frames to CSV chunks and trim the in-memory
+        # histories to the last 2 frames (hook cost calcs need only [-1]/[-2]).
+        T = self.sim_properties['time_second'][-1]
+        outInt = self.sim_properties.get('outputInterval')
+        if outInt and T > 0 and (T % outInt == 0):
+            filesaving.flushChunk(self.sim_properties)
+            filesaving.trimHistory(self.sim_properties, keep=2)
+
+        # PROFILING: accumulate whole-hook wall time (this runs inside runSolver,
+        # so cme_runsolver - hook_total = pure CME C++ solver time).
+        _prof = self.sim_properties.get('prof')
+        if _prof is not None:
+            _prof['hook_total'] += phys_time.time() - _hook_start
+            _prof['hook_count'] += 1
 
         return 1
         

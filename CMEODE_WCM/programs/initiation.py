@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 from Bio.Seq import Seq
 from itertools import chain
-
+import copy
 
 import rxns_CME
 
@@ -165,14 +165,40 @@ def initializeConstants(sim_properties):
 
     """
 
-    kinetic_params_path =  '../input_data/kinetic_params.xlsx'; sim_properties['kinetic_params_path'] = kinetic_params_path
-    init_conc_path = '../input_data/initial_concentrations.xlsx'; sim_properties['init_conc_path'] = init_conc_path
-    cplx_path = '../input_data/complex_formation.xlsx'; sim_properties['cplx_path'] = cplx_path
+    kinetic_params_path =  sim_properties['input_dir'] + 'kinetic_params.xlsx'; sim_properties['kinetic_params_path'] = kinetic_params_path
+    init_conc_path = sim_properties['input_dir'] + 'initial_concentrations.xlsx'; sim_properties['init_conc_path'] = init_conc_path
+    cplx_path = sim_properties['input_dir'] + 'complex_formation.xlsx'; sim_properties['cplx_path'] = cplx_path
     
+    # Define the complexation
+    full_complexes_df = pd.read_excel(cplx_path, sheet_name="Complexes")
+    full_complexes = list(full_complexes_df['Name'])
+    print(f"Full Complexes in File {cplx_path}: {full_complexes}")
+    sim_properties['full_complexes'] = full_complexes
+    sim_properties['assembled_complexes'] = full_complexes # Not assembled complexes reaction rates will be set to 0
+    sim_properties['fake_assembled_complexes'] = []
+
+    # Define bimolecular association rates (for those not available from experiments)
+    sim_properties['3D_association_rate'] = 1e5 # per M per second
+    sim_properties['3D_cplx_association_rate'] = 1e5 # per M per second
+
+    sim_properties['2D_association_rate'] = 2.5e-3*1e6 # um^2 per second * 1e6 -> nm^2 per second (No Avgadro number)
+    sim_properties['2D_memcplx_association_rate'] = 2.5e-3*1e6 # um^2 per second * 1e6 -> nm^2 per second (No Avgadro number)
+
     categorizeGenes(sim_properties)
     gettRNAMap(sim_properties)
     getPtnLocations(sim_properties); getPtnInitCount(sim_properties); getAbnormalTranslocationPtns(sim_properties)
-    getComplexMap(sim_properties); getTransloconRNCComplex(sim_properties)
+
+    cplx_dict = getComplexMap(sim_properties, sim_properties['assembled_complexes']+sim_properties['fake_assembled_complexes'])
+    sim_properties['cplx_dict'] = cplx_dict
+    print(f"Assembled complexes in this simulation: cplx_dict {len(cplx_dict)}")
+    for cplx, subdict in cplx_dict.items():
+        print(cplx, subdict)
+
+    print(f"Out of assembled, Fake Assembled Complexes: ")
+    for cplx in sim_properties['fake_assembled_complexes']:
+        print(cplx)
+        
+    getTransloconRNCComplex(sim_properties)
     getriboTolocusMap(sim_properties)
     initializePromoterStrengths(sim_properties)
 
@@ -191,6 +217,11 @@ def initializeConstants(sim_properties):
     
     cellVolume_init = (4*np.pi/3)*r_cell**3*1000 # L
     sim_properties['volume_L'] = [cellVolume_init]
+
+    sim_properties['SA'] = {}
+    SA_int_nm2 = 4*np.pi*(r_cell*1e9)**2
+    sim_properties['SA']['SA_nm2'] = [int(SA_int_nm2)]
+    sim_properties['SA']['SA_m2'] = [int(SA_int_nm2)/1e18] 
 
     print(f"The initial radius of syn3A is {r_cell*1e9:.2f} nm")
 
@@ -574,7 +605,7 @@ def getriboTolocusMap(sim_properties):
 #########################################################################################
 
 #########################################################################################
-def getComplexMap(sim_properties):
+def getComplexMap(sim_properties, complex_list):
     """
     Input: 
         cplx Excel Sheet
@@ -596,6 +627,9 @@ def getComplexMap(sim_properties):
 
     for index, row in cplx_df.iterrows():
         name = row['Name']
+        if name not in complex_list:
+            continue
+
         cplx_dict[name] = {}
         # init_count
         cplx_dict[name]['init_count'] = int(row['Init. Count'])
@@ -622,14 +656,8 @@ def getComplexMap(sim_properties):
                 transMP_count += stoi
         subdict['transMP_count'] = transMP_count
 
-    sim_properties['cplx_dict'] = cplx_dict
-    
-    print(f"cplx_dict {len(cplx_dict)}")
 
-    for cplx, subdict in cplx_dict.items():
-        print(cplx, subdict)
-
-    return None
+    return cplx_dict
 #########################################################################################
 
 #########################################################################################
@@ -639,13 +667,13 @@ def outPtnCorrInitCounts(sim_properties, rank):
     """
     if rank == 1: # Only output the Excel sheet from one replicate
 
-        cplx_dict = sim_properties['cplx_dict']
+        full_cplx_dict = getComplexMap(sim_properties, sim_properties['full_complexes'])
 
         def getCplxcounts(complex):
             cplx_count = []
 
             for cplx in complex:
-                count = cplx_dict[cplx]['init_count']
+                count = full_cplx_dict[cplx]['init_count']
                 cplx_count.append(count)
 
             return cplx_count
@@ -654,7 +682,7 @@ def outPtnCorrInitCounts(sim_properties, rank):
             Stois = []
 
             for cplx in complex:
-                Stoi = cplx_dict[cplx]['Stoi'][locusNum]
+                Stoi = full_cplx_dict[cplx]['Stoi'][locusNum]
                 Stois.append(Stoi)
 
             return Stois
@@ -718,21 +746,36 @@ def getTransloconRNCComplex(sim_properties):
     """
 
     Translocon_RNC_dict = {}
-
+    cplx_dict = sim_properties['cplx_dict']
+ 
     transmemPtnList = sim_properties['locations_ptns']['trans-membrane']
+
+    def getTransMPcount(Stoi):
+        transMP_count = 0
+        for locusNum, stoi in Stoi.items():
+            if locusNum in transmemPtnList:
+                transMP_count += stoi
+        return transMP_count
+    
     for locusNum in transmemPtnList:
         if locusNum not in sim_properties['sole_YidC_ptns']:
             SecYEGDF_RNC = 'SecYEGDF_RNC_'+locusNum
             Translocon_RNC_dict[SecYEGDF_RNC] = {}
             Translocon_RNC_dict[SecYEGDF_RNC]['init_count'] = 0
-            Translocon_RNC_dict[SecYEGDF_RNC]['Stoi'] = {'P_0652':1, 'P_0839':1, 'P_0774':1, 'P_0412':1, 'Ribosome':1}
-            Translocon_RNC_dict[SecYEGDF_RNC]['transMP_count'] = 4
+            Translocon_RNC_dict[SecYEGDF_RNC]['Stoi'] = copy.deepcopy(cplx_dict['SecYEGDF']['Stoi'])
+            # for subunit, stoi in cplx_dict['SecYEGDF']['Stoi'].items():
+            #     Translocon_RNC_dict[SecYEGDF_RNC]['Stoi'][subunit] = stoi
+            Translocon_RNC_dict[SecYEGDF_RNC]['Stoi']['Ribosome'] = 1
+            Translocon_RNC_dict[SecYEGDF_RNC]['transMP_count']  = getTransMPcount(Translocon_RNC_dict[SecYEGDF_RNC]['Stoi'])
+
 
             Sec_SR_SRP_RNC = 'SecYEGDF_SR_SRP_RNC_' + locusNum
             Translocon_RNC_dict[Sec_SR_SRP_RNC] = {}
             Translocon_RNC_dict[Sec_SR_SRP_RNC]['init_count'] = 0
-            Translocon_RNC_dict[Sec_SR_SRP_RNC]['Stoi'] = {'P_0652':1, 'P_0839':1, 'P_0774':1, 'P_0412':1, 'Ribosome':1, 'P_0360':1, 'P_0429':1}
-            Translocon_RNC_dict[Sec_SR_SRP_RNC]['transMP_count'] = 4
+            Translocon_RNC_dict[Sec_SR_SRP_RNC]['Stoi'] = copy.deepcopy(Translocon_RNC_dict[SecYEGDF_RNC]['Stoi'])
+            Translocon_RNC_dict[Sec_SR_SRP_RNC]['Stoi']['0360'] = 1; Translocon_RNC_dict[Sec_SR_SRP_RNC]['Stoi']['0429'] = 1
+
+            Translocon_RNC_dict[Sec_SR_SRP_RNC]['transMP_count'] = getTransMPcount(Translocon_RNC_dict[Sec_SR_SRP_RNC]['Stoi'])
 
             
         else:
@@ -740,7 +783,7 @@ def getTransloconRNCComplex(sim_properties):
             YidC_CPtn = 'YidC_CP_'+locusNum
             Translocon_RNC_dict[YidC_CPtn] = {}
             Translocon_RNC_dict[YidC_CPtn]['init_count'] = 0
-            Translocon_RNC_dict[YidC_CPtn]['Stoi'] = {'P_0908':1}
+            Translocon_RNC_dict[YidC_CPtn]['Stoi'] = {'0908':1}
             Translocon_RNC_dict[YidC_CPtn]['transMP_count'] = 1
 
     lipoproteinList = sim_properties['locations_ptns']['lipoprotein']
@@ -751,8 +794,12 @@ def getTransloconRNCComplex(sim_properties):
         SecYEGDF_SecA_RNC = 'SecYEGDF_SecA_RNC_' + locusNum
         Translocon_RNC_dict[SecYEGDF_SecA_RNC] = {}
         Translocon_RNC_dict[SecYEGDF_SecA_RNC]['init_count'] = 0
-        Translocon_RNC_dict[SecYEGDF_SecA_RNC]['Stoi'] = {'P_0652':1, 'P_0839':1, 'P_0774':1, 'P_0412':1,'Ribosome':1, 'P_0095':1}
-        Translocon_RNC_dict[SecYEGDF_SecA_RNC]['transMP_count'] = 4
+        Translocon_RNC_dict[SecYEGDF_SecA_RNC]['Stoi'] = {}
+        Translocon_RNC_dict[SecYEGDF_SecA_RNC]['Stoi'] = copy.deepcopy(cplx_dict['SecYEGDF']['Stoi'])
+        Translocon_RNC_dict[SecYEGDF_SecA_RNC]['Stoi']['Ribosome'] = 1; Translocon_RNC_dict[SecYEGDF_SecA_RNC]['Stoi']['0095'] = 1; 
+
+        Translocon_RNC_dict[SecYEGDF_SecA_RNC]['transMP_count'] = getTransMPcount(Translocon_RNC_dict[SecYEGDF_SecA_RNC]['Stoi'])
+
 
     for locusNum in lipoproteinList:
         Lgt1_PreP = 'Lgt1_PreP_' + locusNum
@@ -760,17 +807,17 @@ def getTransloconRNCComplex(sim_properties):
         Lsp_ProP = 'Lsp_ProP_' + locusNum 
         Translocon_RNC_dict[Lgt1_PreP] = {}
         Translocon_RNC_dict[Lgt1_PreP]['init_count'] = 0
-        Translocon_RNC_dict[Lgt1_PreP]['Stoi'] = {'P_0818':1, f'lipo_{locusNum}':1}
+        Translocon_RNC_dict[Lgt1_PreP]['Stoi'] = {'0818':1, f'lipo_{locusNum}':1}
         Translocon_RNC_dict[Lgt1_PreP]['transMP_count'] = 1
 
         Translocon_RNC_dict[Lgt2_PreP] = {}
         Translocon_RNC_dict[Lgt2_PreP]['init_count'] = 0
-        Translocon_RNC_dict[Lgt2_PreP]['Stoi'] = {'P_0820':1, f'lipo_{locusNum}':1}
+        Translocon_RNC_dict[Lgt2_PreP]['Stoi'] = {'0820':1, f'lipo_{locusNum}':1}
         Translocon_RNC_dict[Lgt2_PreP]['transMP_count'] = 1
 
         Translocon_RNC_dict[Lsp_ProP] = {}
         Translocon_RNC_dict[Lsp_ProP]['init_count'] = 0
-        Translocon_RNC_dict[Lsp_ProP]['Stoi'] = {'P_0518':1, f'lipo_{locusNum}':1}
+        Translocon_RNC_dict[Lsp_ProP]['Stoi'] = {'0518':1, f'lipo_{locusNum}':1}
         Translocon_RNC_dict[Lsp_ProP]['transMP_count'] = 1
 
         # SecYEGDF_SecA_CP = 'SecYEGDF_SecA_CP_' + locusNum
@@ -785,8 +832,9 @@ def getTransloconRNCComplex(sim_properties):
             Degradosome_mRNA = 'Degradosome_mRNA_' + locusNum
             Translocon_RNC_dict[Degradosome_mRNA] = {}
             Translocon_RNC_dict[Degradosome_mRNA]['init_count'] = 0
-            Translocon_RNC_dict[Degradosome_mRNA]['Stoi'] = {'P_0359':1, 'P_0600':1, 'P_257':1, 'P_437':1, f"mRNA_{locusNum}":1}
-            Translocon_RNC_dict[Degradosome_mRNA]['transMP_count'] = 1
+            Translocon_RNC_dict[Degradosome_mRNA]['Stoi'] = copy.deepcopy(cplx_dict['Degradosome']['Stoi'])
+            Translocon_RNC_dict[Degradosome_mRNA]['Stoi'][f"mRNA_{locusNum}"] = 1
+            Translocon_RNC_dict[Degradosome_mRNA]['transMP_count'] = getTransMPcount(Translocon_RNC_dict[Degradosome_mRNA]['Stoi'])
 
 
     # Proteins subject to FtsH protease
@@ -798,10 +846,13 @@ def getTransloconRNCComplex(sim_properties):
         FtsH_CP = 'FtsH_CP_' + locusNum
         Translocon_RNC_dict[FtsH_CP] = {}
         Translocon_RNC_dict[FtsH_CP]['init_count'] = 0
-        Translocon_RNC_dict[FtsH_CP]['Stoi'] = {'P_0039':1, f'P_{locusNum}':1}
-        Translocon_RNC_dict[FtsH_CP]['transMP_count'] = 1
+        Translocon_RNC_dict[FtsH_CP]['Stoi'] = {'0039':1, f'P_{locusNum}':1}
+        Translocon_RNC_dict[FtsH_CP]['transMP_count'] = getTransMPcount(Translocon_RNC_dict[FtsH_CP]['Stoi'])
 
-
+    print('Translocon_RNC_dict')
+    for name, subdict in Translocon_RNC_dict.items():
+        print(name)
+        print(subdict)
 
     sim_properties['Translocon_RNC_dict'] = Translocon_RNC_dict
     
@@ -948,34 +999,39 @@ def initializeProteinMetabolitesCounts(sim_properties):
 
     Called once at the very beginning of the simulation
 
-    Description: Define and add the initial counts of forms of four proteins 'P_0233', 'P_0694', 'P_0234', 'P_0779' in phosphorelay; The phospholated form starts from 0
+    Description: Define and add the initial counts of forms of four proteins 'P_0233', 'P_0694', 'P_0234', 'P_0779' in phosphorelay; 
+                                                                    The phospholated form starts from 0
     """
 
-    phosphorelayPtns = ['P_0233', 'P_0694', 'P_0234', 'P_0779']
+    # phosphorelayPtns = ['P_0233', 'P_0694', 'P_0234', 'P_0779']
 
-    phosphorelayPtnsMap = {'P_0233':352, 'P_0694':289, 'P_0234':313, 'P_0779':830}
+    # phosphorelayPtnsMap = {'P_0233':352, 'P_0694':289, 'P_0234':313, 'P_0779':830}
 
-    # phosphorelayPtnsCounts = [352, 289, 313, 830]
 
     data_file =  sim_properties['init_conc_path']
     
     ptnMets = pd.read_excel(data_file, sheet_name='Protein Metabolites')
     
     for index, row in ptnMets.iterrows():
+
         PtnID = row['Protein']
-        if PtnID in phosphorelayPtns:
 
-            metabolites = row['Metabolite IDs'].split(',')
+        locusNum = PtnID.split('_')[1]
         
-            for metID in metabolites:
-                if metID == metabolites[0]:
+        locusTag = 'JCVISYN3A_' + locusNum
 
-                    sim_properties['counts'][metID] = [phosphorelayPtnsMap[PtnID]]
+        ptn_init_count = sim_properties['proteomics_count'][locusTag]
 
-                else:
+        metabolites = row['Metabolite IDs'].split(',')
 
-                    sim_properties['counts'][metID] = [0]
+        # Partial Protein metabolites are also defined in initializeMetabolitesCounts, yet we override again here
         
+        for metID in metabolites:
+            if metID == metabolites[0]:
+                sim_properties['counts'][metID] = [ptn_init_count]
+            else:
+                sim_properties['counts'][metID] = [0]
+
 
     return None
 #########################################################################################
@@ -1431,15 +1487,10 @@ def initializeMembrane(sim_properties):
 
     MPSA = int(avg_MP_area*MP_total_count) # nm^2
 
-    sim_properties['SA'] = {}
-
+    # Further partition lipid and protein
     sim_properties['SA']['SA_lipid'] = [lipidSA]
 
     sim_properties['SA']['SA_ptn'] = [MPSA]
-    
-    sim_properties['SA']['SA_nm2'] = [int(lipidSA + MPSA)]
-    
-    sim_properties['SA']['SA_m2'] = [int(lipidSA + MPSA )/1e18]    # m^2
 
     sim_properties['division_started'] = [False]
 
@@ -1459,7 +1510,7 @@ def getAvgPtnArea(sim_properties, lipid_SA):
 
     print(f"Total {MP_total_count} transmembrane protein at begenning")
 
-    r_cell_nm = sim_properties['r_cell']*10**9
+    r_cell_nm = sim_properties['r_cell']*1e9
 
     SA = 4*np.pi*(r_cell_nm)**2
     MP_SA = SA - lipid_SA #nm^2

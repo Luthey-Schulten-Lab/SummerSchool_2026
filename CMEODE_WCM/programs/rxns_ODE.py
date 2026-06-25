@@ -5,11 +5,16 @@ A file to define all of the reactions in the Metabolism
 """
 
 
+import os
+import sys
+
 import odecell
 
 import libsbml
 import pandas as pd
 import numpy as np
+
+import integrate
 
 from collections import defaultdict
 
@@ -21,15 +26,106 @@ def initModel(sim_properties):
     Arguments:
 
     sim_properties['counts'] (particle map): The CME particle Map
-    
+
     Returns:
 
     upModel (odecell model object): The updated ODE kinetic model for simulation
+
+    Acceleration (Phase 1, build-once): the ODE model topology (reactions, rate
+    forms, kcat, KM, stoichiometry, medium params, metabolite set) is STATIC for
+    the whole run; only metabolite concentrations and enzyme concentrations change
+    per hook. So the model is built ONCE (reading Excel/SBML once) and cached in
+    sim_properties['_ode_cache']; subsequent hooks only refresh the dynamic values
+    on the cached model. This removes the per-hook file-I/O + model construction
+    (~0.65 s/hook) with no change to the numerical result.
+
+    Phase 2 (Cython): on the first hook the RHS is additionally compiled ONCE
+    into a Cython functor (enzyme concentrations routed through self.params[] so
+    they can be updated each hook with no recompile -- see makeSolver). The
+    integration then runs the compiled C RHS (~5x faster). Controlled by
+    sim_properties['ode_use_cython'] (default True); on any build failure it
+    latches to the no-Cython cached path (Fallback 1) for the rest of the run.
+
+    Tiers:
+      - sim_properties['ode_no_cache'] = True  -> Fallback 2: original per-hook
+        rebuild (bit-for-bit reproduction / debugging).
+      - sim_properties['ode_use_cython'] = False -> Phase 1 only (cached model,
+        no-Cython codegen each hook).
+      - default -> Phase 1 cache + Phase 2 Cython functor.
+    """
+
+    # Fallback 2: original behaviour, full rebuild every call.
+    if sim_properties.get('ode_no_cache', False):
+        return _buildModel(sim_properties, cache=None)
+
+    cache = sim_properties.get('_ode_cache')
+
+    if cache is not None:
+        # Subsequent hooks: reuse the cached model, refresh dynamic values only.
+        # Metabolite y0 is needed by BOTH paths (it is the integrator state).
+        _refreshMetaboliteInitVals(sim_properties, cache)
+        # Enzyme concs are baked into the RHS only on the no-Cython path; the
+        # Cython path injects them via the param vector in makeSolver instead.
+        if not cache.get('cython', False):
+            _refreshEnzymeParams(sim_properties, cache)
+        return cache['model']
+
+    # First hook: build once and record the metadata needed to refresh later.
+    cache = {'enzyme_specs': [], 'base_forms': {}, 'enzyme_spec_by_rxnID': {}}
+    model = _buildModel(sim_properties, cache=cache)
+    cache['model'] = model
+    sim_properties['_ode_cache'] = cache
+
+    # Phase 2: try to compile the Cython functor once. On failure, latch to the
+    # no-Cython cached path (the model is rebuilt clean so enzyme baking works).
+    cache['cython'] = False
+    if sim_properties.get('ode_use_cython', True):
+        try:
+            _setupCythonFunctor(sim_properties, cache)
+            cache['cython'] = True
+            print("ODE: Cython functor compiled and cached (build-once).")
+        except Exception as exc:
+            print(f"ODE: Cython functor setup FAILED ({exc!r}); "
+                  f"falling back to no-Cython cached path for the rest of the run.")
+            cache['model'] = _buildModel(sim_properties, cache=None)  # clean rebuild
+            cache['cython'] = False
+
+    return cache['model']
+#########################################################################################
+
+
+#########################################################################################
+def makeSolver(sim_properties, odemodel):
+    """Return the ODE RHS solver for this hook.
+
+    Cython path: re-instantiate the cached compiled functor with a fresh param
+    vector (onoff=1, enzyme concs recomputed from current counts) -- a cheap
+    array copy, no recompile. No-Cython path: the cheap per-hook codegen
+    (integrate.noCythonSetSolver), which re-bakes the enzyme params updated by
+    _refreshEnzymeParams.
+    """
+
+    cache = sim_properties.get('_ode_cache')
+
+    if cache is not None and cache.get('cython', False):
+        vec = _buildParamVector(sim_properties, cache)
+        return cache['functor_class'](np.asarray(vec, dtype=np.double))
+
+    return integrate.noCythonSetSolver(odemodel)
+#########################################################################################
+
+
+#########################################################################################
+def _buildModel(sim_properties, cache=None):
+    """Construct the odecell model from scratch (reads Excel/SBML).
+
+    When `cache` is provided, refresh metadata (enzyme specs, protein base-form
+    recipes) is recorded into it so the model can be refreshed in place later.
     """
 
     # Initialize the ODECell model
     model = odecell.modelbuilder.MetabolicModel()
-    
+
     zeroOrderOnOff = '$onoff * $K'
 
     model.zeroOrderOnOff = odecell.modelbuilder.RateForm(zeroOrderOnOff)
@@ -40,19 +136,138 @@ def initModel(sim_properties):
     model.setVerbosity(0)
 
     # Define Rxns and pass in the Particle Map containing enzyme concentrations
-    model = defineRxns(model, sim_properties)
+    model = defineRxns(model, sim_properties, cache=cache)
 
     return model
 #########################################################################################
 
 
 #########################################################################################
-def defineRxns(model, sim_properties):
-    
-    model = addProteinMetabolites(model, sim_properties)
-    
-    model = defineRandomBindingRxns(model, sim_properties)
-    
+def _setupCythonFunctor(sim_properties, cache):
+    """Compile the Cython functor ONCE and cache the class + param-vector layout.
+
+    'Enzyme' params are promoted to optimizable (lb != ub) so stock odecell's
+    prepareFunctor routes them through self.params[]; the functor is then
+    instantiated each hook with updated enzyme values (no recompile). The build
+    runs in a per-process directory to avoid the MPI cwd collision (odecell
+    writes cythonCompiledFunctions.pyx / setup_tmp.py into the cwd).
+    """
+
+    model = cache['model']
+
+    # Promote every 'Enzyme' reaction parameter to optimizable so it routes
+    # through self.params[] in the compiled functor.
+    _, _, rxnParam = model.getParameters()
+    for rxnID, parDict in rxnParam.items():
+        if 'Enzyme' in parDict:
+            parDict['Enzyme'].ub = 1.0e6
+
+    # Capture the opt-space layout BEFORE prepareFunctor replaces the opt-param
+    # values with 'self.params[i]' strings. currParVals is the correctly-ordered,
+    # correctly-sized numeric vector (this is what 4DWCM got wrong).
+    optSpace, currParVals = model.getOptSpace()
+    fields = set(o.field for o in optSpace)
+    if not fields <= {'onoff', 'Enzyme'}:
+        raise RuntimeError(f"unexpected optimizable params in ODE model: {fields - {'onoff', 'Enzyme'}}")
+
+    cache['param_template'] = [float(v) for v in currParVals]
+    # slots that must be refreshed each hook: (vector_index, rxnID)
+    cache['enzyme_slots'] = [(i, optSpace[i].indx) for i in range(len(optSpace))
+                             if optSpace[i].field == 'Enzyme']
+
+    solver = odecell.solver.ModelSolver(model)
+    solver.prepareFunctor()
+
+    # Silence the benign NumPy "deprecated API" #warning (category -Wcpp) emitted
+    # by gcc when compiling the Cython-generated C. The build runs in a subprocess
+    # spawned by buildCall, which inherits os.environ, so appending -Wno-cpp to
+    # CFLAGS (preserving conda's existing flags) keeps the build log clean. Using
+    # -Wno-cpp rather than -DNPY_NO_DEPRECATED_API avoids any risk of build errors
+    # if the generated C touches the deprecated API.
+    if '-Wno-cpp' not in os.environ.get('CFLAGS', ''):
+        os.environ['CFLAGS'] = (os.environ.get('CFLAGS', '') + ' -Wno-cpp').strip()
+
+    # Build in a per-process dir so concurrent MPI ranks do not clobber each
+    # other's cythonCompiledFunctions.{pyx,c,so} / setup_tmp.py. odecell writes
+    # those files into the cwd and then imports the module, so we both chdir into
+    # the build dir AND put it on sys.path (the script dir, not '', is sys.path[0]).
+    out_dir = os.path.dirname(sim_properties.get('path', {}).get('counts', '')) or '.'
+    build_dir = os.path.abspath(os.path.join(out_dir, '_ode_cython_build_{0}'.format(os.getpid())))
+    os.makedirs(build_dir, exist_ok=True)
+    cwd = os.getcwd()
+    sys.path.insert(0, build_dir)
+    try:
+        os.chdir(build_dir)
+        solver.buildCall(odeint=False, useJac=False, cythonBuild=True,
+                         functor=True, verbose=0)
+    finally:
+        os.chdir(cwd)
+        try:
+            sys.path.remove(build_dir)
+        except ValueError:
+            pass
+
+    cache['functor_class'] = solver.functor
+    return None
+#########################################################################################
+
+
+#########################################################################################
+def _buildParamVector(sim_properties, cache):
+    """Build the functor parameter vector for this hook: start from the build-time
+    template (keeps onoff = 1) and overwrite the enzyme slots with concentrations
+    recomputed from the current counts (same numbers the no-Cython refresh uses)."""
+
+    vec = list(cache['param_template'])
+    spec_by_rxnID = cache['enzyme_spec_by_rxnID']
+    for slot, rxnID in cache['enzyme_slots']:
+        EnzymeStr, GPRrule = spec_by_rxnID[rxnID]
+        vec[slot] = _enzymeConcFromSpec(EnzymeStr, GPRrule, sim_properties)
+    return vec
+#########################################################################################
+
+
+#########################################################################################
+def _refreshEnzymeParams(sim_properties, cache):
+    """No-Cython path: update enzyme concentrations on the cached model (re-baked
+    by the per-hook noCythonSetSolver codegen)."""
+
+    model = cache['model']
+    for rxnIndx, EnzymeStr, GPRrule in cache['enzyme_specs']:
+        model.addParameter(rxnIndx, "Enzyme",
+                           _enzymeConcFromSpec(EnzymeStr, GPRrule, sim_properties))
+    return None
+#########################################################################################
+
+
+#########################################################################################
+def _refreshMetaboliteInitVals(sim_properties, cache):
+    """Update metabolite initial concentrations (the integrator state vector y0)
+    on the cached model via setInitVal, so model.getInitVals() returns fresh
+    values. Needed by both the Cython and no-Cython paths."""
+
+    model = cache['model']
+    counts = sim_properties['counts']
+    base_forms = cache['base_forms']
+    for metID, idx in model.getMetDict().items():
+        if metID in base_forms:
+            ptnID, otherForms = base_forms[metID]
+            baseFormCount = int(counts[ptnID][-1] - sum(counts[m][-1] for m in otherForms))
+            conc = partTomM(baseFormCount, sim_properties)
+        else:
+            conc = partTomM(counts[metID][-1], sim_properties)
+        model.getMetList(idx).setInitVal(conc)
+    return None
+#########################################################################################
+
+
+#########################################################################################
+def defineRxns(model, sim_properties, cache=None):
+
+    model = addProteinMetabolites(model, sim_properties, cache=cache)
+
+    model = defineRandomBindingRxns(model, sim_properties, cache=cache)
+
     model = defineNonRandomBindingRxns(model, sim_properties)
     
     # Other Random Bindig reactions are GLCK and GLCT reactions that converts extracellular glucose into g6p.
@@ -124,7 +339,7 @@ def reptModel(model):
 
 # Central, Nucleotide, Lipid, Cofactor and Transprot Reactions were defined.
 #########################################################################################
-def defineRandomBindingRxns(model, sim_properties):
+def defineRandomBindingRxns(model, sim_properties, cache=None):
     """
     Define all of the reactions and rateforms needed for the current module to an existing module.
 
@@ -333,9 +548,21 @@ def defineRandomBindingRxns(model, sim_properties):
 #         EnzymeConc = partTomM(rxn_params.loc[ rxn_params["Parameter Type"] == "Eff Enzyme Count" ]["Value"].values[0], sim_properties)
         
         model.addParameter(rxnIndx, "Enzyme", EnzymeConc)
-        
+
         model.addParameter(rxnIndx, "onoff", 1, lb=0, ub=1)
-        
+
+        # Record the enzyme spec so the per-hook refresh can recompute the enzyme
+        # concentration from the current counts (no Excel/SBML reread). Keyed both
+        # by reaction index (no-Cython _refreshEnzymeParams) and by reaction ID
+        # (Cython _buildParamVector, which maps opt-space slots -> rxnID).
+        if cache is not None:
+            EnzymeStr = rxn_params.loc[ rxn_params["Parameter Type"] == "Eff Enzyme Count" ]["Value"].values[0]
+            GPRrule = None
+            if len(EnzymeStr.split('-')) > 1:
+                GPRrule = rxn_params.loc[ rxn_params["Parameter Type"] == "GPR rule" ]["Value"].values[0]
+            cache['enzyme_specs'].append((rxnIndx, EnzymeStr, GPRrule))
+            cache['enzyme_spec_by_rxnID'][rxnID] = (EnzymeStr, GPRrule)
+
         # if rxnID == 'ADK1' or 'ADPT':
         #     print(model.getReaction(rxnIndx))
 
@@ -590,9 +817,9 @@ def defineNonRandomBindingRxns(model, sim_properties):
 # BaseForm in the original form of protein, listed as the first one in Metabolite IDs
 # This function only defines the names of metabolites; the reactions and rates are included in others.
 #########################################################################################
-def addProteinMetabolites(model, sim_properties):
+def addProteinMetabolites(model, sim_properties, cache=None):
     """
-    
+
     Description: add the counts of each form of proteins to the ODE model
     
     For P_0621, P_0065, P_0227, their initial counts are given by initializeMetabolitesCounts
@@ -629,13 +856,18 @@ def addProteinMetabolites(model, sim_properties):
                 model.addMetabolite(metID, metID, partTomM(sim_properties['counts'][metID][-1], sim_properties))
                 
         baseFormCount = int(ptnCount - formsCount)
-        
+
 #         print(metabolites[0], baseFormCount)
-        
+
         baseFormConc = partTomM(baseFormCount, sim_properties)
 
         model.addMetabolite(metabolites[0], metabolites[0], baseFormConc)
-        
+
+        # Record the base-form recipe so _refreshModel can recompute its count
+        # (ptnCount - sum of other forms) from the current counts each hook.
+        if cache is not None:
+            cache['base_forms'][metabolites[0]] = (ptnID, [m for m in metabolites if m != metabolites[0]])
+
     return model
 #########################################################################################
 
@@ -673,76 +905,67 @@ def Enzymatic(subs, prods):
 
 #########################################################################################
 def getEnzymeConc(rxn_params, sim_properties):
-    
+    """Build-path enzyme concentration: parse the spec from rxn_params (and emit
+    the time-0 GPR log), then delegate the numeric computation to
+    _enzymeConcFromSpec so the build and per-hook refresh share one code path."""
+
     EnzymeStr = rxn_params.loc[ rxn_params["Parameter Type"] == "Eff Enzyme Count" ]["Value"].values[0]
-    
+
     Enzymes = EnzymeStr.split('-')
 
-    rxnID = rxn_params.loc[ rxn_params["Parameter Type"] == "Eff Enzyme Count" ]["Reaction Name"].values[0]
+    GPRrule = None
 
-#     print(Enzymes)
-    
-    if len(Enzymes) == 1: # will work for complexes like rnsBACD, potPassive
-        
-        if Enzymes[0] == 'default':
-            
-#             EnzymeConc = partTomM(10, sim_properties)
-            EnzymeConc = 0.001
-            
-            return EnzymeConc
-        
-        else:
-
-            enzymeID = Enzymes[0]
-
-            if enzymeID.startswith('P_'): # single protein P_XXXX
-                Enzymecount = getEnzymeCount(sim_properties, enzymeID)
-            
-            else: # protein complex, ATPSynthase, rnsBACD importer
-                Enzymecount = sim_properties['counts'][enzymeID][-1]
-
-            EnzymeConc = partTomM(Enzymecount, sim_properties)
-
-            return EnzymeConc
-    else:
-        # Here we difine two means of how multiple enzymes works
-        # For 'or' case, all enzymes can catalyze the reaction and we give them the same kinetic parameter
-        # And the rate is determined by the sum of the concentrations of enzymes
-
+    if len(Enzymes) > 1:
+        # For 'or', all enzymes can catalyze the reaction (rate from the summed
+        # concentrations); for 'and', the lowest-abundance enzyme sets the rate.
         GPRrule = rxn_params.loc[ rxn_params["Parameter Type"] == "GPR rule" ]["Value"].values[0]
+        if sim_properties['time_second'][-1] == 0:
+            rxnID = rxn_params.loc[ rxn_params["Parameter Type"] == "Eff Enzyme Count" ]["Reaction Name"].values[0]
+            print(f"ODE, {rxnID} still using GPR rule {GPRrule.upper()} on proteins {','.join(_ for _ in Enzymes)}")
+
+    return _enzymeConcFromSpec(EnzymeStr, GPRrule, sim_properties)
+
+
+#########################################################################################
+def _enzymeConcFromSpec(EnzymeStr, GPRrule, sim_properties):
+    """Compute enzyme concentration (mM) from a cached spec + current counts.
+
+    Mirrors getEnzymeConc's numeric logic exactly; called both at build time and
+    on every per-hook refresh (see _refreshModel)."""
+
+    Enzymes = EnzymeStr.split('-')
+
+    if len(Enzymes) == 1: # will work for complexes like rnsBACD, potPassive, ATPSynthase
+
+        if Enzymes[0] == 'default':
+            return 0.001
+
+        enzymeID = Enzymes[0]
+
+        if enzymeID.startswith('P_'): # single protein P_XXXX
+            Enzymecount = getEnzymeCount(sim_properties, enzymeID)
+        else: # protein complex, ATPSynthase, rnsBACD importer
+            Enzymecount = sim_properties['counts'][enzymeID][-1]
+
+        return partTomM(Enzymecount, sim_properties)
+
+    else:
 
         if GPRrule == 'or':
             Enzymecount = 0
-            
             for ptnID in Enzymes:
-                
                 Enzymecount += getEnzymeCount(sim_properties, ptnID)
-            
-            # print(rxnID, Enzymecount)
-            
-            EnzymeConc = partTomM(Enzymecount, sim_properties)
-                
-            return EnzymeConc
+            return partTomM(Enzymecount, sim_properties)
 
-        # For 'and' case, all enzymes are needed to catalyze the reaction and the concentration of the lowest enzyme determines the rate        
         elif GPRrule == 'and':
-
-            print(f"ODE, {rxnID} still using GPR rule {GPRrule.upper()}")
-
             Enzymecounts = []
-            
             for ptnID in Enzymes:
-                
                 Enzymecounts.append(getEnzymeCount(sim_properties, ptnID))
-                
             Enzymecount = min(Enzymecounts)
-            
-            EnzymeConc = partTomM(Enzymecount, sim_properties)
-                
-            return EnzymeConc
-        
+            return partTomM(Enzymecount, sim_properties)
+
     print('Something went wrong getting enzyme count')
-        
+
     return None
 
 #########################################################################################

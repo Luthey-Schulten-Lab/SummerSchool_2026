@@ -48,18 +48,27 @@ def hook_CMEODE(sim_properties, genome3A):
     if sim_properties['time_second'][-1] == 0:
         IC.initializeFluxes(sim_properties, odemodel, boolean_end=boolean_end)
     
-    print(f'ODE object Initialized in {phys_time.time() - iniode_start:.3f} seconds')
+    _dt_init = phys_time.time() - iniode_start
+    print(f'ODE object Initialized in {_dt_init:.3f} seconds')
 
     runode_start = phys_time.time()
 
-    # Convert odemodel to right hand side of the differential equations
-    solver = integrate.noCythonSetSolver(odemodel)
+    # Build the RHS solver for this hook: cached Cython functor (re-instantiated
+    # with fresh enzyme concs) if available, else the no-Cython codegen.
+    solver = ODE.makeSolver(sim_properties, odemodel)
 
     odelength = sim_properties['hookInterval']
 
     concs, flux_avg, flux_end = integrate.runODE(solver, odemodel, odelength)
 
-    print(f'ODE simulation of {odelength} second Finished in {phys_time.time()- runode_start:.3f} seconds')
+    _dt_sim = phys_time.time() - runode_start
+    print(f'ODE simulation of {odelength} second Finished in {_dt_sim:.3f} seconds')
+
+    # PROFILING: accumulate ODE init and sim wall time.
+    _prof = sim_properties.get('prof')
+    if _prof is not None:
+        _prof['ode_init'] += _dt_init
+        _prof['ode_sim'] += _dt_sim
     
     if phys_time.time()- runode_start > 10:
         print(f"WARNING: Simulation Time {sim_properties['time_second'][-1]} ODE Integral takes {phys_time.time()- runode_start:.3f} seconds")

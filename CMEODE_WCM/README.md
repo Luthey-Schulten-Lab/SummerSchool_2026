@@ -8,7 +8,7 @@ The essential metabolism[^breuer_metabolism] in Syn3A imports nutrients from the
 
 ## Outline:
 1. [Run CME/ODE Whole-Cell Model in Parallel](#1-run-cmeode-whole-cell-model-in-parallel)
-2. [Minimal Genome and Genetic Information Processes](#2-minimal-genome-and-genetic-information-processes)
+2. [Minimized Genome and Genetic Information Processes](#2-minimized-genome-and-genetic-information-processes)
 3. [Essential Metabolism and Rate Law](#3-essential-metabolism-and-rate-law)
 4. [Macromolecular Complex Assembly](#4-macromolecular-complex-assembly)
 5. [Hybrid CME-ODE Algorithm](#5-hybrid-cme-ode-algorithm)
@@ -74,7 +74,7 @@ For the ODE simulation, we use **[odecell](https://github.com/Luthey-Schulten-La
   <b> Figure 1. Flowchart of one simulation instance of CME-ODE WCM of Syn3A</b>
 </p>
 
-### Launch Four Cell Replicates
+### Launch Cell Replicates
 
 The spatially homogeneous simulations can be efficiently parallelized across up to 25 independent cell replicates or more, with each replicate requiring less than 2 GB of RAM. On systems equipped with AMD EPYC 7763 “Milan” processors on **[Delta](https://docs.ncsa.illinois.edu/systems/delta/en/latest/index.html)**, or Intel Xeon Gold 6154 CPUs @ 3.00 GHz on a standard workstation, a 2-hour biological simulation with 1-second communication intervals typically completes within **6 physical hours**.
 
@@ -84,7 +84,7 @@ Due to time constraints, you will run a short 60-second simulation with 4 cell r
 
 You will launch and analyze the model from two notebooks in this folder, just like the other CME tutorials — no SSH or `sbatch` needed.
 
-+ **First**: In the Jupyter file browser, open [`Tut.3.1-WCM-CMEODE.ipynb`](Tut.3.1-WCM-CMEODE.ipynb).
++ **First**: In the Jupyter file browser, open [`CMEODE_WCM.ipynb`](CMEODE_WCM.ipynb).
 
 > [!NOTE]
 > Select the **`LM 2.5 (Python 3.7)`** kernel (top-right of the notebook) when prompted.
@@ -247,7 +247,7 @@ The corresponding reactions for gene duplication are listed in Table 1. The repl
 | Degradation     | Degradosome + R<sub>locusNum</sub> → Degradosome:R<sub>locusNum</sub>                              | $k_{\text{degra}}^{\text{binding}}$                |
 |                 | Degradosome:R<sub>locusNum</sub> → NMPs + Degradosome                                              | $k_{\text{degra}}^{\text{depoly}}$                 |
 
-In this whole-cell model, transcription, translation and degradation are modeled with greater precision than in Tutorial 2. Each process involves the binding to a complex machinery—either a RNAP to gene in transcription, a ribosome to mRNA for translation or a degradosome to mRNA for mRNA degradation. As one of the most active molecular species in genetic information processing, mRNA is subject to degradation upon binding to the degradosome. This competition between ribosome and degradosome binding serves as an important regulatory mechanism in gene expression, which we will explore in the results section. Transcription, translation and degradation are all depicted as a two-step binding and (de)polymerizatoin reactions, where the polymerizations to synthesize RNAs and proteins share the same rate form as gene replication. The rate for complete degradation from a mRNA to its monomers is calculated by divide the monomer depletion rate over the length of mRNA.
+In this whole-cell model, transcription, translation and degradation are modeled with greater precision than the previous GIP reaction. Each process involves the binding to a complex machinery—either a RNAP to gene in transcription, a ribosome to mRNA for translation or a degradosome to mRNA for mRNA degradation. As one of the most active molecular species in genetic information processing, mRNA is subject to degradation upon binding to the degradosome. This competition between ribosome and degradosome binding serves as an important regulatory mechanism in gene expression, which we will explore in the results section. Transcription, translation and degradation are all depicted as a two-step binding and (de)polymerizatoin reactions, where the polymerizations to synthesize RNAs and proteins share the same rate form as gene replication. The rate for complete degradation from a mRNA to its monomers is calculated by divide the monomer depletion rate over the length of mRNA.
 
 **Table 2: Rate Form for Replication, Transcription, Translation and Degradation**
 

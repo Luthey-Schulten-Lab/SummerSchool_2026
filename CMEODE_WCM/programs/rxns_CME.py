@@ -150,7 +150,11 @@ def addGeneticInformationReactions(sim, sim_properties, gbfile):
     # add tRNA charging, ribosome biogenesis, and protein complex formation
     tRNA_list, tRNA_counts = tRNAcharging(sim,sim_properties)
     ribo_list, ribo_counts = addRibosomeBiogenesis(sim, sim_properties, 19)
-    cplx_list, cplx_counts = addPtnComplexes(sim, sim_properties, 1e5, 1e4)
+    
+    assembled_complexes = sim_properties['assembled_complexes']
+    fake_assembled_complexes = sim_properties['fake_assembled_complexes']
+
+    cplx_list, cplx_counts = addPtnComplexes(sim, sim_properties, assembled_complexes, fake_assembled_complexes)
 
 
     if Bool_InitializeList:
@@ -374,7 +378,7 @@ def YidC_translate(sim, sim_properties, locusNum, aasequence):
     addReactionToMap(sim_properties, subsystem='tran_poly', locusNum= locusNum)
 
     # Binding of Cytosolic IMP with YidC
-    CP_bind = 1e5/(NA*cellVolume)
+    CP_bind = sim_properties['3D_association_rate']/(NA*cellVolume)
     sim.addReaction((CP, YidC), YidC_CPtn, CP_bind)
     addReactionToMap(sim_properties, subsystem='translocation')
 
@@ -429,6 +433,7 @@ def SRP_translate(sim, sim_properties, locusNum, aasequence):
     sim.defineSpecies(species)
 
     cellVolume = sim_properties['volume_L'][-1]
+    cellSA = sim_properties['SA']['SA_nm2'][-1]
     Ecoli_V = 1e-15
     NA = 6.022e23
 
@@ -441,17 +446,17 @@ def SRP_translate(sim, sim_properties, locusNum, aasequence):
     addReactionToMap(sim_properties, subsystem='tran_binding', locusNum= locusNum)
 
     # SRP bind with RNC
-    SRP_bind = 1e5/(NA*cellVolume)
+    SRP_bind = sim_properties['3D_association_rate']/(NA*cellVolume)
     sim.addReaction((RNC, SRP), SRP_RNC, SRP_bind)
     addReactionToMap(sim_properties, subsystem='translocation')
 
     # SR bind with SRP_RNC
-    SR_bind = 1e6/(NA*cellVolume)
+    SR_bind = 1e7/(NA*cellVolume)
     sim.addReaction((SRP_RNC, SR), SR_SRP_RNC, SR_bind)
     addReactionToMap(sim_properties, subsystem='translocation')
 
     # Sec bind with SR_SRP_RNC
-    Sec_bind = 1e5/(NA*cellVolume)
+    Sec_bind = sim_properties['2D_association_rate']/(cellSA)
     sim.addReaction((SR_SRP_RNC, SecYEGDF), (Sec_SR_SRP_RNC), Sec_bind)
     addReactionToMap(sim_properties, subsystem='translocation')
 
@@ -499,7 +504,7 @@ def SRP_translate(sim, sim_properties, locusNum, aasequence):
         addReactionToMap(sim_properties, subsystem='translocation')
 
         # Degradation of not translocated integral MPs
-        FtsH_bind = 1e5/(NA*cellVolume)
+        FtsH_bind = sim_properties['3D_association_rate']/(NA*cellVolume)
         sim.addReaction((CP, FtsH), (FtsH_CP), FtsH_bind)
         addReactionToMap(sim_properties, subsystem='translocation')
 
@@ -564,6 +569,7 @@ def lipo_translate(sim, sim_properties, locusNum, aasequence):
     sim.defineSpecies(species)
 
     cellVolume = sim_properties['volume_L'][-1]
+    cellSA = sim_properties['SA']['SA_nm2'][-1]
     Ecoli_V = 1e-15
     NA = 6.022e23
 
@@ -577,12 +583,12 @@ def lipo_translate(sim, sim_properties, locusNum, aasequence):
     addReactionToMap(sim_properties, subsystem='tran_binding', locusNum= locusNum)
 
     # RNC bind with SecA
-    SecA_RNC_bind = 1e5/(NA*cellVolume)
+    SecA_RNC_bind = sim_properties['3D_association_rate']/(NA*cellVolume)
     sim.addReaction((SecA, RNC), (SecA_RNC), SecA_RNC_bind)
     addReactionToMap(sim_properties, subsystem='translocation')
 
     # SecA_RNC bind with SecYEGDF
-    SecYEGDF_SecA_RNC_bind = 1e5/(NA*cellVolume)
+    SecYEGDF_SecA_RNC_bind = sim_properties['3D_association_rate']/(NA*cellVolume)
     sim.addReaction((SecA_RNC, SecYEGDF), (SecYEGDF_SecA_RNC), SecYEGDF_SecA_RNC_bind)
     addReactionToMap(sim_properties, subsystem='translocation')
 
@@ -638,7 +644,7 @@ def lipo_translate(sim, sim_properties, locusNum, aasequence):
     addReactionToMap(sim_properties, subsystem='translocation')
 
     # Degradation of not translocated integral MPs
-    FtsH_bind = 1e5/(NA*cellVolume)
+    FtsH_bind = sim_properties['3D_association_rate']/(NA*cellVolume)
     sim.addReaction((CP, FtsH), (FtsH_CP), FtsH_bind)
     addReactionToMap(sim_properties, subsystem='translocation')
 
@@ -648,7 +654,7 @@ def lipo_translate(sim, sim_properties, locusNum, aasequence):
 
     #### Modification of Lipoproteins ####
     # PreP bind with Lgt
-    Lgt_PreP_bind = 1e5/(NA*cellVolume)
+    Lgt_PreP_bind = sim_properties['2D_association_rate']/(cellSA)
     sim.addReaction((PreP, Lgt1), (Lgt1_PreP), Lgt_PreP_bind)
     addReactionToMap(sim_properties, subsystem='translocation')
 
@@ -664,7 +670,7 @@ def lipo_translate(sim, sim_properties, locusNum, aasequence):
     addReactionToMap(sim_properties, subsystem='translocation')
 
     # ProP bind with Lsp
-    Lsp_ProP_bind = 1e5/(NA*cellVolume)
+    Lsp_ProP_bind = sim_properties['2D_association_rate']/(cellSA)
     sim.addReaction((ProP, Lsp), (Lsp_ProP), Lsp_ProP_bind)
     addReactionToMap(sim_properties, subsystem='translocation')
 
@@ -707,6 +713,7 @@ def secreted_translate(sim, sim_properties, locusNum, aasequence):
     sim.defineSpecies(species)
 
     cellVolume = sim_properties['volume_L'][-1]
+    cellSA = sim_properties['SA']['SA_nm2'][-1]
     Ecoli_V = 1e-15
     NA = 6.022e23
 
@@ -718,12 +725,12 @@ def secreted_translate(sim, sim_properties, locusNum, aasequence):
     addReactionToMap(sim_properties, subsystem='tran_binding', locusNum= locusNum)
 
     # RNC bind with SecA
-    SecA_RNC_bind = 1e5/(NA*cellVolume)
+    SecA_RNC_bind = sim_properties['3D_association_rate']/(NA*cellVolume)
     sim.addReaction((SecA, RNC), (SecA_RNC), SecA_RNC_bind)
     addReactionToMap(sim_properties, subsystem='translocation')
 
     # SecA_RNC bind with SecYEGDF
-    SecYEGDF_SecA_RNC_bind = 1e5/(NA*cellVolume)
+    SecYEGDF_SecA_RNC_bind = sim_properties['3D_association_rate']/(NA*cellVolume)
     sim.addReaction((SecA_RNC, SecYEGDF), (SecYEGDF_SecA_RNC), SecYEGDF_SecA_RNC_bind)
     addReactionToMap(sim_properties, subsystem='translocation')
 
@@ -849,7 +856,7 @@ def peri_translate(sim, sim_properties, locusNum, aasequence):
     addReactionToMap(sim_properties, subsystem='tran_poly', locusNum= locusNum)
     
     # CP to P
-    CP2P_rate = 10
+    CP2P_rate = 1
     sim.addReaction(CP, ptnID, CP2P_rate)
     addReactionToMap(sim_properties, subsystem='translocation')
 
@@ -1147,11 +1154,12 @@ def addRibosomeBiogenesis(sim, sim_properties, NSpecies):
         spNames.difference_update(set(sps))
     
     #Remove 16S 'R' is 16S rRNA
-    intermediates_SSU = tuple(spNames - set('R'))
+    intermediates_SSU = [_ for _ in spNames if _ != 'R']
 
     def count_s(string):
         return string.count('s')
-    intermediates_SSU = sorted(intermediates_SSU, key=count_s)
+    # sort by count, then alphabetically as tie-breaker
+    intermediates_SSU = sorted(intermediates_SSU, key=lambda s: (count_s(s), s))
 
     sim.defineSpecies(intermediates_SSU); ribo_list.extend(intermediates_SSU)
     
@@ -1196,11 +1204,14 @@ def addRibosomeBiogenesis(sim, sim_properties, NSpecies):
     for index, rxn in assemblyRxns.iterrows():
         intermediates_LSU.extend([rxn['intermediate'], rxn['product']])
     
-    # Remove 23S rRNA
-    intermediates_LSU = tuple(set(intermediates_LSU) - set('R'))
+    # Remove 23S rRNA and L7 protein P 0806
+    intermediates_LSU = set([_ for _ in intermediates_LSU if _ != 'R' and _ != 'L7']) # set shuffle the order
+
     def count_L(string):
         return string.count('L') + string.count('S')
-    intermediates_LSU = sorted(intermediates_LSU, key = count_L)
+    
+    # sort by count, then alphabetically as tie-breaker to make sure one unique order of intermediates_LSU list
+    intermediates_LSU = sorted(intermediates_LSU, key=lambda s: (count_L(s), s))
 
     sim.defineSpecies(intermediates_LSU); ribo_list.extend(intermediates_LSU)
     
@@ -1271,22 +1282,23 @@ def addRibosomeBiogenesis(sim, sim_properties, NSpecies):
     return ribo_list, ribo_counts
     
     
-def addPtnComplexes(sim, sim_properties, D_B_Membrane, D_D_Cyto_Membrane):
+def addPtnComplexes(sim, sim_properties, assembled_complexes, fake_assembled_complexes):
     """
     Input:
 
     Description: Add Protein Complexes in metabolism or GIP
 
     """
-    cellVolume = sim_properties['volume_L'][-1]
 
+    cellVolume = sim_properties['volume_L'][-1]
+    cellSA = sim_properties['SA']['SA_nm2'][-1]
     NA = 6.022e23 # Avogadro's
 
-    diffusion_binding_rate = D_B_Membrane/(NA*cellVolume)
+    association_rate_3D = sim_properties['3D_cplx_association_rate']/(NA*cellVolume) # per second
     
-    diffusion_docking_rate = D_D_Cyto_Membrane/(NA*cellVolume)
+    association_rate_2D = sim_properties['2D_memcplx_association_rate']/(cellSA) # per second
 
-    cplx_list, cplx_counts = cme_complexation.build_complexation(sim, sim_properties, diffusion_binding_rate, diffusion_docking_rate)
+    cplx_list, cplx_counts = cme_complexation.build_complexation(sim, sim_properties, association_rate_2D, association_rate_3D, assembled_complexes, fake_assembled_complexes)
 
     print(f"cplx_list, {len(cplx_list)}, {cplx_list}")
     print(f"cplx_counts,  {len(cplx_counts)},{cplx_counts}")
@@ -1297,8 +1309,8 @@ def correctInitPtnCount(PtnIniCount, locusNum, sim_properties, print_flag=False)
     """
     Correct the initial protein counts for protein in complexes
     """
-    
-    cplx_dict = sim_properties['cplx_dict']
+
+    full_cplx_dict = IC.getComplexMap(sim_properties, sim_properties['full_complexes'])
 
     complex = []
 
@@ -1319,7 +1331,7 @@ def correctInitPtnCount(PtnIniCount, locusNum, sim_properties, print_flag=False)
             print(f"P_{locusNum} in Ribosome Biogenesis Initial Count Corrected from {PtnIniCount} to {corrected_PtnIniCount}")
 
     else:
-        for cplx, subdict in cplx_dict.items():
+        for cplx, subdict in full_cplx_dict.items():
             StoiDict = subdict['Stoi']
             cplx_init_count = subdict['init_count']
 
@@ -1340,6 +1352,11 @@ def correctInitPtnCount(PtnIniCount, locusNum, sim_properties, print_flag=False)
         print(f"P_{locusNum} in {', '.join(complex)} Initial Count Corrected from {old_PtnIniCount} to {corrected_PtnIniCount}")
         
         print(f"P_{locusNum} Total Initial Count is {total_PtnIniCount}")
+
+    if len(complex) > 0:
+        if complex[0] not in sim_properties['assembled_complexes'] and complex[0] not in sim_properties['fake_assembled_complexes']:
+        # The assembly of complexes set to 0, thus the corrected_PtnIniCount equal to total_PtnIniCount
+            corrected_PtnIniCount = total_PtnIniCount
 
     return corrected_PtnIniCount, total_PtnIniCount, complex
 
@@ -1375,7 +1392,7 @@ def getRNAInitCount(sim_properties, locusNum):
 
 def predefineSpecies(sim, sim_properties):
     """
-    PreDefine species that will be often used in gene expression
+    PreDefine species (protein and complexes) that will be used in gene expression
     """
 
     # # define secy protein that is used translocation reactions for membrane proteins
