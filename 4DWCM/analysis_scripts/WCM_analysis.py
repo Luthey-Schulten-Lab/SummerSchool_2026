@@ -75,6 +75,15 @@ class WCM_ensemble:
 
     def write_merged_ensemble(self, out_dir, out_label):
 
+        os.makedirs(out_dir, exist_ok=True)
+
+        # Save the large count/flux arrays as separate .npy files so they can be
+        # memory-mapped on read instead of pulling ~12 GB into RAM from one pkl.
+        x_path = os.path.join(out_dir, out_label + '_WCMensemble_x.npy')
+        fx_path = os.path.join(out_dir, out_label + '_WCMensemble_fx.npy')
+        np.save(x_path, self.x)
+        np.save(fx_path, self.fx)
+
         out_ensemble = dict()
 
         out_ensemble['N_reps'] = self.N_reps
@@ -86,15 +95,16 @@ class WCM_ensemble:
         out_ensemble['rxns'] = self.rxns
         out_ensemble['N_rxns'] = self.N_rxns
         out_ensemble['rxns_map'] = self.rxns_map
-        out_ensemble['x'] = self.x
-        out_ensemble['fx'] = self.fx
+        # store bare filenames (not the arrays); read resolves them next to the pkl
+        out_ensemble['x_path'] = out_label + '_WCMensemble_x.npy'
+        out_ensemble['fx_path'] = out_label + '_WCMensemble_fx.npy'
         out_ensemble['volumes'] = self.volumes
         out_ensemble['conc_factors'] = self.conc_factors
 
         out_file = out_dir + out_label + '_WCMensemble.pkl'
 
         with open(out_file, 'wb') as f:
-            pickle.dump(out_ensemble,f)
+            pickle.dump(out_ensemble, f, protocol=4)
 
         return
 
@@ -114,11 +124,17 @@ class WCM_ensemble:
         self.rxns = in_ensemble['rxns']
         self.N_rxns = in_ensemble['N_rxns']
         self.rxns_map = in_ensemble['rxns_map']
-        self.x = in_ensemble['x']
-        self.fx = in_ensemble['fx']
         self.volumes = in_ensemble['volumes']
         self.conc_factors = in_ensemble['conc_factors']
-        
+
+        # Infer the .npy paths from in_dir + in_label (the files live next to the
+        # pkl), so the trio (.pkl + _x.npy + _fx.npy) can be copied/moved to any
+        # folder and still load. Memory-mapped (READ ONLY) -> no big RAM spike.
+        x_path = os.path.join(in_dir, in_label + '_WCMensemble_x.npy')
+        fx_path = os.path.join(in_dir, in_label + '_WCMensemble_fx.npy')
+        self.x = np.load(x_path, mmap_mode='r')
+        self.fx = np.load(fx_path, mmap_mode='r')
+
         return
 
     def set_traj_files(self, in_dir, in_label, reps):

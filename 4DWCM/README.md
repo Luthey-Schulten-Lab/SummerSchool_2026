@@ -38,7 +38,7 @@ Pre-computed trajectories (CSVs, LM and LAMMPS files) are **NOT** in the git-clo
 
 ```
 /projects/bgvl/SummerSchool_2026/4DWCM/   ← shared read-only data on bgvl
-├── data/                            # 50 counts_and_fluxes.*.csv files
+├── data/                            # 50 counts_and_fluxes.*.csv files and pkl file
 └── trajectory/                      # MinCell_1–4.lm for VMD
 ```
 
@@ -127,9 +127,9 @@ The 4DWCM[^thornburg_4DWCM] integrates four numerical algorithms so that every m
 `4DWCM_analysis.ipynb` reads CSVs of multi-omics of 50 cells from the bgvl `data/` path automatically. The original data are also archived on [Zenodo:15579159](https://zenodo.org/records/15579159).
 
 > [!NOTE]
-> For RDME notebooks, select the **LM 2.5 (Python 3.7)** kernel when prompted.
+> For 4DWCM notebooks, select the **LM 2.5 (Python 3.7)** kernel when prompted.
 
-In the Jupyter file browser, open [`4DWCM_analysis.ipynb`](4DWCM_analysis.ipynb) in **`SummerSchool_2026/RDME/`** to explore ensemble averages from 50 pre-computed whole-cell trajectories. The notebook reads CSVs from **`/projects/bgvl/SummerSchool_2026/RDME/data/`** and saves plots to **`my_results/`** in your clone. Sections below walk through the key results.
+In the Jupyter file browser, open [`4DWCM_analysis.ipynb`](4DWCM_analysis.ipynb) in **`SummerSchool_2026/4DWCM/`** to explore ensemble averages from 50 pre-computed whole-cell trajectories. The notebook reads CSVs from **`/projects/bgvl/SummerSchool_2026/4DWCM/data/`** and saves plots to **`my_results/`** in your clone. Sections below walk through the key results.
 
 ---
 
