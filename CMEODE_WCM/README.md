@@ -18,24 +18,105 @@ The essential metabolism[^breuer_metabolism] in Syn3A imports nutrients from the
 
 To capture statistically meaningful cellular dynamics, we simulate multiple independent cell replicates. To accelerate this process, running the simulations in parallel is essential. In our current setup, we use the `mpirun` module to launch the Python simulation scripts in parallel.
 
+**In this summer school, each of you will run three cell replicates, which will then combined together to total 50 cell replicates for your analysis.**
+
+### Launch Cell Replicates
+
+The spatially homogeneous simulations can be efficiently parallelized across up to 25 independent cell replicates or more depending on the CPU cores, with each replicate requiring less than 2 GB of RAM. 
+
+This year, we further remove the slow Python overhead of unnecessary creating LM files, reinitializing odecell object, and replace Python ODE integration with faster cython version. Now, on systems equipped with AMD EPYC 7763 “Milan” processors on **[Delta](https://docs.ncsa.illinois.edu/systems/delta/en/latest/index.html)**, or Intel Xeon Gold 6154 CPUs @ 3.00 GHz on a standard workstation, **a 2-hour biological simulation** with 1-second communication intervals typically completes within **2 physical hours**.
+
+You will launch the job by `sbatch` to Delta HPC directly, not through the Gateway:
+
+#### Log in to Delta
+
+Replace YOUR_NCSA_USERNAME.
+
+```bash
+ssh YOUR_NCSA_USERNAME@login.delta.ncsa.illinois.edu
+```
+
+Complete DUO authentication to log onto Delta.
+
+#### Edit the sbatch file
+
+Given that you have cloned the summerschool Git repo to your personal folder, you should be able to locate the `SummerSchool_2026/CMEODE_WCM`.
+
+**Do the `cd` bash**:
+```bash
+cd /projects/bgvl/$USER/SummerSchool_2026/CMEODE_WCM/programs
+```
+
+Edit the sbatch.sh to **replace** the YOUR_EMAIL_ADDRESS with your actual email, so that you will receive job info from Delta.
+```bash
+vi sbatch.sh
+```
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=3rep_CMEODE_WCM
+#SBATCH --account=bgvl-delta-gpu
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=6
+#SBATCH --nodes=1
+#SBATCH --gpus-per-node=1
+#SBATCH --time=04:00:00
+#SBATCH --mem=32g
+#SBATCH --partition=gpuA100x4
+#SBATCH --mail-user=YOUR_EMAIL_ADDRESS
+#SBATCH --mail-type=BEGIN,FAIL,END
+#SBATCH --output=%x-%N-%j.out
+#SBATCH --error=%x-%N-%j.err
+```
+
+Here, we ask for 6 CPUs and 32 GB RAM for 3 cell replicates over 4 hours, which is adequate to finish the CMEODE WCM.
+
+The output files will be under `/projects/bgvl/$USER/SummerSchool_2026/CMEODE_WCM/output_3replicates` as wrote in the `sbatch.sh`. We ask to simulate 7200 seconds, output CSV files per 60 seconds, and do hook per second (discussed later).
+
+```bash
+WCM=/projects/bgvl/$USER/SummerSchool_2026/CMEODE_WCM
+OUTPUT_DIR=$WCM/output_3replicates
+mpirun -np 3 python ./WCM_CMEODE_Hook.py \
+      -in $WCM/input_data/ -st cme-ode -t 7200 -o 60 -hi 1 -f $OUTPUT_DIR
+```
+
+On Delta, `$USER` is your NCSA username (e.g. login as `jdoe` → `/projects/bgvl/jdoe`).
+
+#### Submit the sbatch file
+
+Submit and check if job running:
+
+```bash
+sbatch sbatch.sh
+squeue -u $USER
+```
+
+After finish. each simulation replicate with index *i* will generate the following output files:
+
+- `counts_i.csv`: Time trajectories of species counts for metabolites (ODE) and genetic particles (CME), in units of molecules.
+- `SA_i.csv`: Time trajectories of surface area (nm$^2$ or m$^2$) and volume (L).
+- `Flux_i.csv`: Time trajectories of fluxes through ODE reactions, in units of mM/s.
+- `log_i.txt`: Log file including timestamps, reaction prints, runtime, and any warnings or errors.
+
+For a 7200-second simulation with 1-second hook intervals, the typical CSV file size ranges from **100–200 MB**.
+
+---
+
+### Scripts and Program Flowchart
+
 For each independent cell replicate, the main script `WCM_CMEODE_Hook.py` coordinates the workflow by calling multiple Python scripts to construct and simulate genetic information processes, metabolism, and their communication over the entire cell cycle.
 
 The CME simulation is performed using LM with the Direct Gillespie Algorithm. We incorporate the `hookSimulation` function to interrupt the CME timeline at specified intervals and enable communication with the ODE solver.
 
 For the ODE simulation, we use **[odecell](https://github.com/Luthey-Schulten-Lab/odecell)**, a software developed by the Luthey-Schulten Lab. This tool translates metabolic reactions into a system of ordinary differential equations and assigns appropriate kinetic parameters. The resulting ODE system is then solved using the *LSODA* algorithm from the SciPy library.
 
-### Scripts and Program Flowchart
-
----
-
 <details open> 
 <summary><strong>Click to COLLAPSE: Explanation of All Scripts </strong></summary>
 
-#### Launch and Analyze on the Gateway
+#### Launcher and Analysis Script 
 
-- `CMEODE-WCM.ipynb` — Notebook you run to launch the replicates (set time length, number of replicates, and communication interval here).
-- `analysis/analysis.ipynb` — Notebook you run to analyze 10 pre-run replicates and reproduce the figures in this README.
-- `programs/mpirun.sh` — The underlying `mpirun` command the run notebook reproduces (kept for reference / non-Gateway use).
+- `programs/sbatch.sh` — Sbatch file to submit 3 cell replicates using `mpirun` command to Delta.
+- `WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb` — Notebook you run to analyze cell replicates and reproduce the figures in this README.
 
 #### Main Driver
 
@@ -73,39 +154,6 @@ For the ODE simulation, we use **[odecell](https://github.com/Luthey-Schulten-La
   <img src="./figs/figs_WCM/Flowchart_CMEODE_WCM_Poster.png" alt="Flowchart of CMEODE WCM of Syn3A" width="600"> <br>
   <b> Figure 1. Flowchart of one simulation instance of CME-ODE WCM of Syn3A</b>
 </p>
-
-### Launch Cell Replicates
-
-The spatially homogeneous simulations can be efficiently parallelized across up to 25 independent cell replicates or more, with each replicate requiring less than 2 GB of RAM. On systems equipped with AMD EPYC 7763 “Milan” processors on **[Delta](https://docs.ncsa.illinois.edu/systems/delta/en/latest/index.html)**, or Intel Xeon Gold 6154 CPUs @ 3.00 GHz on a standard workstation, a 2-hour biological simulation with 1-second communication intervals typically completes within **6 physical hours**.
-
-Due to time constraints, you will run a short 60-second simulation with 4 cell replicates from a Jupyter notebook on the Gateway. You are encouraged to modify the parameters to run longer simulations or more replicates.
-
----
-
-You will launch and analyze the model from two notebooks in this folder, just like the other CME tutorials — no SSH or `sbatch` needed.
-
-+ **First**: In the Jupyter file browser, open [`CMEODE_WCM.ipynb`](CMEODE_WCM.ipynb).
-
-> [!NOTE]
-> Select the **`LM 2.5 (Python 3.7)`** kernel (top-right of the notebook) when prompted.
-
-+ **Second**: Run the notebook. It runs the 4 replicates by calling `programs/WCM_CMEODE_Hook.py`, and takes about **10 minutes**.
-
-+ **Third**: The notebook writes all output to an **`output_4replicates/`** folder *inside your cloned copy* of the repository (the shared workshop folder is read-only). Section 3 of the notebook lists the files and prints the tail of `log_1.txt`, where you will see the parsed input information, the reactions constructed in CME, and the simulation timing.
-
-> [!TIP]
-> To run a longer simulation or more replicates, edit `SIMTIME` (and `NREP`) in section 1 of the notebook and re-run. Keep `SIMTIME` a multiple of `RESTART`, and `RESTART` a multiple of `HOOK`.
-
----
-
-Each simulation replicate with index *i* will generate the following output files:
-
-- `counts_i.csv`: Time trajectories of species counts for metabolites (ODE) and genetic particles (CME), in units of molecules.
-- `SA_i.csv`: Time trajectories of surface area (nm² or m²) and volume (L).
-- `Flux_i.csv`: Time trajectories of fluxes through ODE reactions, in units of mM/s.
-- `log_i.txt`: Log file including timestamps, reaction prints, runtime, and any warnings or errors.
-
-All output files are saved to the `output_4replicates/` directory in your cloned copy, which the notebook creates automatically. For a 7200-second simulation with 1-second hook intervals, the typical CSV file size ranges from **100–200 MB**.
 
 ### Input Files
 
@@ -308,7 +356,7 @@ The **random binding model** assumes that substrates bind to an enzyme or transp
 
 In all organisms, including JCVI-syn3A, key macromolecular complexes mediate essential cellular processes. Within genetic information processing, **RNA polymerase (RNAP)** and **ribosomes** carry out transcription and translation, respectively—decoding DNA into mRNA and then into proteins. **Degradosomes**, loosely organized complexes composed of endoribonucleases, exoribonucleases, and certain glycolytic enzymes, compete with ribosomes for mRNA binding and processing. Additionally, several essential complexes interact with chromosomes to facilitate chromosome segregation during cell division[^gilbert_dynamics]. Syn3A’s essential metabolism also relies on the active transport of (deoxy)nucleosides, amino acids, vitamins, and fatty acids into the cell via membrane-bound complexes composed of multiple protein subunits[^breuer_metabolism].
 
-In a recently submitted manuscript[^fu_complex], we investigated the assembly of 21 unique macromolecular complexes in the context of Syn3A’s whole-cell model. Complex compositions were determined by cross-referencing genome/proteome annotations and homology-based functional assignments. Assembly pathways—modeled as sequences of bimolecular association reactions—were either taken from prior studies (e.g., ribosome[^earnest_ribosome_2015], RNAP, ATP synthase) or inferred based on known subunit interactions.
+In our recent work[^fu_complex], we investigated the assembly of 21 unique macromolecular complexes in the context of Syn3A’s whole-cell model. Complex compositions were determined by cross-referencing genome/proteome annotations and homology-based functional assignments. Assembly pathways—modeled as sequences of bimolecular association reactions—were either taken from prior studies (e.g., ribosome[^earnest_ribosome_2015], RNAP, ATP synthase) or inferred based on known subunit interactions.
 
 The **bacterial ribosome** consists of a small subunit (30S SSU) and a large subunit (50S LSU), each of which assembles independently as ribonucleoprotein complexes. In Syn3A, two rRNA operons (*rrsA*/0069, *rrlA*/0068, *rrfA*/0067 and *rrsB*/0534, *rrlB*/0533, *rrfB*/0532) encode the 16S, 23S, and 5S rRNAs, respectively. The 16S rRNA and 20 SSU ribosomal proteins form the SSU; the 23S and 5S rRNAs with 31 LSU ribosomal proteins form the LSU.
 
@@ -357,16 +405,14 @@ One extra thing to notice is that the CME rates are also updated per second afte
 
 ## 6. Analysis and Discussion
 
-### Run Notebook `analysis/analysis.ipynb` on Ten Prepared Cell Replicates
+### Run Notebook `WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb` on Serialized 50 Cell Replicates
 
-Your 60-second run in `Tut.3.1` only demonstrates that the simulation works — it is far too short to show cell-cycle behavior. For the analysis we instead use **ten pre-run replicates simulated over a full cell cycle**.
-
-+ **First**: In the Jupyter file browser, open [`analysis/analysis.ipynb`](analysis/analysis.ipynb) and select the **`LM 2.5 (Python 3.7)`** kernel.
++ **First**: In the Jupyter file browser, open [`WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb`](`WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb`) and select the **`LM 2.5 (Python 3.7)`** kernel.
 
 + **Second**: Run the notebook, and compare the generated plots with the figures in this README file.
 
 > [!NOTE]
-> The ten prepared replicates (`WCM_10Cells.pkl`, ~2 GB) are too large for git, so the notebook reads them from the shared read-only folder `/projects/bgvl/SummerSchool_2026/CME/WCM/analysis/` (the same pattern as the RDME pre-computed data). The analysis routines live in [`../analyze_scripts/`](../analyze_scripts/).
+> The 50 replicates are too large for git, so the notebook reads them from the shared read-only folder `/projects/bgvl/SummerSchool_2026/CMEODE_WCM/trajs_healthy/`.
 
 ***The following figures are plotted of ~ 100 cell replicates to make accurate statistics.***
 
@@ -467,7 +513,7 @@ Monomer pools regenerated via metabolism can become temporarily depleted due to 
 
 [^gilbert_dynamics]: Gilbert, B. R., Thornburg, Z. R., Brier, T. A., Stevens, J. A., Grünewald, F., Stone, J. E., Marrink, S. J., & Luthey-Schulten, Z. (2023). Dynamics of chromosome organization in a minimal bacterial cell. Frontiers in Cell and Developmental Biology, 11. https://doi.org/10.3389/fcell.2023.1214962
 
-[^fu_complex]: Fu, E., Thornburg, Z. R., Brier, T. A., Wei, R., Bo, Y., Gilbert, B. R., Wang, S., & Luthey-Schulten, Z. (2025). Assembly of macromolecular complexes in the Whole-Cell model of a minimal cell. bioRxiv (Cold Spring Harbor Laboratory). https://doi.org/10.1101/2025.07.02.662439
+[^fu_complex]: Fu, E., Thornburg, Z. R., Brier, T. A., Wei, R., Yuan, B., Gilbert, B. R., Wang, S., & Luthey-Schulten, Z. (2026). Assembly of macromolecular complexes in the Whole-Cell model of a minimal cell. The Journal of Physical Chemistry B, 130(1), 11–32. https://doi.org/10.1021/acs.jpcb.5c04532
 
 [^davis_LSU]: Davis, J. H., Tan, Y. Z., Carragher, B., Potter, C. S., Lyumkis, D., & Williamson, J. R. (2016). Modular assembly of the bacterial large ribosomal subunit. Cell, 167(6), 1610-1622.e15. https://doi.org/10.1016/j.cell.2016.11.020
 
@@ -475,6 +521,6 @@ Monomer pools regenerated via metabolism can become temporarily depleted due to 
 
 [^cheng_DnaA]: Cheng, H., Gröger, P., Hartmann, A., & Schlierf, M. (2014). Bacterial initiators form dynamic filaments on single-stranded DNA monomer by monomer. Nucleic Acids Research, 43(1), 396–405. https://doi.org/10.1093/nar/gku1284
 
-[^thornburg_maytin_4DWCM]: Thornburg, Z. R., Maytin, A., Kwon, J., Brier, T. A., Gilbert, B. R., Fu, E., Gao, Y., Quenneville, J., Wu, T., Li, H., Long, T., Pezeshkian, W., Sun, L., Glass, J., Mehta, A., Ha, T., & Luthey-Schulten, Z. (2025). Bringing the genetically minimal cell to life on a computer in 4D. bioRxiv (Cold Spring Harbor Laboratory). https://doi.org/10.1101/2025.06.10.658899
+[^thornburg_maytin_4DWCM]: Thornburg, Z. R., Maytin, A., Kwon, J., Brier, T. A., Gilbert, B. R., Fu, E., Gao, Y., Quenneville, J., Wu, T., Li, H., Long, T., Pezeshkian, W., Sun, L., Bittencourt, D. M. de C., Glass, J., Mehta, A., Ha, T., & Luthey-Schulten, Z. (2026). Bringing the genetically minimal cell to life on a computer in 4D. Cell, 189(9), 2582-2597.e27. https://doi.org/10.1016/j.cell.2026.02.009
 
 [^pelletier_division]: Pelletier, J. F., Sun, L., Wise, K. S., Assad-Garcia, N., Karas, B. J., Deerinck, T. J., Ellisman, M. H., Mershin, A., Gershenfeld, N., Chuang, R., Glass, J. I., & Strychalski, E. A. (2021). Genetic requirements for cell division in a genomically minimal cell. Cell, 184(9), 2430-2440.e16. https://doi.org/10.1016/j.cell.2021.03.008

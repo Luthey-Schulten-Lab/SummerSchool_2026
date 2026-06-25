@@ -2,10 +2,10 @@
 #SBATCH --job-name=3rep_CMEODE_WCM
 #SBATCH --account=bgvl-delta-gpu
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=3
+#SBATCH --cpus-per-task=6
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
-#SBATCH --time=06:00:00
+#SBATCH --time=04:00:00
 #SBATCH --mem=32g
 #SBATCH --partition=gpuA100x4
 #SBATCH --mail-user=YOUR_EMAIL_ADDRESS
@@ -44,6 +44,12 @@ apptainer exec --nv \
     mpirun -np 3 python ./WCM_CMEODE_Hook.py \
       -in $WCM/input_data/ -st cme-ode -t 7200 -o 60 -hi 1 -f $OUTPUT_DIR
   "
+
+# Make the newly generated simulation files (.lm, CSVs, logs) accessible to all.
+# The chmod before the run only covers pre-existing files; this one runs AFTER the
+# run so it catches everything mpirun just created. (Skipped if the job times out or
+# is killed before reaching here.)
+chmod -R 777 "$OUTPUT_DIR"
 
 # ===== mpirun / python parameters =====
 # for mpirun:
