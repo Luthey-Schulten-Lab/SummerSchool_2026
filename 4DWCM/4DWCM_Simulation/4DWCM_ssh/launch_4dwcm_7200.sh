@@ -35,8 +35,7 @@ mkdir -p "${BASE}/logs"
 if [[ ! -f "${REPO}/Whole_Cell_Minimal_Cell.py" ]]; then
   echo "ERROR: ${REPO}/Whole_Cell_Minimal_Cell.py not found."
   echo "Copy first (from /projects/bgvl/\$USER):"
-  echo "  cp -r /projects/bgvl/containers/4DWCM_Gateway/Optimize_4DWCM_Minimal_Cell 4dwcm_run/"
-  echo "  cp /projects/bgvl/containers/4DWCM_Gateway/4DWCM_ssh/launch_4dwcm_7200.sh 4dwcm_run/"
+  echo "  bash SummerSchool_2026/4DWCM/4DWCM_Simulation/4DWCM_ssh/copy_4dwcm_bundle.sh"
   exit 1
 fi
 

@@ -50,7 +50,7 @@ mkdir -p "${BASE}/logs"
 if [[ ! -f "${REPO}/Restart_Whole_Cell_Minimal_Cell.py" ]]; then
   echo "ERROR: ${REPO}/Restart_Whole_Cell_Minimal_Cell.py not found."
   echo "Copy first (from /projects/bgvl/\$USER):"
-  echo "  cp -r /projects/bgvl/containers/4DWCM_Gateway/Optimize_4DWCM_Minimal_Cell 4dwcm_run/"
+  echo "  bash SummerSchool_2026/4DWCM/4DWCM_Simulation/4DWCM_ssh/copy_4dwcm_bundle.sh"
   exit 1
 fi
 

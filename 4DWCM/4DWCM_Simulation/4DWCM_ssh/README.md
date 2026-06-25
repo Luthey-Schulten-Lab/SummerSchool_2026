@@ -8,10 +8,16 @@ Use your **NCSA Delta username**. On Delta, `$USER` is your login name (e.g. `jd
 
 ```bash
 cd /projects/bgvl/$USER
+bash SummerSchool_2026/4DWCM/4DWCM_Simulation/4DWCM_ssh/copy_4dwcm_bundle.sh
+```
+
+Or copy manually (source from shared bundle, scripts from this repo):
+
+```bash
 mkdir -p 4dwcm_run/logs
 cp -r /projects/bgvl/containers/4DWCM_Gateway/Optimize_4DWCM_Minimal_Cell 4dwcm_run/
-cp /projects/bgvl/containers/4DWCM_Gateway/4DWCM_ssh/launch_4dwcm_7200.sh 4dwcm_run/
-cp /projects/bgvl/containers/4DWCM_Gateway/4DWCM_ssh/launch_4dwcm_restart.sh 4dwcm_run/
+cp SummerSchool_2026/4DWCM/4DWCM_Simulation/4DWCM_ssh/launch_4dwcm_7200.sh 4dwcm_run/
+cp SummerSchool_2026/4DWCM/4DWCM_Simulation/4DWCM_ssh/launch_4dwcm_restart.sh 4dwcm_run/
 chmod +x 4dwcm_run/launch_4dwcm_7200.sh 4dwcm_run/launch_4dwcm_restart.sh
 ```
 

@@ -10,6 +10,7 @@ In the ***4D Whole-Cell Model (4DWCM) of JCVI-syn3A*** tutorial, you will explor
 
 ## Outline:
 
+0. [Run 4DWCM simulation](4DWCM_Simulation/README.md)
 1. [File Organization](#1-file-organization)
 2. [Visualize 3D trajectories over the cell cycle](#2-visualize-3d-trajectories-over-the-cell-cycle)
 3. [Hybrid 4D Simulation incorporating RDME, BD, CME, and ODE](#3-hybrid-4d-simulation-incorporating-rdme-bd-cme-and-ode)
@@ -25,8 +26,7 @@ For 4DWCM module, you should see:
 
 ```
 SummerSchool_2026/4DWCM/          ← your cloned copy (notebooks & scripts)
-├── 4DWCM_Simulation/              # run optimized 4DWCM on Gateway or SSH (see README inside)
-│   ├── Tutorial_4dwcm.ipynb
+├── 4DWCM_Simulation/              # run optimized 4DWCM via SSH + Slurm (see README inside)
 │   └── 4DWCM_ssh/                 # Slurm launch scripts
 ├── 4DWCM_analysis.ipynb         # analyze ensemble statistics (§4)
 ├── analysis_scripts/            # Python helpers + sim_properties_1_9.pkl
