@@ -131,8 +131,11 @@ class WCM_ensemble:
         out_ensemble['rxns'] = self.rxns
         out_ensemble['N_rxns'] = self.N_rxns
         out_ensemble['rxns_map'] = self.rxns_map
-        out_ensemble['x_path'] = os.path.join(out_dir, out_label + '_x.npy')
-        out_ensemble['fx_path'] = os.path.join(out_dir, out_label + '_fx.npy')
+        # Store the bare filenames (NOT absolute paths) so the ensemble trio
+        # (.pkl + _x.npy + _fx.npy) can be copied/moved to any folder;
+        # read_merged_ensemble resolves them next to the pkl it loads from.
+        out_ensemble['x_path'] = out_label + '_x.npy'
+        out_ensemble['fx_path'] = out_label + '_fx.npy'
         out_ensemble['volumes'] = self.volumes
         out_ensemble['conc_factors'] = self.conc_factors
 
@@ -171,12 +174,24 @@ class WCM_ensemble:
         self.volumes = in_ensemble['volumes']
         self.conc_factors = in_ensemble['conc_factors']
 
+        # Resolve the .npy files NEXT TO this pkl: basename() strips any stale
+        # absolute directory an older pkl may have baked in, then we join with the
+        # dir we are actually reading from. So the trio (.pkl + _x.npy + _fx.npy)
+        # can be copied/moved to any folder and still load. Fall back to the stored
+        # path for the in-place case where the .npy is not beside the pkl.
+        x_path = os.path.join(in_dir, os.path.basename(in_ensemble['x_path']))
+        fx_path = os.path.join(in_dir, os.path.basename(in_ensemble['fx_path']))
+        if not os.path.exists(x_path):
+            x_path = in_ensemble['x_path']
+        if not os.path.exists(fx_path):
+            fx_path = in_ensemble['fx_path']
+
         # Lazy load large arrays using memory mapping (READ ONLY)
-        self.x = np.load(in_ensemble['x_path'], mmap_mode='r')  # shape: (N_species, Nt, N_reps) 
-        print(f"Lazy Read species counts numpy array file: {in_ensemble['x_path']}")
-        
-        self.fx = np.load(in_ensemble['fx_path'], mmap_mode='r')  # shape: (N_rxns, Nt, N_reps)
-        print(f"Lazy Read flux counts numpy array file: {in_ensemble['fx_path']}")
+        self.x = np.load(x_path, mmap_mode='r')   # shape: (N_species, Nt, N_reps)
+        print(f"Lazy Read species counts numpy array file: {x_path}")
+
+        self.fx = np.load(fx_path, mmap_mode='r')  # shape: (N_rxns, Nt, N_reps)
+        print(f"Lazy Read flux counts numpy array file: {fx_path}")
 
 
         self.surface_doubling_times, self.not_doubled_reps = diagnosis.get_surface_doubling_times(self, 
