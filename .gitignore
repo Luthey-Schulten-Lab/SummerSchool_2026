@@ -20,3 +20,12 @@ env/
 
 # macOS
 .DS_Store
+
+# Simulation result files (can be very large — distribute separately)
+*.lm
+*-jlmcache.h5
+
+# Tutorial-generated plots (users produce these by running the notebooks)
+LM/**/Plots/*.png
+LM/**/Plots/*.jpg
+LM/**/Plots/*.svg
