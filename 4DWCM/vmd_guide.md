@@ -2,20 +2,49 @@
 
 This guide explains how to visualize 4DWCM model trajectories using [VMD 2](https://www.ks.uiuc.edu/Development/Download/download.cgi?PackageName=VMD).
 
-**OOD Desktop + VirtualGL setup:** complete [vmd_guide.md](../vmd_guide.md) sections **1–2** first (login, Desktop allocation, `module load vmd`, `vglrun`).
+VMD and the [VMD plugin](https://github.com/Luthey-Schulten-Lab/LMVMDPlugin) are pre-installed on NCSA Delta HPC.
 
-Pre-computed spatial trajectories live in the shared bgvl data folder. Load them from the OOD Desktop terminal after VMD is running.
+Since VMD requires a graphical interface, we'll use Open OnDemand's Desktop interactive app to access a Linux GUI for launching VMD and viewing trajectories.
 
-## 1. Launch VMD with ffmpeg (4DWCM)
+## 1. Initialize the OOD Interactive Session
 
-If you completed [vmd_guide.md](../vmd_guide.md) §2, VirtualGL and VMD are already loaded. Add **ffmpeg** for movie export, then start VMD:
+1. Navigate to the [Open OnDemand dashboard](https://openondemand.delta.ncsa.illinois.edu/pun/sys/dashboard).
+
+2. Log in through CILogon with your NCSA username, password, and Duo MFA.
+
+3. Open the Interactive Apps menu and click **Desktop**.
+
+4. Configure the job settings and click Launch:
+   - Container image: keep default
+   - Account: `bgvl-delta-gpu`
+   - Partition: `GPUA100x4`
+   - Duration: `00-02:00:00`
+   - Reservation: leave empty if none
+   - CPUs: `16`
+   - RAM: `64G`
+   - GPUs: `1`
+
+5. Wait for the job status to change from "starting" to "running" in My Interactive Sessions. 
+
+   <img src="https://docs.ncsa.illinois.edu/systems/delta/en/latest/_images/desktop-starting.png" alt="starting" width="300">
+
+   Click "Connect to Desktop" to access the Linux graphical interface.
+
+   <img src="https://docs.ncsa.illinois.edu/systems/delta/en/latest/_images/desktop-connect.png" alt="running" width="300">
+
+## 2. Launch VMD
+
+Open a terminal, launch ffmpeg (movie maker) and VMD:
 
 ```bash
+source /projects/bgvl/SummerSchool_2026/DNA/files/VirtualGL/setup_env.sh
+module use /projects/bgvl/alfiaparvez/modulefiles
 module load ffmpeg
+module load vmd/2.0.0
 vglrun -d egl vmd
 ```
 
-## 2. Load the trajectory
+## 3. Load the trajectory
 
 Pre-computed spatial trajectories live in the shared bgvl data folder:
 
@@ -35,7 +64,7 @@ The given TCL script load in the frames at a per-minute frenquency, a downsample
 
 By default, all the particles in both files are rendered as Points, which are not pretty and intuitive to understand.
 
-## 3. Set up the representations and make a movie
+## 4. Set up the representations and make a movie
 
 In 4DWCM, so many things can be visualized. Use the given TCL script
 
