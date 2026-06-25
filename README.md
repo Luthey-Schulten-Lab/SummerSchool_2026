@@ -170,7 +170,9 @@ Click **CI Logon** and sign in with your NCSA Delta credentials.
 
 **Step 3: Allocate resources**
 
-After logging in, the Gateway will ask you to choose compute resources before starting your Jupyter session. Use the settings below:
+After logging in, the Gateway will ask you to choose compute resources before starting your Jupyter session.
+
+**CME, RDME, DNA, Martini tutorials** — use:
 
 | Setting | Value |
 | --- | --- |
@@ -180,6 +182,18 @@ After logging in, the Gateway will ask you to choose compute resources before st
 | **Number of GPUs** | **1** |
 | **Memory** | **64 GB** |
 | **Time limit** | **4 hours** |
+
+**Optimized 4D Whole Cell (4DWCM)** — use **2 GPUs** and a different container. Full steps: [`4DWCM/4DWCM_Simulation/README.md`](4DWCM/4DWCM_Simulation/README.md) in this repo (JupyterHub short test or SSH/Slurm production run).
+
+| Setting | Value |
+| --- | --- |
+| **Allocation** | **A100 GPU - up to 8 (bgvl-delta-gpu)** — **Batch** (non-interactive) |
+| **Number of CPUs** | **8** |
+| **GPU Environment** | **`4DCell Optimized`** |
+| **Number of GPUs** | **2** |
+| **Memory** | **64 GB** (or more for long runs) |
+| **Time limit** | **48 hours** |
+| **Jupyter kernel** | **LM 2.5 (Python 3.7)** |
 
 > [!IMPORTANT]
 > Always select the **non-interactive** session with the **8-GPU** (`A100 GPU - up to 8 (bgvl-delta-gpu)`) option.

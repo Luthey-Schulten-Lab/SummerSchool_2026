@@ -25,7 +25,10 @@ For 4DWCM module, you should see:
 
 ```
 SummerSchool_2026/4DWCM/          ← your cloned copy (notebooks & scripts)
-├── 4DWCM_analysis.ipynb         # analyze ensemble statistics (§6)
+├── 4DWCM_Simulation/              # run optimized 4DWCM on Gateway or SSH (see README inside)
+│   ├── Tutorial_4dwcm.ipynb
+│   └── 4DWCM_ssh/                 # Slurm launch scripts
+├── 4DWCM_analysis.ipynb         # analyze ensemble statistics (§4)
 ├── analysis_scripts/            # Python helpers + sim_properties_1_9.pkl
 ├── vmd_guide.md                 # visualize and render 4D traj in VMD2
 └── readme.md                    # you are here
