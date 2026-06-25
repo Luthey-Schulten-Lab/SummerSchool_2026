@@ -46,7 +46,7 @@ Pre-computed trajectories (CSVs, LM and LAMMPS files) are **NOT** in the git-clo
 
 ## 2. Visualize 3D trajectories over the cell cycle
 
-Visualize 4DWCM trajs on Open OnDemand platform: see [vmd_guide.md](vmd_guide.md).
+Visualize 4DWCM trajs on Open OnDemand: shared OOD setup in [vmd_guide.md](../vmd_guide.md); 4DWCM-specific load/render steps in [vmd_guide.md](vmd_guide.md).
 
 ---
 

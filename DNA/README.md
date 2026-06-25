@@ -108,7 +108,7 @@ In the Jupyter file browser, open **`SummerSchool_2026/DNA/`**. You should see:
 
 ```
 SummerSchool_2026/DNA/
-├── README.md                       # background, run steps (§5), and VMD instructions
+├── README.md                       # background, run steps (§5), and VMD (§12 → vmd_guide.md)
 ├── files/
 │   ├── prelaunch_btree_chromo.sh   # copies the launch script + template to your folder (§5 step 2)
 │   ├── launch_simulation.sh        # the Slurm job you submit (§5 step 3)
@@ -402,44 +402,13 @@ The command `simulator_form_loops:F` reads in the loop state from `btree_chromo`
 
 ## 12. Visualization with VMD
 
-Section 12 uses the **Open OnDemand Desktop** (graphical session), not Jupyter. Follow the [VMD Guide by Tianyu](../RDME/vmd_guide.md) with the DNA-specific paths below.
+Section 12 uses the **Open OnDemand Desktop** (graphical session), not Jupyter.
 
-### 1. Initialize the OOD Interactive Session
-1. Navigate to the [Open OnDemand dashboard](https://openondemand.delta.ncsa.illinois.edu/pun/sys/dashboard).
+**Shared setup (OOD login, Desktop allocation, VirtualGL, `module load vmd`):** [vmd_guide.md](../vmd_guide.md) — complete **sections 1–2** there first.
 
-2. Log in through CILogon with your NCSA username, password, and Duo MFA.
+DNA-specific steps below (sample vs. your own LAMMPS trajectory, `load_btree_chromo.tcl`, representations).
 
-3. Open the Interactive Apps menu and click Desktop.
-
-4. Configure the job settings and click Launch:
-   - Container image: keep default
-   - Account: `bgvl-delta-gpu`
-   - Partition: `cpu-interactive`
-   - Duration: `00-00:30:00`
-   - Reservation: leave empty if none
-   - CPUs: `16`
-   - RAM: `64GB`
-   - GPUs: `1`
-
-5. Wait for the job status to change from "starting" to "running" in My Interactive Sessions. 
-
-   <img src="https://docs.ncsa.illinois.edu/systems/delta/en/latest/_images/desktop-starting.png" alt="starting" width="300">
-
-   Click "Connect to Desktop" to access the Linux graphical interface.
-
-   <img src="https://docs.ncsa.illinois.edu/systems/delta/en/latest/_images/desktop-connect.png" alt="running" width="300">
-
-### 2. Preprocess trajectory and load VMD
-
-VMD runs on the **OOD Desktop** (not Jupyter) and is launched through **VirtualGL** so it renders on the node's GPU — the default software renderer (`llvmpipe`) makes the full ~96k-bead cell sluggish to rotate. Make sure your Desktop session requested a **GPU** (GPUs: `1`), then set up VirtualGL (a user-space build is provided — no install or root needed) and load VMD:
-
-```bash
-source /projects/bgvl/SummerSchool_2026/DNA/files/VirtualGL/setup_env.sh
-module use /projects/bgvl/alfiaparvez/modulefiles
-module load vmd/2.0.0
-```
-
-You can then visualize a **pre-run sample trajectory** (no simulation needed) or **your own run**.
+### Load a DNA trajectory
 
 #### Option A — pre-run sample (recommended if you did not run the full simulation)
 

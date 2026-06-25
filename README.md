@@ -141,13 +141,16 @@ Jupyter tutorials run on the **QCB Delta Gateway**. Full setup — SSH tunnel, l
 
 **4DWCM production simulations** use SSH + Slurm: [`4DWCM/4DWCM_Simulation/README.md`](4DWCM/4DWCM_Simulation/README.md).
 
+**VMD visualization** (DNA and 4DWCM trajectories) uses the **Open OnDemand Desktop**, not Jupyter: **[vmd_guide.md](vmd_guide.md)**.
+
 ### Useful Links
 0. [STC-QCB Official Website](https://qcb.illinois.edu/): Check out the QCB website for more events!  
 1. [Delta User Help Document](https://docs.ncsa.illinois.edu/systems/delta/en/latest/): We will use **Delta**, a high-performance computing cluster housed at the National Center for Supercomputing Applications (NCSA), UIUC, to conduct the computational tasks.  
 2. [Common Terminal Commands](https://gist.github.com/bradtraversy/cc180de0edee05075a6139e42d5f28ce): You need to know basic terminal commands to navigate directories and launch jobs.  
 3. [Jupyter Notebook Basics](https://www.dataquest.io/blog/jupyter-notebook-tutorial/): Jupyter Notebook provides a user-friendly interface to run simulations interactively.  
 4. [Try Jupyter Notebook Online](https://jupyter.org/try): Try it out to get familiar with the interface.  
-5. [Visual Molecular Dynamics (VMD)](https://www.ks.uiuc.edu/Research/vmd/): **VMD** is a versatile tool that will be used to visualize chromosome dynamics simulated by LAMMPS and 4DWCM trajectories simulated by Lattice Microbe.  
+5. [VMD on Delta (OOD Desktop)](vmd_guide.md): Shared setup for visualizing DNA and 4DWCM trajectories with VirtualGL + VMD 2.  
+6. [Visual Molecular Dynamics (VMD)](https://www.ks.uiuc.edu/Research/vmd/): Official VMD documentation and downloads.  
 
 >[!NOTE]  
 > These tutorials were written by teaching assistants: Andrew Maytin (DNA), Enguang Fu (CME), and Tianyu Wu (RDME).
