@@ -1,21 +1,42 @@
 # 1. An Introduction to Chemical Kinetics, Molecular Dynamics, Biological Systems, and Lattice Microbes Modules #
 
 ## 1.1. Introduction ##
-The Lattice Microbes modules of the 2026 NSF STC QCB Summer School will introduce you to the following broad topics: chemical kinetics, coarse-grained molecular dynamics, applications of chemical kinetics and molecular dynamics to biological systems, and using Lattice Microbes as a simulation engine to model these processes.
+The Lattice Microbes modules of the 2026 NSF STC QCB Summer School will introduce you to the following broad topics: chemical kinetics, coarse-grained molecular dynamics, applications of chemical kinetics and molecular dynamics to biological systems, and using Lattice Microbes as a simulation engine to model these processes. After learning about each topic, we will use Lattice Microbes software to simulate various chemical and biological systems. Some examples of biological systems that have been simulated using lattice microbes include *E. coli* (see **Figure 1**), the Minimal Cell (JCVI-Syn3A; see **Figure 2**), and HeLa cells (see **Figure 3**).
+
+<p align="left">
+  <img src="./SupplementaryFigures/LM_PackedEcoli.png" width="650" alt="Treatment Regimes for Chemical Kinetics Systems"> <br>
+  <b>Figure 1. Lattice Microbes - E. coli Cell</b>
+</p>
+
+<p align="left">
+  <img src="./SupplementaryFigures/LM_MinimalCell.jpg" width="650" alt="Treatment Regimes for Chemical Kinetics Systems"> <br>
+  <b>Figure 2. Lattice Microbes - Minimal Cell, JCVI-Syn3A</b>
+</p>
+
+<p align="left">
+  <img src="./SupplementaryFigures/LM_HeLa_Cell.png" width="650" alt="Treatment Regimes for Chemical Kinetics Systems"> <br>
+  <b>Figure 3. Lattice Microbes - HeLa Cell</b>
+</p>
+
 
 ## 1.2. Chemical Kinetics ##
-Chemical kinetics, in a general sense, in the study of how much stuff you have in a system and how the amount of this stuff changes across time. As such, one of the fundamental results from performing chemical kinetics analyses is what we term "trajectories" for all chemical species in the system. A species trajectory is simply knowledge of the amount of that species present in the system at any given time and is often represented using a simple graph with time on the x-axis and species amount on the y-axis.
+Chemical kinetics, in a general sense, is the study of how much stuff you have in a system and how the amount of this stuff changes across time. As such, one of the fundamental results from performing chemical kinetics analyses is what we term "trajectories" for all chemical species in the system. A species trajectory is simply knowledge of the amount of that species present in the system at any given time and is often represented using a simple graph with time on the x-axis and species amount on the y-axis (see **Figure 4**).
+
+<p align="left">
+  <img src="./SupplementaryFigures/ChemicalTrajectoryExamples.jpg" width="650" alt="Treatment Regimes for Chemical Kinetics Systems"> <br>
+  <b>Figure 4. Examples of Chemical Trajectories</b>
+</p>
 
 In order to determine species trajectories, the following information must be known/modeled: 1) the identity of all possible chemical species in the system, 2) all possible chemical reactions represented as a system of stoichiometrically-balanced chemical equations, and 3) rate laws (usually derived from the system of chemical equations) for each chemical species along with their respective kinetic parameters. Chemical identities tell us *what* is in the system. Chemical reactions tell us *how* chemical species can be interconverted. Rate laws and kinetic parameters tell us *when* these conversions take place.
 
 In these Lattice Microbes modules, you will model the kinetics of various chemical and biological systems using both deterministic and stochastic approaches. In essence, the difference between a deterministic and stochastic representation of chemical kinetics is that deterministic treatments always result in a single outcome (trajectory), whereas a stochastic treatment will result in a distribution of outcomes (trajectories). Traditional liquid-phase chemical kinetics, where solutions contain relatively large numbers of reactant molecules, have generally been treated with deterministic reaction frameworks. Such frameworks model chemical systems as evolving without randomness, and if initial conditions are the same across runs, the resulting system behavior will also be the same. However, as we will soon see, chemical reactions are inherently stochastic events, and although these processes can be treated deterministically when there are enough molecules present, at low molecular copy numbers, modeling stochasticity becomes more important to accurately model the system's behavior. 
 
 ## 1.3. Molecular Dynamics ##
-In addition to participating in reactions, chemical species are also dynamic with respect to their locations in space. The field of molecular dynamics aims to understand and predict these movements, as has been discussed in the Martini modules. Here, we briefly mention molecular dynamics simply to say that some approaches to modeling chemical kinetics also include a treatment of species' localities. In fact, it is both the number of molecules in a system and the permitted reaction distances of these molecules that often guides what approaches we use to modeling the system. Furthermore, approaches that model the locations and quantities of chemical species within a system can be conceptualized as existing on a 2-dimensional plot where the number of molecules is represented on one axis and the permitted length scales of chemical reactions is on the other (see **Figure 1**).
+In addition to participating in reactions, chemical species are also dynamic with respect to their locations in space. The field of molecular dynamics aims to understand and predict these movements, as has been discussed in the Martini modules. Here, we briefly mention molecular dynamics simply to say that some approaches to modeling chemical kinetics also include a treatment of species' localities. In fact, it is both the number of molecules in a system and the permitted reaction distances of these molecules that often guides what approaches we use to modeling the system. Furthermore, approaches that model the locations and quantities of chemical species within a system can be conceptualized as existing on a 2-dimensional plot where the number of molecules is represented on one axis and the permitted length scales of chemical reactions is on the other (see **Figure 2**).
 
 <p align="center">
   <img src="./SupplementaryFigures/algorithms.png" width="450" alt="Treatment Regimes for Chemical Kinetics Systems"> <br>
-  <b>Figure 1. Treatment Regimes for Chemical Kinetics Systems</b>
+  <b>Figure 2. Treatment Regimes for Chemical Kinetics Systems</b>
 </p>
 
 ## 1.4. Biological Systems ##
@@ -37,11 +58,11 @@ Lattice Microbes is a software package designed to efficiently simulate stochast
 Lattice Microbes was designed to aid in performing whole-cell simulations, and while Lattice Microbes is a critical component of these simulations, it can be used at other scales such as to simulate individual biological processes or colonies of cells. We will use Lattice Microbes as our simulation engine across these modules and details about its implementation will be described along the way. 
 
 ## 2.2. Lattice Microbes Code Architecture ##
-Lattice Microbes software is written in C++/CUDA but can be accessed through "jLM", a Python-based Problem Solving Environment designed to integrate seamlessly with Jupyter Notebooks. jLM was developed in 2018 as a successor to "pyLM" (from 2013, now outdated). jLM sits on top of a SWIG interface that allows the C++ backend to be accessed from the Python terminal. Using jLM allows users to set up, run, and analyze Lattice Microbes simulations within a single script, while the computations are still executed using the base C++/CUDA code. A simple schematic of the software design is found in **Figure 2**.
+Lattice Microbes software is written in C++/CUDA but can be accessed through "jLM", a Python-based Problem Solving Environment designed to integrate seamlessly with Jupyter Notebooks. jLM was developed in 2018 as a successor to "pyLM" (from 2013, now outdated). jLM sits on top of a SWIG interface that allows the C++ backend to be accessed from the Python terminal. Using jLM allows users to set up, run, and analyze Lattice Microbes simulations within a single script, while the computations are still executed using the base C++/CUDA code. A simple schematic of the software design is found in **Figure 3**.
 
 <p align="center">
   <img src="./SupplementaryFigures/jLM_Schematic.png" width="450" alt="Schematic diagram of the LM architecture"> <br>
-  <b>Figure 2. Lattice Microbes Software Architecture</b>
+  <b>Figure 3. Lattice Microbes Software Architecture</b>
 </p>
 
 
