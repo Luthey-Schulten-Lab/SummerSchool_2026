@@ -1,4 +1,4 @@
-# Modeling Cells with the Martini Coarse-Grained Force Field
+# Modeling Cells with the Martini Force Field
 
 <table>
 <tr>
@@ -67,7 +67,7 @@ also available [here](https://tutorials.gromacs.org/).
   | Container image | `RHEL 9 w/ CUDA 12.8` |
   | Account         | `bgvl-delta-gpu` |
   | Partition       | `gpuA40x4-interactive` |
-  | Duration of job | `1:00:00` |
+  | Duration of job | `4:00:00` |
   | Number of CPUs  | `8` |
   | Number of GPUs  | `1` |
 
@@ -77,16 +77,7 @@ also available [here](https://tutorials.gromacs.org/).
   the remote desktop in your browser. Open a terminal inside the desktop
   to continue.
 
-**2. Load the required modules** in the terminal:
-
-```
-# TODO: confirm correct module versions on Delta
-module load gromacs/<version>
-module load python/<version>
-module load vmd/<version>
-```
-
-**3. Navigate to the workshop directory.** The tutorial files have been
+**2. Navigate to the workshop directory.** The tutorial files have been
 pre-staged on Delta. Change into the workshop directory:
 
 ```
@@ -96,9 +87,19 @@ cd /path/to/martini-workshop
 
 Each tutorial lives in its own folder, with all input files prepared for use.
 
-> [!TIP]
-> If a simulation runs too long, a worked example for each tutorial can be
-> downloaded [here](https://github.com/marrink-lab/martini-workshop/...).
+**3. Set up the workshop environment** with micromamba. First install
+micromamba (accept all default settings when prompted):
+
+```sh
+"${SHELL}" <(curl -L micro.mamba.pm)
+```
+
+Then create the workshop environment from the provided file and activate it:
+
+```sh
+micromamba create -n workshop -f ./files/environment.yml
+micromamba activate workshop
+```
 
 ---
 
