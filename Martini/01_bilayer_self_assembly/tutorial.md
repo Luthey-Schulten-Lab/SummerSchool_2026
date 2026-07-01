@@ -207,9 +207,10 @@ visualized using a VDW representation.
 For Martini, the `.tpr` is the most practical option. It carries the bonded
 information from the topology, which lets you visualize the lipids with
 licorice or other bond-aware representations. Note that VMD does not
-guarantee all bonds are drawn. Particles can have a maximum of 12 bonds
-(not uncommon in CG models), the rest are not drawn. For exact visualizations
-such as for publication figures or checking the topology, we recommend the dedicated
+guarantee all bonds are drawn. Particles can have a maximum of 12 bonds in VMD
+and additional bonds are not drawn (higher bond numbers are not uncommon in CG
+models). For exact visualizations such as for publication figures or checking
+the topology, we recommend the dedicated
 [martini-glass](https://github.com/Martini-Force-Field-Initiative/martini-glass) tool.
 
 A `vmdrc` configuration file with default representations for the workshop
@@ -218,6 +219,12 @@ before opening VMD:
 
 ```sh
 cp ../files/vmdrc ~/.vmdrc
+```
+
+TODO: Explain how to do pbc whole on the trajectory
+
+```sh
+gmx trjconv -f md/md -s md/md -o md/md_whole.xtc -pbc whole
 ```
 
 Then open the trajectory:
