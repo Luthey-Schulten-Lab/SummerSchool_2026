@@ -16,8 +16,8 @@
    NA 		1
 
 [atoms]
-;id 	type 	resnr 	residu 	atom 	cgnr 	charge
- 1 	TQ5 	1 	ION 	NA 	1 	1.0 
+;id 	type 	resnr 	residu 	atom 	cgnr 	charge mass
+ 1 	TQ5 	1 	ION 	NA 	1 	1.0     54 
 
 ;;;;;; Chloride ion
 
@@ -26,8 +26,8 @@
    CL 		1
 
 [atoms]
-;id 	type 	resnr 	residu 	atom 	cgnr 	charge 
- 1 	TQ5 	1 	ION 	CL 	1 	-1.0     35.453
+;id 	type 	resnr 	residu 	atom 	cgnr 	charge mass
+ 1 	TQ5 	1 	ION 	CL 	1 	-1.0     54
 
 ;;;;;; Bromide ion
 

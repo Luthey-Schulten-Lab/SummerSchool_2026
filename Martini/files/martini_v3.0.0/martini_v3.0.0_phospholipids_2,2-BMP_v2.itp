@@ -1,0 +1,85 @@
+; Last update : Jan-2025 by Kasper 
+; please cite:
+; K.B. Pedersen et al., The Martini 3 Lipidome: Expanded and Refined Parameters Improve Lipid Phase Behavior*, 
+; ACS Central Science, 2025. doi: 10.1021/acscentsci.5c00755
+; P.C.T. Souza et al., Martini 3: A General Purpose Force Field for Coarse-Grained Molecular Dynamics*, 
+; Nature Methods, 2021. doi: 10.1038/s41592-021-01098-3
+
+;;;;;; Martini lipid topology for 2,2' isomer C18:1/C18:1 BMP (DOB2)                  
+;
+; molecular topology and mapping of indices
+;
+;	  OH1	
+;          |
+;         GL1-C1A-D2A-C3A-C4A   
+;        /
+;      PO4  
+;        \   
+;         GL2-C1B-D2B-C3B-C4B
+;          |
+;         OH2
+;
+;         3
+;         |
+;         2 - 4 - 5 - 6 - 7   
+;        /
+;       1 
+;        \   
+;         8 - 10 - 11 - 12 - 13
+;         |
+;         9
+
+[moleculetype]
+; molname      nrexcl
+  DO2B          1
+
+[atoms]
+; id 	type 	resnr 	residu 	atom 	cgnr 	charge
+   1 	Q5 	 1 	DO2B 	PO4 	 1 	-1.0 	
+   2 	SN4a	 1 	DO2B 	GL1 	 2 	0 	
+   3 	TN6	 1 	DO2B 	OH1 	 3 	0 	
+   4 	C1 	 1 	DO2B 	C1A 	 4 	0 	
+   5 	C4h	 1 	DO2B 	D2A 	 5 	0 	
+   6 	C1 	 1 	DO2B 	C3A 	 6 	0 	
+   7 	C1 	 1 	DO2B 	C4A 	 7 	0 	
+   8    SN4a     1	DO2B	GL2	 8	0
+   9    TN6      1	DO2B	OH2	 9	0
+  10 	C1 	 1 	DO2B 	C1B 	10 	0 	
+  11 	C4h	 1 	DO2B 	D2B 	11 	0 	
+  12 	C1 	 1 	DO2B 	C3B 	12 	0 	
+  13 	C1 	 1 	DO2B 	C4B 	13 	0 	
+
+[bonds]
+;  i  j 
+   1  2   b_PO4_GL_def
+   2  3   b_GL_OH_22_bmp
+   2  4   b_GL_C1_glyc_5long
+   4  5   b_C1_C4_mid_5long
+   5  6   b_C4_C1_mid
+   6  7   b_C1_C1_end
+   1  8   b_PO4_GL_def	
+   8  9   b_GL_OH_22_bmp
+   8 10   b_GL_C1_glyc_5long
+  10 11   b_C1_C4_mid_5long
+  11 12   b_C4_C1_mid
+  12 13   b_C1_C1_end
+
+[angles]
+; using named angletypes from martini_v3.0_ffbonded.itp
+; head group
+   1  2  3  a_PO4_GL_OH_22_bmp
+   1  8  9  a_PO4_GL_OH_22_bmp
+;glycerol backbone	
+   3  2  4  a_OH_GL_C_22_bmp    	      
+   9  8 10  a_OH_GL_C_22_bmp    	      
+   1  2  4  a_PO4_GL_C_def   	      
+   1  8 10  a_PO4_GL_C_def    	      
+; tails attached to glycerol
+   2  4  5  a_GL_C1_C4_glyc          
+   8 10 11  a_GL_C1_C4_glyc          
+; tails
+   4  5  6  a_C1_C4_C1_def
+   5  6  7  a_C4_C1_C1_def
+  10 11 12  a_C1_C4_C1_def
+  11 12 13  a_C4_C1_C1_def
+
