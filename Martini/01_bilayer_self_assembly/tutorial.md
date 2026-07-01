@@ -321,7 +321,7 @@ flag. The required data file format is described in the GROMACS manual and
 is not covered here.
 
 Compare your results to small-angle neutron scattering measurements
-[^kucerka2011]:
+[^Balgavy2001]:
 
 - Thickness: 4.98 ± 0.15 nm
 - Area per lipid: 0.65 ± 0.05 nm²
@@ -383,8 +383,8 @@ leaflet.
     Improve Lipid Phase Behavior. *ACS Cent. Sci.*, 11, 1598–1610.
     [doi:10.1021/acscentsci.5c00755](https://doi.org/10.1021/acscentsci.5c00755)
 
-[^kucerka2011]: Kučerka, N., Nieh, M.-P., & Katsaras, J. (2011). Fluid phase
-    lipid areas and bilayer thicknesses of commonly used phosphatidylcholines
-    as a function of temperature. *Biochim. Biophys. Acta*, 1808, 2761–2771.
-    [doi:10.1016/j.bbamem.2011.07.022](https://doi.org/10.1016/j.bbamem.2011.07.022)
-    *(Please verify — the original `[4]` citation was missing from the references list.)*
+[^Balgavy2001]: Balgavy, P., Dubnicková, M., Kucerka, N., Kiselev, M. A., Yaradaikin,
+    S. P., and Uhrikova, D. (2001) Bilayer thickness and lipid interface area in
+    unilamellar extruded 1,2-diacylphosphatidylcholine liposomes: a small-angle neutron
+    scattering study. Biochim. Biophys. Acta 1512, 40–52.
+    [doi:10.1016/S0005-2736(01)00298-X](https://doi.org/10.1016/S0005-2736(01)00298-X)
