@@ -1,0 +1,273 @@
+# Marieke Westendorp, 2026-06-30.
+#     <m.s.s.westendorp@rug.nl>
+#     <ma3ke.cyber@gmail.com>
+# This configuration was at some point based on Jan Stevens' vmdrc and has
+# since been revised many times. Thanks!
+#
+# IMPORTANT: By using this document, you promise that when you discover cool
+# VMD tricks and configurations, you will share them with the person who gave
+# you this document. Spread the word :)
+
+# Turn on some lights.
+light 0 on
+light 1 on
+light 2 off
+light 3 off
+
+# General display settings.
+display nearclip set 0
+display depthcue off
+display culling off
+
+# Set label settings.
+color Labels Atoms black
+color Labels Bonds black
+label textthickness 2.0
+
+# Position the stage and axes.
+axes location off
+color Display Background white
+
+# Set high quality display options.
+display shadows on
+display ambientocclusion on
+display projection orthographic
+# Use the ray-traced viewport, if available.
+set preferred_mode "Tachyon RTX RTRT"
+if {[lsearch -exact [display get rendermodes] $preferred_mode] >= 0} {
+  display rendermode $preferred_mode
+}
+
+# Position and turn on menus.
+menu main     move 5   225
+menu display  move 395 30
+menu graphics move 395 500
+menu color    move 125 225
+menu files    move 125 325
+menu labels   move 125 525
+menu render   move 125 525
+menu main     on
+
+# Better rendering defaults.
+# - A nice number of samples. Especially important when using depth-of-field.
+# - A large canvas. I often go even larger for final publication-level figures.
+# - MAXTRANS and MAXDIST are set to 1, which I believe improves performance.
+# - WRITEALPHA is very cool, because it lets you create .png files with
+#   transparency! However, do note the following if you want to use this:
+#   - You MUST change the filename field in the Render window to a .png
+#     extension. Otherwise writing the image file may go wrong because
+#     imagemagick still believes it's a ppm file!
+#   - ALWAYS run something like `$ magick vmdscene.png output.png` on the
+#     image file before using it. The default colorspace is otherwise wrong
+#     (I think RGB vs the normal sRGB). This causes the image to look very pale
+#     and ugly when you drag it into your slides, manuscript, or an image
+#     editor. My running it through imagemagick first, you make sure that the
+#     resulting file is correctly interpreted.
+# Note that by copy-pasting these lines below into your VMD session terminal
+# or the VMD console, you can change the settings during your session. This
+# means you can use a low number of samples for test renders, but use a nice
+# and high number of samples for your final figure render :)
+
+# Change the ambient occlusion lighting settings.
+display aoambient 0.9
+display aodirect 0.1
+
+# Change AOChalky to have a slight outline.
+material change ambient AOChalky 0.07
+material change diffuse AOChalky 1.0
+material change specular AOChalky 0.0
+material change shininess AOChalky 0.0
+material change mirror AOChalky 0.0
+material change opacity AOChalky 1.0
+material change outline AOChalky 1.77
+material change outlinewidth AOChalky 0.44
+material change transmode AOChalky 1.0
+
+# Redefine some colors to match the nice cell-look.
+color change rgb  4 1.0  0.82 0.05; # Yellow
+color change rgb  7 0.43 0.72 0.33; # Green
+color change rgb 10 0.1  0.65 0.95; # Cyan
+color change rgb 19 0.63 0.96 0.35; # Green 2
+color change rgb 21 0.55 0.75 0.90; # Cyan 2
+
+# Convenience function to turn alpha background on or off.
+proc alpha {{state 1}} {
+  set env(VMDOPTIXWRITEALPHA) $state
+}
+
+set env(VMDOPTIXIMAGESIZE) "2000 2000"
+render aasamples TachyonLOptiXInternal 500
+# These are almost always what you want.
+set env(VMDOPTIXMAXTRANS) 1
+set env(VMDOPTIXAOMAXDIST) 1
+# Turn alpha background off by default.
+alpha 0
+
+# This is something I really like. This will immediately convert the file to a
+# png and show it in my preferred image viewer.
+foreach method [render list] {
+  # Only change the command when appropriate. (Not all modes are compatible.)
+    if {[render options $method] == "display %s"} {
+        render options $method "convert %s %s.png && display %s.png"
+    }
+}
+
+# Load default representations of molecules.
+# This is executed after VMD initialization.
+proc reset_viz {molid} {
+  # Operate only on existing molecules.
+  if {[lsearch [molinfo list] $molid] >= 0} {
+    # Remove the default Lines style.
+    mol delrep $molid 0
+
+    # Proteins.
+    mol selection proteinbb
+    mol color ColorID 21
+    mol representation Licorice 3 12 12 0 1
+    mol material AOChalky
+    mol addrep $molid
+
+    # Metabolites.
+    mol selection metabolite
+    mol color ColorID 10
+    mol representation Licorice 3 12 12 0 1
+    mol material AOShiny
+    mol addrep $molid
+
+    # Lipid tails.
+    mol selection lipid
+    mol color ColorID 19
+    mol representation Licorice 3 12 12 0 1
+    mol material AOChalky
+    mol addrep $molid
+    # Lipid head group.
+    mol selection lipid and headgroup
+    mol color ColorID 7
+    mol representation VDW 0.8
+    mol material AOChalky
+    mol addrep $molid
+
+    # Chromosome.
+    mol selection chromosome
+    mol color ColorID 4
+    mol representation VDW 0.8
+    mol material AOChalky
+    mol addrep $molid
+
+    # Solvent.
+    mol selection name W NA CL
+    mol color ColorID 8
+    mol representation QuickSurf 0.6 0.5 0.5 1
+    mol material GlassBubble
+    mol addrep $molid
+    set repid [expr [molinfo $molid get numreps] - 1]
+    mol showrep $molid $repid 0
+
+    # Ions.
+    mol selection name NA CL
+    mol color Name
+    mol representation VDW 0.2
+    mol material AOShiny
+    mol addrep $molid
+    set repid [expr [molinfo $molid get numreps] - 1]
+    mol showrep $molid $repid 0
+  }
+}
+
+# Set the radius for all atoms in a molecule id to some size.
+proc set_uniform_size {molid size} {
+  set sel [atomselect $molid "all"]
+  $sel set radius $size
+  $sel delete
+}
+
+# When using the RTRT viewport, any objects rendered in the Lines style will
+# not show up. This is very frustrating when trying to look at the pbc box of a
+# model in that view. By setting the style for the model to 'tubes', it will
+# show up.
+
+# Create a material that is well-suited for the RTRT-compatible pbc box.
+material add Box
+material change ambient  Box 0
+material change diffuse  Box 1
+material change specular Box 0
+material change opacity  Box 1
+# A convenience function for turning on the RTRT-compatible box.
+proc draw_box {{width 0.1} {color black} {material Box}} {
+  pbc box -style tubes -width $width -material $material -color $color
+}
+
+after idle {
+  # A reasonable Martini bead VdW radius.
+  set martini_radius 4.2
+
+  foreach molid [molinfo list] {
+    # Turn off all molecules before showing them.
+    # I like to use this for very large structures. I can just walk away from
+    # VMD loading in the molecule and then change the representation to, say, a
+    # slice of the model and then turn it on again. When I work with smaller,
+    # manageable models, I disable this.
+    # mol off $molid
+
+    # Reset each molecule visualization to our preferred defaults.
+    reset_viz $molid
+    # Apply a reasonable Martini virtual VdW radius for all atoms. This is of
+    # course quite disruptive when visualizing all-atom structures. This can
+    # be turned on or off using the VMD_MARTINI environment variable.
+    # So, to disable this, set VMD_MARTINI=0.
+    if {[info exists ::env(VMD_MARTINI)]} {
+        set use_martini_radius [expr $::env(VMD_MARTINI) != 0]
+    } else {
+        set use_martini_radius 0
+    }
+    if {$use_martini_radius} {
+      set_uniform_size $molid $martini_radius
+      puts "Applied $martini_radius VDW radii to molid $molid."
+    } else {
+      puts "Preserved default VDW radii for molid $molid."
+    }
+  }
+
+  # Display the periodic box lattice. I often just run this is the console and
+  # usually don't have it turned on by default.
+  if {[llength [molinfo list]]} {
+    # Avoid calling this when no models are loaded. That gives an annoying
+    # error dialogue.
+    draw_box
+  }
+
+  # Reset the visualization of a structure on load.
+  proc on_structure_load {name element op} {
+    global vmd_initialize_structure
+    set molid $element
+    if {$vmd_initialize_structure($molid) == 1} {
+      puts "test **** pre"
+      after 0 [reset_viz $molid]
+      puts "test **** post"
+    }
+  }
+
+  trace add variable vmd_initialize_structure write on_structure_load
+
+  # This is a hack, but this lets us turn on the Render menu and immediately
+  # sets its mode to the internal Optix renderer. No need to touch the dropdown
+  # anymore.
+  menu render on
+  # The Render menu stores the active dropdown value in this exact variable.
+  if {[info exists ::Render::render_method]} {
+    set preferred "TachyonLOptiXInternal"
+    # Only force the dropdown if the hardware actually supports OptiX.
+    if {[lsearch -exact [render list] $preferred] >= 0} {
+      set ::Render::render_method $preferred
+    } else {
+      # Fall back to standard internal CPU ray tracer if RTX is missing.
+      set ::Render::render_method "TachyonInternal"
+    }
+  }
+}
+
+# These macros define selections for the Martini cell workshop.
+atomselect macro chromosome {resname "D[ATCG]"}
+atomselect macro proteinbb {name BB and not chromosome}
+atomselect macro headgroup {name NC3}
+atomselect macro metabolite {resname PLACEHOLDER}
