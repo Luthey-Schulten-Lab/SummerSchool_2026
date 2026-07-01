@@ -39,9 +39,6 @@ was predicted with AlphaFold2.
 cd 02_protein_basics
 ```
 
-> [!TIP]
-> A worked example of this tutorial is available [here](...) (GROMACS 2026.0).
-
 ---
 
 ## 1. Obtain the input structure

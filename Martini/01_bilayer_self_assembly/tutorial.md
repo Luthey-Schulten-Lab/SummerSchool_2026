@@ -42,9 +42,6 @@ Navigate into the tutorial folder of the `martini-workshop` repository:
 cd 01_bilayer_self_assembly
 ```
 
-> [!TIP]
-> A worked example of this tutorial is available [here](...) (GROMACS 2026.0).
-
 ---
 
 ## 1. Prepare the starting structure
