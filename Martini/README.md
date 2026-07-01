@@ -47,7 +47,7 @@ also available [here](https://tutorials.gromacs.org/).
 | II  | [Protein Basics](02_protein_basics/tutorial.md)                      | Coarse-grain and simulate a protein with `martinize2`. |
 | III | [Membranes and Vesicles](03_membranes_and_vesicles/tutorial.md)      | Build a vesicle with embedded membrane proteins using `TS2CG`. |
 | IV  | [Polymers and DNA](04_polymers_and_DNA/tutorial.md)                  | Generate polymers and single-stranded DNA with `Polyply`. |
-| V   | [Packing Biomolecular Systems](05_packing_the_cytoplasm/tutorial.md) | Assemble crowded molecular systems with `Bentopy`. |
+| V   | [Packing Biomolecular Systems](05_packing_biomolecular_systems/tutorial.md) | Assemble crowded molecular systems with `Bentopy`. |
 | VI  | [Martini Cell](06_martini_cell/tutorial.md)                          | Integrate all components into a toy model of a bacterial cell. |
 
 ---
