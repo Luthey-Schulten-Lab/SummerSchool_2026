@@ -2,7 +2,7 @@
 
 > **Time:** ~45 minutes <br>
 > **Software:** GROMACS 2026.0 · martinize2 · VMD 2 · Xmgrace <br>
-> **Based on:** [Duve et al. 2025, Martini 3 Protein Models](https://doi.org/10.1101/2025.03.17.643608) <br>
+> **Based on:** [Martini Online Workshop 2025 — Proteins I](https://cgmartini.nl/docs/tutorials/Martini3/ProteinsI/) and [Duve et al. 2025](https://doi.org/10.1101/2025.03.17.643608)<br>
 
 The Martini 3 protein model uses a 4-to-1 mapping of heavy atoms to
 coarse-grained beads, with one bead for the backbone and one or more for
@@ -12,7 +12,7 @@ types, and the bonded terms. Layer 2 is a structure bias model that
 maintains the secondary, tertiary, and quaternary structure of the protein.
 The bias model is needed because the spherical Martini potentials lack the
 directionality that hydrogen bonds provide in atomistic models, so the
-standard bonded terms alone cannot keep a folded protein folded.
+standard bonded terms alone cannot preserve the native fold.
 
 In this tutorial, we generate a Martini 3 CG model with `martinize2` and run
 a short MD simulation. At the coarse-graining step we introduce the three
@@ -69,13 +69,17 @@ a clear effect on the backbone dynamics seen later in the analysis[^duve2025].
 | :--- | :--- |
 | **Elastic Network (EN)** | Harmonic restraints between backbone beads within a distance cutoff. The most robust and straightforward option, traditionally used in Martini. |
 | **GōMartini** | Lennard-Jones contacts derived from a native contact map. Often preferred as it balances stability and flexibility, and allows contact dissociation. |
-| **No structure bias** | Not used in practice for folded proteins. Included here as a demonstration that the current Martini 3 protein model will lose its fold without additional stabilization. |
+| **No structure bias** | Appropriate for intrinsically disordered proteins (IDPs), but not for folded ones. Included in this tutorial as a demonstration on a folded model protein. |
 
-For a research, choose either **EN** or **GōMartini** and run the
-matching `martinize2` command below. The rest of the tutorial follows the
-same workflow regardless of the choice. GōMartini needs a small extra
-setup step, described in the corresponding collapsible. The third option,
-**no structure bias**, is included only as a demonstration.
+For a research or production simulation of this folded protein, choose
+either **EN** or **GōMartini** and run the matching `martinize2` command
+below. The rest of the tutorial follows the same workflow regardless of
+the choice. GōMartini needs a small extra setup step, described in the
+corresponding collapsible. The third option, no structure bias, is
+included as a demonstration of what happens without stabilization.
+Running a folded protein without a bias is not recommended for research
+use, though it is a valid choice for intrinsically disordered proteins,
+where there is no fold to maintain.
 
 ### Option A — Elastic Network (EN)
 
@@ -129,10 +133,12 @@ martinize2 -f protein.pdb -x protein_cg.pdb -o topol.top -name protein \
            -ff martini3001 -p backbone -dssp
 ```
 
-> [!NOTE]
-> This option is not a real choice for production work. Run it once to see
-> the protein unfold and understand why a structure bias model is needed in
-> the first place.
+> [!WARNING]
+> Do not use this for folded proteins in research or production
+> simulations. Here we run it as a demonstration because we know this
+> folded protein will unfold without a bias. For intrinsically disordered
+> proteins, no structure bias is a valid choice, since there is no fold
+> to maintain.
 
 <details>
 <summary><b>What do the shared martinize2 flags mean?</b></summary>
@@ -341,10 +347,9 @@ xmgrace analysis/rmsf.xvg
 > - **GōMartini** allows local fluctuations while preserving native
 >   contacts. The RMSD plateaus at intermediate values, and the RMSF shows
 >   residue-level variation with loops standing out.
-> - **No structure bias** (demonstration only) lets the protein unfold
->   over time. The RMSD grows steadily and can reach values well above
->   1 nm. The RMSF is high across the entire chain, including normally
->   rigid regions.
+> - **No structure bias** lets the protein unfold over time. The RMSD
+>   grows steadily and can reach values well above 1 nm. The RMSF is
+>   high across the entire chain, including normally rigid regions.
 >
 > For a quantitative comparison against an atomistic reference, with
 > parameter scans for each model, see Figures 5–8 of the primer[^duve2025].
