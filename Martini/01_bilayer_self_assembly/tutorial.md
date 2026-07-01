@@ -1,6 +1,6 @@
 # Tutorial I: Bilayer Self-Assembly
 
-> **Time:** ~45 minutes <br>
+> **Time:** ~30 minutes <br>
 > **Software:** GROMACS 2026.0 · VMD 2 · Xmgrace <br>
 > **Based on:** [Martini Online Workshop 2025 — Lipid Bilayers I](https://cgmartini.nl/docs/tutorials/Martini3/LipidsI/) <br>
 
@@ -94,21 +94,24 @@ ls -lH martini_v3.0.0
 
 ```text
 martini_v3.0.0.itp
+martini_v3.0.0_ffbonded_v2.itp
 martini_v3.0.0_ions_v1.itp
-martini_v3.0.0_nucleobases_v1.itp
-martini_v3.0.0_phospholipids_v1.itp
-martini_v3.0.0_proteins
-martini_v3.0.0_small_molecules_v1.itp
 martini_v3.0.0_solvents_v1.itp
-martini_v3.0.0_sugars_v1.itp
+martini_v3.0.0_phospholipids_PC_v2.itp
+martini_v3.0.0_sterols_v1.itp
+...
 ```
 
 The Martini 3 release is split into several `.itp` files, each defining a
-class of molecules. For this tutorial we only need:
+class of molecules. The lipid classes (PC, PG, CL, SM) share many bonded,
+angle, and dihedral definitions, which have been factored out into a
+common `ffbonded` file. This file must be included before any lipid-class
+file. For this tutorial we only need:
 
 - `martini_v3.0.0.itp` — particle definitions (always required).
+- `martini_v3.0.0_ffbonded_v2.itp` — shared bonded parameters. Include before any lipid file.
 - `martini_v3.0.0_solvents_v1.itp` — defines the water bead.
-- `martini_v3.0.0_phospholipids_v1.itp` — defines POPC.
+- `martini_v3.0.0_phospholipids_PC_v2.itp` — defines POPC and other PC lipids.
 
 Create a file `topol.top` in your editor of choice (`gedit`, `vi`, etc.) and
 paste the template below. Semicolons mark comments; hashtags are preprocessor
@@ -116,9 +119,10 @@ directives — the `#include` directive pulls the molecule definitions from the
 `.itp` files into the topology.
 
 ```text
-#include "martini_v3.0.0/martini_v3.0.0.itp"             ; particle definitions (always first)
-#include "martini_v3.0.0/martini_v3.0.0_solvents_v1.itp" ; water
-#include "martini_v3.0.0/martini_v3.0.0_phospholipids_v1.itp" ; POPC
+#include "martini_v3.0.0/martini_v3.0.0.itp"                     ; particle definitions (always first)
+#include "martini_v3.0.0/martini_v3.0.0_ffbonded_v2.itp"         ; shared bonded parameters (before lipids)
+#include "martini_v3.0.0/martini_v3.0.0_solvents_v1.itp"         ; water
+#include "martini_v3.0.0/martini_v3.0.0_phospholipids_PC_v2.itp" ; POPC (PC lipids)
 
 [ system ]
 POPC BILAYER SELF-ASSEMBLY
