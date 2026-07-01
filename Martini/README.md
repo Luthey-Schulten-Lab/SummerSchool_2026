@@ -77,12 +77,11 @@ also available [here](https://tutorials.gromacs.org/).
   the remote desktop in your browser. Open a terminal inside the desktop
   to continue.
 
-**2. Navigate to the workshop directory.** The tutorial files have been
-pre-staged on Delta. Change into the workshop directory:
+**2. Clone the workshop repository:**
 
-```
-# TODO: fill in the path where the workshop files have been staged
-cd /path/to/martini-workshop
+```sh
+git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
+cd SummerSchool_2026/Martini
 ```
 
 Each tutorial lives in its own folder, with all input files prepared for use.
