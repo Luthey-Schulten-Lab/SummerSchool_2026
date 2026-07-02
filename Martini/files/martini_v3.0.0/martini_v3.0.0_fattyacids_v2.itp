@@ -1,0 +1,207 @@
+
+;;;;; MARTINI 3.0 - Fatty Acids
+;;;;; 
+
+; please cite:
+; K.B. Pedersen et al., The Martini 3 Lipidome: Expanded and Refined Parameters Improve Lipid Phase Behavior*, 
+; ACS Central Science, 2025. doi: 10.1021/acscentsci.5c00755
+; P.C.T. Souza et al., Martini 3: A General Purpose Force Field for Coarse-Grained Molecular Dynamics*, 
+; Nature Methods, 2021. doi: 10.1038/s41592-021-01098-3
+; last edit Dec-2024, Kasper
+
+;;;;; 
+;;;;; Oleic acid
+;;;;; OA
+;;;;; 
+
+;;;;; BEAD-INDEX MAPPING
+;;;;; topology description
+;
+; COO-C1A-D2A-C3A-C4A    1-2-3-4-5
+;
+
+[moleculetype]
+OA 	1
+
+[atoms]
+; id type   resnr     residu   atom    cgnr charge
+1   SQ5n 	1 	OA 	COO 	1      -1.0
+2   C1  	1 	OA 	C1A 	2  	0 ; 5-1 mapping
+3   C4h 	1 	OA 	D2A 	3  	0
+4   C1  	1 	OA 	C3A 	4  	0
+5   C1  	1 	OA 	C4A 	5  	0
+		
+[bonds]
+; i j funct length force.c.
+1 2 	b_COO_C1_fa_5long    
+2 3 	b_C1_C4_mid_5long
+3 4 	b_C1_C4_mid
+4 5 	b_C1_C1_end
+
+[angles]
+ 1  2  3 	a_COO_C1_C4_fa
+ 2  3  4 	a_C1_C4_C1_def 
+ 3  4  5 	a_C1_C1_C1_def
+
+;;;;; 
+;;;;; Linoleic acid
+;;;;; LA
+;;;;; 
+
+;;;;; BEAD-INDEX MAPPING
+;;;;; topology description
+;
+; COO-C1A-D2A-D3A-C4A    1-2-3-4-5
+
+[moleculetype]
+LA 	1
+
+[atoms]
+; id type   resnr     residu   atom    cgnr charge
+1   SQ5n 	1 	LA 	COO 	1      -1.0
+2   C1  	1 	LA 	C1A 	2  	0
+3   C4h 	1 	LA 	D2A 	3  	0
+4   C4h  	1 	LA 	D3A 	4  	0
+5   C1  	1 	LA 	C4A 	5  	0
+		
+[bonds]
+; i j funct length force.c.
+1 2 	b_COO_C1_fa_5long
+2 3 	b_C1_C4_mid_5long 
+3 4 	b_C4_C4_mid
+4 5 	b_C1_C4_end 
+
+[angles]
+ 1  2  3 	a_COO_C1_C4_fa
+ 2  3  4 	a_C1_C4_C4_def
+ 3  4  5 	a_C1_C4_C4_def
+
+;;;;; 
+;;;;; α-linolenic acid (omega-3) 
+;;;;; LNA
+;;;;; 
+
+;;;;; BEAD-INDEX MAPPING
+;;;;; topology description
+;;;;; 
+;
+; COO-C1A-D2A-D3A-D4A    1-2-3-4-5
+
+[moleculetype]
+LNA	1
+
+[atoms]
+; id type   resnr     residu   atom    cgnr charge
+1   SQ5n 	1 	LNA	COO 	1      -1.0
+2   C1  	1 	LNA	C1A 	2  	0
+3   C4h 	1 	LNA	D2A 	3  	0 
+4   C4h  	1 	LNA	D3A 	4  	0
+5   C4h  	1 	LNA	D4A 	5  	0
+		
+[bonds]
+; i j funct length force.c.
+1 2 	b_COO_C1_fa_5long 
+2 3 	b_C1_C4_mid_5long 
+3 4 	b_C4_C4_mid
+4 5 	b_C4_C4_end 
+
+[angles]
+ 1  2  3 	a_COO_C1_C1_fa
+ 2  3  4 	a_C1_C4_C4_def
+ 3  4  5 	a_C4_C4_C4_def
+
+;;;;; 
+;;;;; Myristic acid 
+;;;;; MA
+;;;;; 
+
+;;;;; BEAD-INDEX MAPPING
+;;;;; topology description
+;
+; COO-C1A-C2A-C3A        1-2-3-4
+
+[moleculetype]
+MA 	1
+
+[atoms]
+; id type   resnr     residu   atom    cgnr charge
+1   SQ5n 	1 	MA 	COO 	1      -1.0
+2   C1  	1 	MA 	C1A 	2  	0
+3   C1	 	1 	MA 	C2A 	3  	0
+4   C1  	1 	MA 	C3A 	4  	0
+		
+[bonds]
+; i j funct length force.c.
+1 2 	b_COO_C1_fa_5long 
+2 3 	b_C1_C1_mid_5long
+3 4 	b_C1_C1_end
+
+[angles]
+ 1  2  3 	a_COO_C1_C1_fa
+ 2  3  4 	a_C1_C1_C1_def
+
+;;;;; 
+;;;;; Palmitic acid
+;;;;; PA
+;;;;; 
+
+;;;;; BEAD-INDEX MAPPING
+;;;;; topology description
+;
+; COO-C1A-C2A-C3A-C4A    1-2-3-4-5
+
+[moleculetype]
+PA 	1
+
+[atoms]
+; id type   resnr     residu   atom    cgnr charge
+1   SQ5n 	1 	PA 	COO 	1      -1.0
+2   SC1  	1 	PA 	C1A 	2  	0
+3   C1	 	1 	PA 	C2A 	3  	0
+4   C1  	1 	PA 	C3A 	4  	0
+5   C1  	1 	PA 	C4A 	5  	0
+		
+[bonds]
+; i j funct length force.c.
+1 2 	b_COO_SC1_fa
+2 3 	b_SC1_C1_mid
+3 4 	b_C1_C1_mid
+4 5 	b_C1_C1_end
+
+[angles]
+ 1  2  3 	a_COO_C1_C1_fa
+ 2  3  4 	a_C1_C1_C1_def
+ 3  4  5 	a_C1_C1_C1_def
+
+;;;;; 
+;;;;; Stearic acid
+;;;;; SA
+;;;;; 
+
+;;;;; BEAD-INDEX MAPPING
+;;;;; topology description
+;
+; COO-C1A-C2A-C3A-C4A    1-2-3-4-5
+
+[moleculetype]
+SA 	1
+
+[atoms]
+; id type   resnr     residu   atom    cgnr charge
+1   SQ5n 	1 	SA 	COO 	1      -1.0
+2   C1  	1 	SA 	C1A 	2  	0
+3   C1	 	1 	SA 	C2A 	3  	0
+4   C1  	1 	SA 	C3A 	4  	0
+5   C1  	1 	SA 	C4A 	5  	0
+		
+[bonds]
+; i j funct length force.c.
+1 2 	b_COO_C1_fa_5long  
+2 3 	b_C1_C1_mid_5long 
+3 4 	b_C1_C1_mid
+4 5 	b_C1_C1_end
+
+[angles]
+ 1  2  3 	a_COO_C1_C1_fa
+ 2  3  4 	a_C1_C1_C1_def
+ 3  4  5 	a_C1_C1_C1_def
