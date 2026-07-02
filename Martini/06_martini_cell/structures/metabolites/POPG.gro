@@ -1,0 +1,15 @@
+/usr/local/bin/polyply gen_coords -p topol.top -o POPG.gro -name POPG -box 10 10 10 -back_fudge 1
+12
+    1POPG   GL0    1   7.103   0.312   1.293
+    1POPG   PO4    2   7.173   0.636   1.117
+    1POPG   GL1    3   7.349   0.925   1.398
+    1POPG   GL2    4   7.116   1.119   1.313
+    1POPG   C1A    5   7.508   0.936   1.819
+    1POPG   D2A    6   7.686   0.948   2.292
+    1POPG   C3A    7   7.740   0.663   2.668
+    1POPG   C4A    8   7.797   0.363   3.064
+    1POPG   C1B    9   7.192   1.475   1.223
+    1POPG   C2B   10   7.278   1.873   1.123
+    1POPG   C3B   11   7.377   2.339   1.005
+    1POPG   C4B   12   7.479   2.813   0.886
+10.0 10.0 10.0

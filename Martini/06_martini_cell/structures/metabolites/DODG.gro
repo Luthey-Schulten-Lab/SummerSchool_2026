@@ -1,0 +1,14 @@
+/usr/local/bin/polyply gen_coords -p topol.top -o DODG.gro -name DODG -box 10 10 10 -back_fudge 1
+11
+    1DODG   COH    1   0.261   8.197   8.630
+    1DODG   GL1    2   0.507   8.266   8.505
+    1DODG   GL2    3   0.509   8.409   8.786
+    1DODG   C1A    4   0.879   8.065   8.352
+    1DODG   D2A    5   1.296   7.839   8.181
+    1DODG   C3A    6   1.427   7.454   7.935
+    1DODG   C4A    7   1.564   7.048   7.677
+    1DODG   C1B    8   0.829   8.709   8.883
+    1DODG   D2B    9   1.189   9.047   8.992
+    1DODG   C3B   10   1.242   9.464   9.213
+    1DODG   C4B   11   1.297   9.903   9.446
+10.0 10.0 10.0

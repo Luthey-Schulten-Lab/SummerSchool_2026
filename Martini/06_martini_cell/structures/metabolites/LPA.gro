@@ -1,0 +1,7 @@
+/usr/local/bin/polyply gen_coords -p topol.top -o LPA.gro -name LPA -box 10 10 10 -back_fudge 1
+4
+    1LPA    PO4    1   8.077   7.721  -0.368
+    1LPA    GL1    2   8.200   7.394  -0.101
+    1LPA    C1A    3   8.493   7.298   0.112
+    1LPA    C2A    4   8.829   7.188   0.357
+10.0 10.0 10.0

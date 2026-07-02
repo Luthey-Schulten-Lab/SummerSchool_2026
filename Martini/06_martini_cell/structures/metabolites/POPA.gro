@@ -1,0 +1,14 @@
+/usr/local/bin/polyply gen_coords -p topol.top -o POPA.gro -name POPA -box 10 10 10 -back_fudge 1
+11
+    1POPA   PO4    1   2.862   1.486   2.218
+    1POPA   GL1    2   3.147   1.158   2.149
+    1POPA   GL2    3   3.075   1.061   2.440
+    1POPA   C1A    4   3.563   1.097   1.988
+    1POPA   D2A    5   4.030   1.029   1.808
+    1POPA   C3A    6   4.393   1.281   1.634
+    1POPA   C4A    7   4.776   1.546   1.451
+    1POPA   C1B    8   3.009   0.699   2.507
+    1POPA   C2B    9   2.935   0.292   2.581
+    1POPA   C3B   10   2.849  -0.182   2.668
+    1POPA   C4B   11   2.761  -0.666   2.757
+10.0 10.0 10.0

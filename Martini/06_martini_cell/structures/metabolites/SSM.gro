@@ -1,0 +1,15 @@
+/usr/local/bin/polyply gen_coords -p topol.top -o SSM.gro -name SSM -box 10 10 10 -back_fudge 1
+12
+    1SSM    NC3    1   8.999   6.815   5.602
+    1SSM    PO4    2   8.802   6.547   5.831
+    1SSM    OH1    3   8.946   6.203   5.909
+    1SSM    AM2    4   8.746   6.170   6.138
+    1SSM    T1A    5   9.052   5.887   5.996
+    1SSM    C2A    6   9.176   5.515   6.099
+    1SSM    C3A    7   9.327   5.065   6.223
+    1SSM    C4A    8   9.480   4.607   6.350
+    1SSM    C1B    9   8.371   6.214   6.286
+    1SSM    C2B   10   7.890   6.272   6.476
+    1SSM    C3B   11   7.437   6.325   6.654
+    1SSM    C4B   12   6.975   6.380   6.837
+10.0 10.0 10.0
