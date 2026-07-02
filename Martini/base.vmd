@@ -89,6 +89,8 @@ color change rgb  7 0.43 0.72 0.33; # Green
 color change rgb 10 0.1  0.65 0.95; # Cyan
 color change rgb 19 0.63 0.96 0.35; # Green 2
 color change rgb 21 0.55 0.75 0.90; # Cyan 2
+color change rgb 31 0.95 0.37 0.0 ; # Orange 2
+color change rgb 32 0.96 0.63 0.0 ; # Orange 3
 
 # Convenience function to turn alpha background on or off.
 proc alpha {{state 1}} {
@@ -151,6 +153,19 @@ proc reset_viz {molid} {
     mol selection chromosome
     mol color ColorID 4
     mol representation VDW 0.8
+    mol material AOChalky
+    mol addrep $molid
+
+    # Polymers.
+    mol selection resname PS
+    mol color ColorID 31
+    mol representation Licorice 2 12 12 0 1
+    mol material AOChalky
+    mol addrep $molid
+
+    mol selection resname PEO
+    mol color ColorID 32
+    mol representation Licorice 2 12 12 0 1
     mol material AOChalky
     mol addrep $molid
 
