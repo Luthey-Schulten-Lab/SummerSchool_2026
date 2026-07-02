@@ -1,7 +1,7 @@
 # Tutorial V: Packing Biomolecular Systems
 
-> **Time:** ~60 minutes <br>
-> **Software:** GROMACS 2026.0 · bentopy · VMD 2 <br>
+> **Time:** ~30 minutes <br>
+> **Software:** GROMACS 2024.3 · bentopy · VMD 2 <br>
 > **Based on:** [Bentopy workshop tutorial](https://cgmartini.nl/docs/tutorials/Martini3/Bentopy/) by J.A. Stevens and M.S.S. Westendorp<br>
 > **Walkthrough video:** [YouTube](https://www.youtube.com/watch?v=C4LYZokS_t4) <br>
 
@@ -27,12 +27,15 @@ within molecular models, which is a central feature of *bentopy*.
 </div>
 <br>
 
-In this tutorial we walk through *bentopy* with three progressively complex
-examples that build on each other.
+In this tutorial, we will showcase _bentopy_'s capabilities through three
+progressively complex tutorials that build on each other:
 
 1. **Simple packing.** Learn the basic workflow by packing proteins in empty space.
 2. **Packing around existing structures.** Add a membrane and pack proteins around it.
 3. **Multi-compartment systems.** Add a second membrane creating distinct compartments for different proteins.
+
+Each tutorial builds on the previous one, showing how to evolve a simple system into a complex model
+while using the standard bentopy workflow.
 
 <div align="center">
 <img src="../figures/05_progression.png" width="70%"/>
@@ -40,9 +43,6 @@ examples that build on each other.
 <sub><i>Figure 2. Tutorial progression from simple protein packing to complex multi-compartment systems.</i></sub>
 </div>
 <br>
-
-Each section uses the standard *bentopy* workflow, summarized at the end
-of the tutorial in Figure 6.
 
 ---
 
@@ -60,8 +60,7 @@ cd 05_packing_the_cytoplasm
 
 The tutorial directory contains:
 
-- **`structures/`** — protein structures (`lysozyme.pdb`, `ubiquitin.pdb`) and membranes (`membrane.gro`, `double_membrane.gro`).
-- **`topology/`** — Martini force field files and protein topologies (`lysozyme.itp`, `ubiquitin.itp`).
+- **`structures/`** — protein structures (`lysozyme.pdb`, `ubiquitin.pdb`) and membranes (`membrane.gro`, `double_membrane.gro`) and protein topologies (`lysozyme.itp`, `ubiquitin.itp`).
 - **`mdp_files/`** — example GROMACS input files (`em.mdp`, `eq.mdp`, `md.mdp`).
 
 ---
@@ -93,10 +92,10 @@ dimensions 40, 40, 40
 resolution 0.5
 
 [ includes ]
-"topology/martini_v3.0.0.itp"
-"topology/martini_v3.0.0_ions_v1.itp"
-"topology/martini_v3.0.0_solvents_v1.itp"
-"topology/lysozyme.itp"
+"martini_v3.0.0/martini_v3.0.0.itp"
+"martini_v3.0.0/martini_v3.0.0_ions_v1.itp"
+"martini_v3.0.0/martini_v3.0.0_solvents_v1.itp"
+"structures/lysozyme.itp"
 
 [ compartments ]
 system is all
@@ -288,12 +287,13 @@ dimensions 40, 40, 40
 resolution 0.5
 
 [ includes ]
-"topology/martini_v3.0.0.itp"
-"topology/martini_v3.0.0_ions_v1.itp"
-"topology/martini_v3.0.0_solvents_v1.itp"
-"topology/martini_v3.0.0_phospholipids_v1.itp"
-"topology/lysozyme.itp"
-"topology/ubiquitin.itp"
+"martini_v3.0.0/martini_v3.0.0.itp"
+"martini_v3.0.0/martini_v3.0.0_ffbonded_v2.itp"
+"martini_v3.0.0/martini_v3.0.0_ions_v1.itp"
+"martini_v3.0.0/martini_v3.0.0_solvents_v1.itp"
+"martini_v3.0.0/martini_v3.0.0_phospholipids_PC_v2.itp"
+"structures/lysozyme.itp"
+"structures/ubiquitin.itp"
 
 [ compartments ]
 membrane from "membrane_mask.npz"
@@ -476,12 +476,13 @@ dimensions 40, 40, 40
 resolution 0.5
 
 [ includes ]
-"topology/martini_v3.0.0.itp"
-"topology/martini_v3.0.0_ions_v1.itp"
-"topology/martini_v3.0.0_solvents_v1.itp"
-"topology/martini_v3.0.0_phospholipids_v1.itp"
-"topology/lysozyme.itp"
-"topology/ubiquitin.itp"
+"martini_v3.0.0/martini_v3.0.0.itp"
+"martini_v3.0.0/martini_v3.0.0_ffbonded_v2.itp"
+"martini_v3.0.0/martini_v3.0.0_ions_v1.itp"
+"martini_v3.0.0/martini_v3.0.0_solvents_v1.itp"
+"martini_v3.0.0/martini_v3.0.0_phospholipids_PC_v2.itp"
+"structures/lysozyme.itp"
+"structures/ubiquitin.itp"
 
 [ compartments ]
 membrane from "membrane_mask.npz"
@@ -577,7 +578,7 @@ You have now walked through the complete *bentopy* workflow from simple
 packing to a complex MD model.
 
 <div align="center">
-<img src="../figures/05_workflow_overview.png" width="75%"/>
+<img src="../figures/05_overview.png" width="75%"/>
 <br>
 <sub><i>Figure 6. Bentopy workflow overview. Models are built in consecutive steps: mask preparation, packing configuration, structure rendering, merging, and solvation.</i></sub>
 </div>
@@ -832,9 +833,13 @@ For additional support, examples, and updates, visit the
 
 ## References
 
-[^bentopy]: Westendorp, M. S. S., Bruininks, B. M. H., Brown, C. M., Nauta,
-    W. J., & Stevens, J. A. (2026). Bentopy: from simple packing to
-    building cellular models.
+[^bentopy]: Westendorp, Marieke S. S., Stevens, Jan A., Brown, Chelsea M., Dommer, Abigail C.,
+    Wassenaar, Tsjerk A., Bruininks, Bart M. H., & Marrink, Siewert J. (2026). Compartment-guided
+    assembly of large-scale molecular models with bentopy. Protein Science, e70480.
+    https://doi.org/10.1002/pro.70480
 
-[^mdvcontainment]: Bruininks, B. M. H., et al. (2025). MDVContainment:
-    automatic identification of compartments in molecular models.
+[^mdvcontainment]: Bruininks, Bart M. H., & Vattulainen, Ilpo. (2025). Classification
+    of containment hierarchy for point clouds in periodic space. bioRxiv.
+    https://doi.org/10.1101/2025.08.06.668936
+
+
