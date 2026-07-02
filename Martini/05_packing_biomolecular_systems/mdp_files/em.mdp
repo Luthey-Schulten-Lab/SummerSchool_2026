@@ -1,0 +1,40 @@
+;-------------------------------------------------------------------------------------------------;
+;                                                                                                 ;
+;                         Standard energy minimization input for Martini                          ;
+;                               Updated 25 Jul 2025 by J.A. Stevens                               ;
+;                                                                                                 ;
+;--------------------------------------------------------------------------------------------------
+
+title                    = Martini Energy Minization
+define                   = -DFLEXIBLE
+
+; Timestep
+integrator               = steep
+dt                       = 0.01
+nsteps                   = 1000
+nstcomm                  = 100
+comm-grps		         =
+
+; Neighbourlist settings
+cutoff-scheme            = Verlet
+nstlist                  = 20
+ns_type                  = grid
+pbc                      = xyz
+verlet-buffer-tolerance  = -1
+rlist                    = 1.35
+
+; Non-bonded interaction
+coulombtype              = reaction-field
+rcoulomb                 = 1.1
+epsilon_r                = 15
+epsilon_rf               = 0
+vdw_type                 = cutoff
+vdw-modifier             = Potential-shift-verlet
+rvdw                     = 1.1
+
+; Generate velocities
+gen_vel                  = no
+
+; Constraint setting (in Martini usually not needed for EM)
+constraints              = none
+constraint_algorithm     = Lincs
