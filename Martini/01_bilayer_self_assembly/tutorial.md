@@ -218,7 +218,7 @@ is provided in the `../files/` directory. Copy it to your home directory
 before opening VMD:
 
 ```sh
-cp ../files/vmdrc ~/.vmdrc
+cp ../files/base.vmd ~/.vmdrc
 ```
 
 Before opening the trajectory, make the molecules whole. During the
