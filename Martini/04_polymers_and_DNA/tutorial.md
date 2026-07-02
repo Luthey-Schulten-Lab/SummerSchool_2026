@@ -294,17 +294,20 @@ subsequent MD run.
 
 ## Going further
 
-Polyply can also generate cyclic polymers (with the `-cycles` flag),
-polymer solutions, and liquid-liquid phase separated systems.
+Beyond the three examples above, Polyply supports:
 
-Martini solvent densities are not the same as experimental densities,
-because Martini bead masses are fixed. For example, a Martini acetone
-bead has a mass of 72 amu while real acetone is 58 amu. To reproduce the
-experimental number density (970 kg/m³), the target density passed to
-`gen_coords` should be scaled: 970 × 58/72 ≈ 780 kg/m³.
+- **Circular polymers.** Mark circularity in the sequence file (`.fasta`, `.ig`, ...). The old `-cycles` command-line flag has been retired. See the [circular DNA tutorial](https://github.com/marrink-lab/polyply_1.0/wiki/Tutorial:-Single-stranded-circular-DNA).
+- **PEGylated proteins.** Attach polymer chains to specific residues on a protein. See the [PEGylated proteins tutorial](https://github.com/marrink-lab/polyply_1.0/wiki/Tutorial:-PEGylated-proteins).
+- **PEGylated lipid bilayers.** Add polymer tails to lipid headgroups in a bilayer. See the [PEGylated lipid bilayers tutorial](https://github.com/marrink-lab/polyply_1.0/wiki/Tutorial:-PEGylated-lipid-bilayers).
+- **IDP starting structures.** Use the polymer workflow to generate starting conformations for intrinsically disordered proteins in Martini. See the [Martini polymers tutorial](https://github.com/marrink-lab/polyply_1.0/wiki/Tutorial:-Martini-Polymers).
 
-For more polymer types, worked examples, and the full build-file
-reference, see the [Polyply documentation](https://polyply.github.io/polyply_1.0/).
+Martini solvent densities differ from experimental values because bead
+masses are fixed. A Martini acetone bead is 72 amu while real acetone is
+58 amu, so to reproduce the experimental number density (970 kg/m³) the
+`-dens` value should be scaled: 970 × 58/72 ≈ 780 kg/m³.
+
+For the full build-file reference and more worked examples, see the
+[Polyply documentation](https://polyply.github.io/polyply_1.0/).
 
 ---
 
