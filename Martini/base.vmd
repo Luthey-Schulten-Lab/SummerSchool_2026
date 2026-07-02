@@ -193,7 +193,7 @@ material change diffuse  Box 1
 material change specular Box 0
 material change opacity  Box 1
 # A convenience function for turning on the RTRT-compatible box.
-proc draw_box {{width 0.1} {color black} {material Box}} {
+proc draw_box {{width 0.2} {color black} {material Box}} {
   pbc box -style tubes -width $width -material $material -color $color
 }
 
