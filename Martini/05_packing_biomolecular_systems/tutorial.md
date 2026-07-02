@@ -145,12 +145,12 @@ Add water and ions to complete the system:
 
 ```sh
 bentopy-solvate -i system.gro -o solvated_system.gro \
-        -s NA:0.15M -s CL:0.15M \
+        -s NA,CL:0.15M \
         --charge neutral \
         -t topol.top
 ```
 
-- `-s NA:0.15M -s CL:0.15M` adds 150 mM NaCl by substituting accepted water placements.
+- `-s NA,CL:0.15M` adds 150 mM NaCl by substituting accepted water placements.
 - `--charge neutral` neutralizes the total system charge by substituting additional ions. The total charge is determined automatically from the topology, so additional charge-neutralizing ions are added on top of the 150 mM NaCl.
 - `-t topol.top` appends the solvent contents to the topology.
 
@@ -378,7 +378,7 @@ echo "POPC    5408" >> topol.top
 
 ```sh
 bentopy-solvate -i system.gro -o solvated_system.gro -t topol.top \
-        -s NA:0.15M -s CL:0.15M --charge neutral
+        -s NA,CL:0.15M --charge neutral
 ```
 
 ### Visualize
@@ -525,7 +525,7 @@ echo "POPC    10816" >> topol.top
 
 ```sh
 bentopy-solvate -i system.gro -o solvated_system.gro -t topol.top \
-        -s NA:0.15M -s CL:0.15M --charge neutral
+        -s NA,CL:0.15M --charge neutral
 ```
 
 ### Visualize
@@ -602,10 +602,26 @@ For the complete documentation, see the
 
 ```sh
 # Molarity: 150 mM NaCl.
-bentopy-solvate -i system.gro -o solvated.gro -s NA:0.15M -s CL:0.15M
+bentopy-solvate -i system.gro -o solvated.gro -s NA,CL:0.15M
+
+# Add ions with different valences.
+bentopy-solvate -i system.gro -o solvated.gro -s CA,CL@2:0.10M
+# This will add calcium chloride (CaCl₂) in the right stoichiometry.
+
+# Molarity with respect to solvent volume (Ms instead of M).
+# See https://github.com/marrink-lab/bentopy/blob/main/src/solvate/README.md#quantity
+# for more details.
+bentopy-solvate -i system.gro -o solvated.gro -s NA,CL:0.15Ms
+# The number of ions to be placed is determined based on the amount of actual
+# solvent in the system, rather than the system's box volume. In a dense
+# system, naive ion count determination may lead to unexpectedly high ion
+# concentrations.
+
+# Add ions at different concentrations.
+bentopy-solvate -i system.gro -o solvated.gro -s NA:0.30M -s CL:0.15M
 
 # Fixed number: exactly 100 Na⁺ and 100 Cl⁻ ions.
-bentopy-solvate -i system.gro -o solvated.gro -s NA:100 -s CL:100
+bentopy-solvate -i system.gro -o solvated.gro -s NA,CL:100
 
 # Ratio: replace 1% of water with Na⁺ ions.
 bentopy-solvate -i system.gro -o solvated.gro -s NA:0.01
