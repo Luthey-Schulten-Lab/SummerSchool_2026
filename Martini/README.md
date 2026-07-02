@@ -60,15 +60,16 @@ also available [here](https://tutorials.gromacs.org/).
 - Log in with your NCSA credentials.
 - From the menu, open **Desktop**.
 - Fill in the session form with the settings below (defaults are fine for
-  anything not listed; leave *reservation* and *RAM* empty):
+  anything not listed; *Name of the reservation* you can leave empty):
 
   | Field | Value |
   | :--- | :--- |
   | Container image | `RHEL 9 w/ CUDA 12.8` |
   | Account         | `bgvl-delta-gpu` |
-  | Partition       | `gpuA40x4-interactive` |
+  | Partition       | `gpuA40x4` |
   | Duration of job | `4:00:00` |
   | Number of CPUs  | `8` |
+  | Amount of RAM   | `64G` |
   | Number of GPUs  | `1` |
 
 - Click **Launch** and wait for the session to be allocated (usually under
