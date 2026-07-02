@@ -1,8 +1,8 @@
 # Tutorial III: Building Membranes with TS2CG 2.0
 
-> **Time:** ~60 minutes <br>
-> **Software:** GROMACS 2026.0 · TS2CG 2.0 · VMD 2 <br>
-> **Based on:** [TS2CG 2.0 workshop tutorial](https://cgmartini.nl/docs/tutorials/Martini3/TS2CG/) by J.A. Stevens, F. Schuhmann
+> **Time:** ~30 minutes <br>
+> **Software:** GROMACS 2024.3 · TS2CG 2.0 · VMD 2 <br>
+> **Based on:** [TS2CG 2.0 workshop tutorial](https://cgmartini.nl/docs/tutorials/Martini3/TS2CG/) by J.A. Stevens and F. Schuhmann
 
 TS2CG builds coarse-grained membrane models with user-defined and
 experimentally informed shapes and compositions[^ts2cg]. It generates
@@ -11,22 +11,27 @@ surfaces or analytical shape definitions, and it can also be used as a
 backmapping tool that converts dynamically triangulated surface (DTS)
 simulations into CG MD simulations[^backmapping][^freedts].
 
-The latest release, TS2CG 2.0, introduces automated protein placement and
-curvature-informed lipid distributions, and exposes a Python API that
-streamlines integration with other tools. Although TS2CG is general, it is
-parameterized primarily for the Martini coarse-grained force field[^martini3].
+The latest release, TS2CG 2.0, introduces automated protein placement,
+curvature-informed lipid distributions, and a Python API that streamlines
+integration with other tools. Although the code is force field agnostic,
+the current lipid library targets the Martini coarse-grained force
+field[^martini3]. Its scope ranges from simple bilayers to whole
+mitochondrial cristae reconstructed from cryo-EM data[^cristae], as shown
+in the gallery below.
 
-<div align="center">
-<img src="../figures/03_showcase.png" width="75%"/>
-<br>
-<sub><i>Figure 1. TS2CG 2.0 showcase models. (a) Mitochondrial crista with curvature-sorted lipids and proteins[^cristae]. (b) Martini 3 Möbius strip membrane. (c) Glycolipid membrane with CTxB peripheral membrane protein. (d) Mitochondrial membrane from cryo-ET data with curvature-dependent lipid placement.</i></sub>
-</div>
 
 In this tutorial we walk through TS2CG by building increasingly complex
 membrane models. Sections 1 to 4 start with a simple vesicle and progressively
 add lipid mixtures, membrane proteins, and protein-specific lipid domains.
 Sections 5 to 6 introduce an alternative workflow that builds membranes
 from analytical shapes, and apply curvature-informed lipid placement.
+
+<div align="center">
+<img src="../figures/03_showcase.png" width="75%"/>
+<br>
+<sub><i>Figure 1. TS2CG 2.0 showcase models. (a) Mitochondrial crista with curvature-sorted lipids and proteins[^cristae]. (b) Martini 3 Möbius strip membrane. (c) Glycolipid membrane with CTxB peripheral membrane protein. (d) Mitochondrial membrane from cryo-ET data with curvature-dependent lipid placement.</i></sub>
+</div>
+<br>
 
 ---
 
@@ -58,14 +63,22 @@ The TS2CG workflow consists of a few key steps:
 <sub><i>Figure 2. TS2CG 2.0 workflow. The workflow can start from an analytical shape or an arbitrary triangulated surface. PLM (or PCG) creates a point directory which can then be manipulated using the Python API to place proteins, exclusions, or lipid domains. PCG then turns the point folder into a membrane model ready for MD simulation.</i></sub>
 </div>
 
+### Installation
+
+TS2CG 2.0 is not shipped with the workshop environment. Install the
+current version from GitHub:
+
+```sh
+pip install git+https://github.com/weria-pezeshkian/TS2CG-v2.0.git
+```
+
+The `TS2CG` command becomes available in the terminal after installation.
+
 ### Get the files
 
 ```sh
 cd 03_membranes_and_vesicles
 ```
-
-> [!TIP]
-> A worked example of this tutorial is available [here](...) (GROMACS 2026.0).
 
 The tutorial directory contains:
 
@@ -78,8 +91,10 @@ The tutorial directory contains:
 ## 1. Basic vesicle
 
 We start with the core TS2CG workflow by building a simple POPC vesicle.
-This introduces the essential file formats and parameters and runs the
-**Mesh → PLM → PCG** sequence end to end.
+This section walks through the essential file formats (`.tsi` mesh,
+`input.str` composition, `Martini3.LIB` lipid library) and runs the
+**Mesh → PLM → PCG** sequence end to end. Everything in the later
+sections builds on this pattern.
 
 ### Generate the point folder with PLM
 
@@ -576,8 +591,8 @@ Create `domain_input.txt`:
 
 ```text
 ; lipid_domain lipid_type percentage c0 APL
-0 CDL2 0.3 -0.1 0.94
-1 POPC 0.7  0.0 0.64
+0 CDL2 0.1 -0.3 0.94
+1 POPC 0.9  0.0 0.64
 ```
 
 **Format**
@@ -598,7 +613,7 @@ Create `domain_input.txt`:
 ### Optimize placement with DOP
 
 ```sh
-TS2CG DOP -p point -i domain_input.txt -ni optimized_input.str -k 250
+TS2CG DOP -p point -s domain_input.txt -ni optimized_input.str -k 250
 ```
 
 **DOP parameters**
