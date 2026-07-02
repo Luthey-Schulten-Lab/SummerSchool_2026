@@ -1,7 +1,7 @@
 # Tutorial I: Bilayer Self-Assembly
 
 > **Time:** ~30 minutes <br>
-> **Software:** GROMACS 2026.0 · VMD 2 · Xmgrace <br>
+> **Software:** GROMACS 2024.3 · VMD 2 · Xmgrace <br>
 > **Based on:** [Martini Online Workshop 2025 — Lipid Bilayers I](https://cgmartini.nl/docs/tutorials/Martini3/LipidsI/) <br>
 
 The Martini coarse-grained (CG) model was initially developed for lipids
@@ -30,7 +30,7 @@ properties. The steps are:
 
 ### Prerequisites
 
-- `gmx` from a GROMACS 2026.0 installation (`source .../GMXRC`).
+- `gmx` from a GROMACS 2024.3 installation.
 - `xmgrace` or another viewer for `.xvg` files.
 - Common command-line utilities and a text editor.
 
@@ -221,16 +221,21 @@ before opening VMD:
 cp ../files/vmdrc ~/.vmdrc
 ```
 
-TODO: Explain how to do pbc whole on the trajectory
+Before opening the trajectory, make the molecules whole. During the
+simulation, lipids diffuse across the box faces and get split by the
+periodic boundary, so they appear as fragments on opposite sides of the box
+in VMD. `gmx trjconv -pbc whole` reconnects each molecule into a single
+unit in the periodic image closest to its center of mass:
 
 ```sh
-gmx trjconv -f md/md -s md/md -o md/md_whole.xtc -pbc whole
+gmx trjconv -f md/md.xtc -s md/md.tpr -o md/md_whole.xtc -pbc whole
+    > System     [Enter]
 ```
 
 Then open the trajectory:
 
 ```sh
-vmd2 md/md.tpr md/md.xtc
+vmd2 md/md.tpr md/md_whole.xtc
 ```
 
 Your VMD window should look similar to Figure 2.
