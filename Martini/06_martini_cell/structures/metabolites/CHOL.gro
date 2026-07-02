@@ -1,0 +1,12 @@
+/usr/local/bin/polyply gen_coords -p topol.top -o CHOL.gro -name CHOL -box 10 10 10 -back_fudge 1
+9
+    1CHOL   ROH    1   7.799   2.291   4.121
+    1CHOL    R1    2   7.446   2.075   4.243
+    1CHOL    R2    3   7.609   2.066   3.935
+    1CHOL    R3    4   7.197   1.750   4.119
+    1CHOL    R4    5   7.465   1.798   3.872
+    1CHOL    R5    6   7.736   1.917   4.095
+    1CHOL    R6    7   7.407   1.590   4.038
+    1CHOL    C1    8   7.144   1.488   3.818
+    1CHOL    C2    9   6.798   1.224   3.760
+10.0 10.0 10.0

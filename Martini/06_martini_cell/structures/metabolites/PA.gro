@@ -1,0 +1,8 @@
+/usr/local/bin/polyply gen_coords -p topol.top -o PA.gro -name PA -box 10 10 10 -back_fudge 1
+5
+    1PA     COO    1   8.454   7.512   2.962
+    1PA     C1A    2   8.593   7.226   2.897
+    1PA     C2A    3   8.773   6.856   2.813
+    1PA     C3A    4   8.983   6.424   2.714
+    1PA     C4A    5   9.197   5.983   2.614
+10.0 10.0 10.0
