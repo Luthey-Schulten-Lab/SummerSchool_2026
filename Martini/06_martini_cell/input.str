@@ -1,12 +1,15 @@
-include proteins/membrane_proteins/ATP_synthase.gro
-include proteins/membrane_proteins/Potassium_transporter.gro
-include proteins/membrane_proteins/Calcium_transporter.gro
-include proteins/membrane_proteins/Magnesium_transporter.gro
+include structures/membrane_proteins/ATP_synthase.gro
+include structures/membrane_proteins/Potassium_transporter.gro
+include structures/membrane_proteins/Calcium_transporter.gro
+include structures/membrane_proteins/Magnesium_transporter.gro
 
 [Lipids List]
 Domain 0
-POPC 0.50 0.50 0.54
-CHOL 0.50 0.50 0.32
+POPC 0.04 0.04 0.32
+SSM  0.18 0.18 0.32
+TOCL 0.17 0.17 0.54
+CHOL 0.59 0.59 0.32
+DOPG 0.02 0.02 0.32
 End
 
 [Protein List]
