@@ -1,8 +1,8 @@
 # Tutorial II: Simulating a Protein with Martini 3
 
 > **Time:** ~45 minutes <br>
-> **Software:** GROMACS 2026.0 · martinize2 · VMD 2 · Xmgrace <br>
-> **Based on:** [Martini Online Workshop 2025 — Proteins I](https://cgmartini.nl/docs/tutorials/Martini3/ProteinsI/) and [Duve et al. 2025](https://doi.org/10.1101/2025.03.17.643608)<br>
+> **Software:** GROMACS 2024.3 · martinize2 · VMD 2 · Xmgrace <br>
+> **Based on:** [Martini Online Workshop 2025 — Proteins](https://cgmartini.nl/docs/tutorials/Martini3/ProteinsI/) and [Duve et al. 2025](https://doi.org/10.1101/2025.03.17.643608)<br>
 
 The Martini 3 protein model uses a 4-to-1 mapping of heavy atoms to
 coarse-grained beads, with one bead for the backbone and one or more for
@@ -47,7 +47,7 @@ Download the AlphaFold2 model from the AlphaFold Protein Structure Database
 and save it as `protein.pdb`:
 
 ```sh
-wget https://alphafold.ebi.ac.uk/files/AF-P47293-F1-model_v4.pdb -O protein.pdb
+wget https://alphafold.ebi.ac.uk/files/AF-P47293-F1-model_v6.pdb -O protein.pdb
 ```
 
 AlphaFold structures are already in a clean form, so we can move directly to
@@ -91,19 +91,13 @@ martinize2 -f protein.pdb -x protein_cg.pdb -o topol.top -name protein \
 
 ### Option B — GōMartini
 
-GōMartini needs a contact map of native residue contacts. Generate it with
-the [Pomalab webserver](http://pomalab.ippt.pan.pl/GoContactMap), or with
-the `ContactMapGenerator` from the
-[GoMartini repo](https://github.com/Martini-Force-Field-Initiative/GoMartini),
-and save the result as `contact_map.out` in the current directory. In
-`martinize2` 0.13 and newer, the contact map can also be generated
-directly by `martinize2`.
+GōMartini uses Lennard-Jones contacts derived from a native contact map.
+Recent versions of `martinize2` generate the contact map internally, so no
+external webserver or script is needed.
 
 ```sh
 martinize2 -f protein.pdb -x protein_cg.pdb -o topol.top -name protein \
-           -ff martini3001 -p backbone -dssp \
-           -go contact_map.out -go-moltype protein \
-           -go-low 0.3 -go-up 1.1 -go-eps 8
+           -ff martini3001 -p backbone -dssp -go
 ```
 
 <details>
@@ -112,13 +106,14 @@ martinize2 -f protein.pdb -x protein_cg.pdb -o topol.top -name protein \
 
 `martinize2` writes two additional files for the Gō network:
 `go_atomtypes.itp` and `go_nbparams.itp`. These need to be included in
-`martini_v3.0.0.itp` once, with the following two commands from the
-primer:
+`martini_v3.0.0.itp` once, with the following two commands:
 
 ```sh
-sed -i 's/\[ nonbond_params \]/\#ifdef GO_VIRT\n\#include "go_atomtypes.itp"\n\#endif\n\n\[ nonbond_params \]/' martini_v3.0.0/martini_v3.0.0.itp
+sed -i 's/\[ nonbond_params \]/#ifdef GO_VIRT\n#include "go_atomtypes.itp"\n#endif\n\n[ nonbond_params ]/' martini_v3.0.0/martini_v3.0.0.itp
 
 echo -e "\n#ifdef GO_VIRT\n#include \"go_nbparams.itp\"\n#endif" >> martini_v3.0.0/martini_v3.0.0.itp
+
+cp go_atomtypes.itp go_nbparams.itp martini_v3.0.0
 ```
 
 Run them only once. Then add `#define GO_VIRT` at the very top of `topol.top`
@@ -156,10 +151,22 @@ default and do not need to be specified.
 
 </details>
 
+
+<div id="image-table">
+    <table>
+	    <tr>
+    	    <td style="padding:10px" align="center">
+                <img src="../figures/02_protein.png" width="70%"/>
+      	    </td>
+    	    <td style="padding:10px" align="center">
+                <img src="../figures/02_protein_EN.png" width="70%"/>
+            </td>
+        </tr>
+    </table>
+
 <div align="center">
-<img src="../figures/02_protein_EN.png" width="55%"/>
-<br>
-<sub><i>Figure 1. CG protein model with an elastic network bias. Backbone in blue, restraints in green.</i></sub>
+<sub><i>Figure 1. Left: CG protein model. Right: CG protein model with secondary structure bias drawn (elastic network). Protein backbone is shown in blue, additional restraints in green.</i></sub>
+</div>
 </div>
 
 ---
