@@ -1,0 +1,41 @@
+;;;;;; Molecular Oxygen
+
+[moleculetype]
+; molname       nrexcl
+   O2           1
+
+[atoms]
+;id     type    resnr   residu  atom    cgnr    charge
+ 1      TC3     1       O2       O2     1       0.0      32
+
+
+;;;;;; Magnesium ion
+
+[moleculetype]
+; molname       nrexcl
+   MG           1
+
+[atoms]
+;id     type    resnr   residu  atom    cgnr    charge
+ 1      TD      1       MG       MG     1       2.0      24.305
+
+
+;;;;;; Ammonium ion
+
+[moleculetype]
+; molname       nrexcl
+   NH4          1
+
+[atoms]
+;id     type    resnr   residu  atom    cgnr    charge
+ 1      TQ5p    1       NH4      NH4    1       1.0      18.042
+
+;;;;;; Potassium ion
+
+[moleculetype]
+; molname       nrexcl
+   K            1
+
+[atoms]
+;id     type    resnr   residu  atom    cgnr    charge
+ 1      SQ4     1       K        K      1       1.0      39.0983
