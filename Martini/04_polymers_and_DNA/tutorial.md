@@ -287,7 +287,7 @@ subsequent MD run.
 <div align="center">
 <img src="../figures/04_PEO_PS_blend.png" width="50%"/>
 <br>
-<sub><i>Figure 3. PEO/PS blend. Starting configuration with 200 PEO chains (green) and 200 PS chains (blue).</i></sub>
+<sub><i>Figure 3. PEO/PS blend. Starting configuration with 200 PEO chains (yellow) and 200 PS chains (orange).</i></sub>
 </div>
 
 ---
