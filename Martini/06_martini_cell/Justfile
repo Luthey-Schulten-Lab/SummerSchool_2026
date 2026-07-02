@@ -1,0 +1,31 @@
+default:
+    just --list
+
+chromosome:
+    polyply gen_params -f fake.ff -o chromosome.itp -name chromosome -seqf genome.ig -dsdna
+
+envelope:
+    TS2CG PLM -TSfile sphere.tsi -Mashno 3 -bilayerThickness 2.0
+    TS2CG PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB -defout membrane
+
+cytosol:
+    bentopy-merge chromosome.gro membrane.gro -o chrom_mem.gro
+    bentopy-mask chrom_mem.gro -l -1:cytosol_mask.npz
+    bentopy-pack input.bent placements.json -v
+    bentopy-render placements.json cytosol.gro -t topol.top
+
+viz:
+    VMD_MARTINI=1 vmd2 -startup ../files/base.vmd -m chromosome.gro membrane.gro cytosol.gro
+
+merge:
+    bentopy-merge chromosome.gro membrane.gro cytosol.gro -o cell.gro
+
+em:
+    mkdir -p em
+    gmx grompp -f mdp_files/em.mdp -p topol.top -c cell.gro -o em/em.tpr
+    gmx mdrun -v -deffnm em/em
+
+solvate:
+    bentopy-solvate -i cell.gro -o solvated_cell.gro -t topol.top \
+        -s NA,CL:0.15M --charge neutral
+
