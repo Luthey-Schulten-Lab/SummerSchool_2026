@@ -85,6 +85,7 @@ material change transmode AOChalky 1.0
 
 # Redefine some colors to match the nice cell-look.
 color change rgb  4 1.0  0.82 0.05; # Yellow
+color change rgb  5 1.0  1.0  0.95; # Tan
 color change rgb  7 0.43 0.72 0.33; # Green
 color change rgb 10 0.1  0.65 0.95; # Cyan
 color change rgb 19 0.63 0.96 0.35; # Green 2
@@ -131,7 +132,7 @@ proc reset_viz {molid} {
 
     # Metabolites.
     mol selection metabolite
-    mol color ColorID 10
+    mol color ColorID 5
     mol representation Licorice 3 12 12 0 1
     mol material AOShiny
     mol addrep $molid
@@ -282,5 +283,8 @@ after idle {
 # These macros define selections for the Martini cell workshop.
 atomselect macro chromosome {resname "D[ATCG]"}
 atomselect macro proteinbb {name BB and not chromosome}
-atomselect macro headgroup {name NC3}
-atomselect macro metabolite {resname PLACEHOLDER}
+atomselect macro headgroup {name NC3 GL0 GLC}
+atomselect macro metabolite {resname
+10FG 10MG 3GPP 3PG 5FTF 5MG A3P ACEH ACEP ACET ACOA ADE ADO ADPH AMP ATPH CA CDP CMP COA CTP CYD DADO DADPH DAMP DATPH DCDP DCMP DCTP DCYD DGDPH DGMP DGTPH DGUO DHAP DNAD DPP DR1P DR5P DTDPH DTMP DTTP DUDP DUMP DURD DUTP E4P F6P DFAD FBP FMN DFMN G1P G3H G3P G6P GDPH GL2P GL6P GLR GMP GN6P GTPH GUA GUO K LAC LALA LARG LASP LASP LCYS LGLN LGLU LGLY LHIS LILE LLEU LLYS LMET LPHE LPRO LSER LTHR LTRP LTYR LVAL M6P MANA MG MN6P NAD NADH NADP NADPH NH4 NIC NICR O2 PA PALP PEP PO4 PRP PRPP PYR R1P R5P RBF DRBF RI5P S7P SAM SPER THD THFG TPPH UDP UDPA UDPF UDPG UMP URA URD UTP X5P
+}
+atomselect macro lipid {resname DOPG POPC SSM TOCL CHOL}
