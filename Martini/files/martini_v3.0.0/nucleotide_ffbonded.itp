@@ -1,0 +1,281 @@
+;;;; notes
+; x_D_... indicates an interaction for a deoxyribose
+; x_H_... indicates an interaction for a protonated form
+
+;;;;;;;;;;;;;;
+;;; sugars ;;;
+;;;;;;;;;;;;;;
+
+[ bondtypes ]
+; oxyribose
+#define b_RIB1_RIB2 1 0.235 10000   ; needs to be a constraint also
+#define b_RIB1_RIB3 1 0.334 10000   ; changed from 0.345 needs to be a constraint also
+#define b_RIB2_RIB3 1 0.290 10000   ; needs to be a constraint also
+; deoxyribose
+#define b_D_RIB1_RIB2  1 0.234 10000 ; needs to be a constraint also
+#define b_D_RIB1_RIB3  1 0.313 10000 ; changed from 0.330 needs to be a constraint also
+#define b_D_RIB2_RIB3  1 0.287 10000 ; needs to be a constraint also
+
+[ constrainttypes ]
+; oxyribose
+#define c_RIB1_RIB2 1 0.235 
+#define c_RIB1_RIB3 1 0.334
+#define c_RIB2_RIB3 1 0.290   
+; deoxyribose
+#define c_D_RIB1_RIB2  1 0.234
+#define c_D_RIB1_RIB3  1 0.313
+#define c_D_RIB2_RIB3  1 0.287
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; phosphate stuff ;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+[ bondtypes ]
+#define b_RIB3_P1 1 0.330 10000 ; needs to be a constraint also
+#define b_P1_P2   1 0.263 10000 ; needs to be a constraint also
+#define b_P2_P3   1 0.263 10000 ; needs to be a constraint also
+
+#define b_H_P1_P2 1 0.284 10000 ; needs to be a constraint also, iff P2 is terminal
+#define b_H_P2_P3 1 0.284 10000 ; needs to be a constraint also, iff P3 is terminal
+
+
+[ constrainttypes ]
+#define c_RIB3_P1 1 0.330
+#define c_P1_P2   1 0.263 
+#define c_P2_P3   1 0.263 
+
+#define c_H_P1_P2 1 0.284 
+#define c_H_P2_P3 1 0.284 
+
+[ angletypes ]
+;n.b. D, H types are close enough to be the same
+#define a_RIB1_RIB3_P1 10 105  23 
+#define a_RIB3_P1_P2   10 116  90 
+#define a_P1_P2_P3      1 158 750 
+
+[ dihedraltypes ]
+;n.b. D, H types are close enough to be the same
+#define d_RIB1_RIB3_P1_P2 1   110 -4.0 1 
+#define d_RIB3_P1_P2_P3   2   0.0  5.0 
+
+
+;;;;;;;;;;;;;;;;;
+;;; Adenosine ;;;
+;;;;;;;;;;;;;;;;;
+
+[ bondtypes ]
+#define b_ADE1_RIB1   1 0.273 9700 
+#define b_D_ADE1_RIB1 1 0.245 10000 ; needs to be a constraint also
+
+[ constrainttypes ]
+#define c_D_ADE1_RIB1 1 0.245 
+
+[ angletypes ]
+#define a_ADE2_ADE1_RIB1 10  75  40 
+
+#define a_ADE1_RIB1_RIB2 10 135 105 
+#define a_ADE1_RIB1_RIB3 10  80  40 
+#define a_D_ADE1_RIB1_RIB2 10 150 100 
+#define a_D_ADE1_RIB1_RIB3 10  90 100 
+
+[ dihedraltypes ]
+; ring
+#define d_ADE1_ADE2_ADE5_ADE4 2 180.0 400
+
+; adenine-sugar link
+#define d_ADE2_ADE1_RIB1_RIB3_1 9   36  2.4 1
+#define d_ADE2_ADE1_RIB1_RIB3_2 9   97 -2.5 2
+#define d_ADE2_ADE1_RIB1_RIB3_3 9  -90 -0.9 3
+#define d_ADE2_ADE1_RIB1_RIB3_4 9 -156 -0.6 4
+#define d_ADE2_ADE1_RIB1_RIB3_5 9  -25 -0.5 5
+
+#define d_ADE1_RIB1_RIB2_RIB3 2 0 10
+
+; adenine-sugar-phosphate
+#define d_ADE1_RIB1_RIB3_P1 2 -110 5
+
+
+;;;;;;;;;;;;;;;;
+;;; Cytosine ;;;
+;;;;;;;;;;;;;;;;
+
+[ bondtypes ]
+#define b_CYO1_RIB1   1 0.267  6300
+#define b_D_CYO1_RIB1 1 0.237 10000 ; needs to be a constraint also
+
+[ constrainttypes ]
+#define c_D_CYO1_RIB1 1 0.237 
+
+[ angletypes ]
+#define a_CYO2_CYO1_RIB1 10  85  60
+#define a_CYO4_CYO1_RIB1 10 145 130
+
+#define a_CYO1_RIB1_RIB2 10 140  70
+#define a_CYO1_RIB1_RIB3 10  80  75
+#define a_D_CYO1_RIB1_RIB2 10 150 100
+#define a_D_CYO1_RIB1_RIB3 10  90 100
+
+[ dihedraltypes ]
+; cytosine-sugar link
+#define d_CYO2_CYO1_RIB1_RIB3_1 9   36  2.4 1
+#define d_CYO2_CYO1_RIB1_RIB3_2 9   97 -2.5 2
+#define d_CYO2_CYO1_RIB1_RIB3_3 9  -90 -0.9 3
+#define d_CYO2_CYO1_RIB1_RIB3_4 9 -156 -0.6 4
+#define d_CYO2_CYO1_RIB1_RIB3_5 9  -25 -0.5 5
+
+#define d_CYO1_RIB1_RIB2_RIB3 2 0 10
+
+; cytosine-sugar-phosphate
+#define d_CYO1_RIB1_RIB3_P1 2 -110 5
+
+;;;;;;;;;;;;;;;
+;;; Guanine ;;;
+;;;;;;;;;;;;;;;
+
+
+[ bondtypes ]
+#define b_GUA1_RIB1   1 0.277  6250 
+#define b_D_GUA1_RIB1 1 0.246 10000 ; needs to be a constraint also
+
+[ constrainttypes ]
+#define c_D_GUA1_RIB1 1 0.246  
+
+[ angletypes ]
+#define a_GUA4_GUA1_RIB1 10  80  50  
+
+#define a_GUA1_RIB1_RIB2 10 135 100 
+#define a_GUA1_RIB1_RIB3 10  80  50 
+#define a_D_GUA1_RIB1_RIB2 10 150 100 
+#define a_D_GUA1_RIB1_RIB3 10  90  90 
+
+[ dihedraltypes ]
+
+; guanine-sugar link
+#define d_GUA4_GUA1_RIB1_RIB3_1 9   36  2.4 1
+#define d_GUA4_GUA1_RIB1_RIB3_2 9   97 -2.5 2
+#define d_GUA4_GUA1_RIB1_RIB3_3 9  -90 -0.9 3
+#define d_GUA4_GUA1_RIB1_RIB3_4 9 -156 -0.6 4
+#define d_GUA4_GUA1_RIB1_RIB3_5 9  -25 -0.5 5
+
+#define d_GUA1_RIB1_RIB2_RIB3 2 0 10
+
+; guanine-sugar-phosphate
+#define d_GUA1_RIB1_RIB3_P1 2 -110 5
+
+
+;;;;;;;;;;;;;;;
+;;; Thymine ;;;
+;;;;;;;;;;;;;;;
+
+[ bondtypes ]
+#define b_THY1_RIB1 1 0.238 18000 
+
+[ angletypes ]
+#define a_THY1_RIB1_RIB2 10 150  75
+#define a_THY1_RIB1_RIB3 10  95  50
+#define a_THY4_THY1_RIB1 10 140  50
+#define a_THY5_THY1_RIB1 10 140  50
+#define a_THY2_THY1_RIB1 10  80  30
+
+[ dihedraltypes ]
+
+#define d_THY2_THY1_RIB1_RIB3 2 -110 20 ; from 10
+;#define d_THY4_THY1_RIB1_RIB3 2  180 10
+#define d_THY5_THY1_RIB1_RIB3 2  100 10
+
+#define d_THY1_RIB1_RIB2_RIB3 2 0 10
+
+#define d_THY1_RIB1_RIB3_P1 2 -110 5
+
+
+;;;;;;;;;;;;;;
+;;; Uracil ;;;
+;;;;;;;;;;;;;;
+
+[ bondtypes ]
+#define b_URA1_RIB1      1 0.269 6333.664
+#define b_D_URA1_RIB1    1 0.238 10000 ; needs to be a constraint also
+
+[ constrainttypes ]
+#define c_D_URA1_RIB1    1 0.238
+
+[ angletypes ]
+
+#define a_URA2_URA1_RIB1 10 80 50
+
+#define a_URA1_RIB1_RIB2 10 135 100
+#define a_URA1_RIB1_RIB3 10 80 50
+#define a_D_URA1_RIB1_RIB2 10 150 100
+#define a_D_URA1_RIB1_RIB3 10 90 90
+
+[ dihedraltypes ]
+
+; uracil-sugar link
+#define d_URA2_URA1_RIB1_RIB3_1 9   36  2.4 1
+#define d_URA2_URA1_RIB1_RIB3_2 9   97 -2.5 2
+#define d_URA2_URA1_RIB1_RIB3_3 9  -90 -0.9 3
+#define d_URA2_URA1_RIB1_RIB3_4 9 -156 -0.6 4
+#define d_URA2_URA1_RIB1_RIB3_5 9  -25 -0.5 5
+
+#define d_URA1_RIB1_RIB2_RIB3 2 0 10
+
+; uracil-sugar-phosphate
+#define d_URA1_RIB1_RIB3_P1 2 -110 5
+
+
+;;;;;;;;;;;;;;;;;
+;;; NAD(P)(H) ;;;
+;;;;;;;;;;;;;;;;;
+
+;;; NOTE: P4 is the phosphate ion bead attached to the 2' carbon of the ribose carrying the adenine.
+;;; it is NOT called P3 as this may be confused with the terminal P3 bead of triphosphates
+
+[ bondtypes ]
+#define b_ARO1_ARO2 1 0.206 10000  
+#define b_ARO1_AMD1 1 0.428 10000 
+#define b_ARO2_AMD1 1 0.411 10000 
+#define b_ARO1_CAC1 1 0.391 10000
+#define b_ARO2_CAC1 1 0.410 10000
+
+#define b_RIB1_P4   1 0.314 10000
+#define b_RIB7_ARO1 1 0.260 10000
+
+[ constrainttypes ]
+#define c_ARO1_ARO2 1 0.206
+#define c_ARO1_AMD1 1 0.428  
+#define c_ARO2_AMD1 1 0.411  
+#define c_ARO1_CAC1 1 0.391
+#define c_ARO2_CAC1 1 0.410
+
+#define c_RIB1_P4   1 0.314 
+#define c_RIB7_ARO1 1 0.260
+
+[ angletypes ]
+#define a_RIB5_RIB7_ARO1  10  87.967 100
+#define a_RIB7_ARO1_AMD1  10 128.396  81.634
+#define a_RIB7_ARO1_CAC1  10 110      67.626
+#define a_ADE1_RIB1_P4    10 126.063  76.734
+
+[ dihedraltypes ]
+#define d_P2_RIB5_RIB7_ARO1    2 -79.527 91.882
+#define d_RIB5_RIB7_ARO1_AMD1  2  83.079 40
+#define d_RIB5_RIB7_ARO1_CAC1  2  85.657 40
+#define d_P1_P2_RIB5_RIB7      1 158.858 -2.497 1
+#define d_RIB3_P1_P2_RIB5      2 -16.1    6.494 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
