@@ -256,9 +256,7 @@ after idle {
     global vmd_initialize_structure
     set molid $element
     if {$vmd_initialize_structure($molid) == 1} {
-      puts "test **** pre"
       after 0 [reset_viz $molid]
-      puts "test **** post"
     }
   }
 
