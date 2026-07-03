@@ -25,7 +25,8 @@ cutoff-scheme            = Verlet
 nstlist                  = 20
 ns_type                  = grid
 pbc                      = xyz
-verlet-buffer-tolerance  = 0.005
+verlet-buffer-tolerance  = -1
+rlist                    = 1.35
 
 coulombtype              = reaction-field
 rcoulomb                 = 1.1
@@ -37,17 +38,17 @@ rvdw                     = 1.1
 
 ; MARTINI and TEMPERATURE/PRESSURE
 tcoupl                   = v-rescale
-tc-grps                  = system
-tau_t                    = 1.0
-ref_t                    = 300
-Pcoupl                   = parrinello-rahman
+tc-grps                  = Lipids Protein Chromosome Metabolites Solvent
+tau_t                    = 1.0 1.0 1.0 1.0 1.0
+ref_t                    = 310 310 310 310 310
+Pcoupl                   = c-rescale
 Pcoupltype               = isotropic
-tau_p                    = 12.0
+tau_p                    = 4.0
 compressibility          = 3e-4
 ref_p                    = 1.0
 
 gen_vel                  = no
-gen_temp                 = 300
+gen_temp                 = 310
 gen_seed                 = -1
 
 ; MARTINI and CONSTRAINTS
