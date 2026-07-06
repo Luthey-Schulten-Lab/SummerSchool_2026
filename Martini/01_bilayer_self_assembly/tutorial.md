@@ -46,8 +46,9 @@ cd 01_bilayer_self_assembly
 
 ## 1. Prepare the starting structure
 
-<div align="right">
+<div align="center">
     <img width="25%" src="../figures/01_POPC_CG.png">
+	<br>
     <sub><i>Figure 1. Martini 3 representation of a POPC lipid.</i></sub>
 </div>
 
