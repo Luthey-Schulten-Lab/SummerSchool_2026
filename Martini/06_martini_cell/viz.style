@@ -5,7 +5,7 @@
 # Proteins.
 mol selection proteinbb
 mol color ColorID 21
-mol representation Licorice 3 12 12 0 1
+mol representation Licorice 3 12 12 0
 mol material AOChalky
 mol addrep $molid
 
@@ -13,7 +13,7 @@ mol addrep $molid
 # Lipid tails.
 mol selection lipid
 mol color ColorID 19
-mol representation Licorice 3 12 12 0 1
+mol representation Licorice 3 12 12 0
 mol material AOChalky
 mol addrep $molid
 # Lipid head group.
@@ -27,7 +27,7 @@ mol addrep $molid
 # Metabolites.
 mol selection metabolite
 mol color ColorID 5
-mol representation Licorice 3 12 12 0 1
+mol representation Licorice 3 12 12 0
 mol material AOShiny
 mol addrep $molid
 
@@ -43,7 +43,7 @@ mol addrep $molid
 # Solvent.
 mol selection name W NA CL
 mol color ColorID 8
-mol representation QuickSurf 0.6 0.5 0.5 1
+mol representation QuickSurf 0.6 0.5 0.5 3
 mol material GlassBubble
 mol addrep $molid
 set repid [expr [molinfo $molid get numreps] - 1]
