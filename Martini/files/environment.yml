@@ -7,13 +7,10 @@ dependencies:
   - bzip2=1.0.8=hda65f42_9
   - ca-certificates=2026.6.17=hbd8a1cb_0
   - cudatoolkit=11.8.0=h4ba93d1_13
-  - decorator=5.3.1=pyhd8ed1ab_0
   - executing=2.2.1=pyhd8ed1ab_0
   - fftw=3.3.11=nompi_h3b011a4_100
   - gromacs=2024.3=nompi_cuda_h5cb645a_1
   - icu=75.1=he02047a_0
-  - ipython=9.15.0=pyh53cf698_0
-  - ipython_pygments_lexers=1.1.1=pyhd8ed1ab_0
   - jedi=0.20.0=pyhcf101f3_0
   - kernel-headers_linux-64=5.14.0
   - ld_impl_linux-64=2.45.1=default_hbd61a6d_102
@@ -58,6 +55,10 @@ dependencies:
   - zstd=1.5.7=hb78ec9c_6
 
 variables:
+  # We want to use GCC for the C and C++ compilers to handle installing
+  # mdvcontainment (for bentopy) and TS2CG.
+  CC: "gcc"
+  CXX: "g++"
   # The recommended vmdrc (base.vmd) will use realistic VdW radii when this
   # environment variable is set.
   VMD_MARTINI: "1"
