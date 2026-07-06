@@ -19,7 +19,7 @@ mol addrep $molid
 # Solvent.
 mol selection name W NA CL
 mol color ColorID 8
-mol representation QuickSurf 0.6 0.5 0.5 3
+mol representation QuickSurf 0.6 0.5 0.1 3
 mol material GlassBubble
 mol addrep $molid
 set repid [expr [molinfo $molid get numreps] - 1]

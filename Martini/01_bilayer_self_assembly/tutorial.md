@@ -46,7 +46,10 @@ cd 01_bilayer_self_assembly
 
 ## 1. Prepare the starting structure
 
-<img align="right" width="25%" src="../figures/01_POPC_CG.png">
+<div align="right">
+    <img width="25%" src="../figures/01_POPC_CG.png">
+    <sub><i>Figure 1. Martini 3 representation of a POPC lipid.</i></sub>
+</div>
 
 We use POPC (1-palmitoyl-2-oleoyl-*sn*-glycero-3-phosphocholine) as our model
 lipid. It is one of the more abundant lipids in the JCVI-Syn3A minimal cell.
@@ -152,7 +155,7 @@ appears at the bottom of `topol.top`.
 <div align="center">
 <img src="../figures/01_initial_structure.png" width="50%"/>
 <br>
-<sub><i>Figure 1. Starting structure: a random configuration of POPC lipids in water.</i></sub>
+<sub><i>Figure 2. Starting structure: a random configuration of POPC lipids in water.</i></sub>
 </div>
 
 ---
@@ -186,10 +189,25 @@ This takes about 10 minutes on a single CPU; by default `gmx mdrun` uses all
 available CPUs. The `-v` flag shows an estimated time to completion. See
 `gmx mdrun -h` for options on tuning the parallel threads.
 
-<div align="center">
-<img src="../figures/01_bilayer.png" width="50%"/>
-<br>
-<sub><i>Figure 2. Self-assembled lipid bilayer after the MD run.</i></sub>
+<div id="image-table">
+    <table>
+	    <tr>
+    	    <td style="padding:10px" width="50%">
+                <img src="../figures/01_bilayer_inverted.png"/>
+      	    </td>
+    	    <td style="padding:10px" width="50%" float="center">
+                <img src="../figures/01_bilayer_centered.png"/>
+            </td>
+        </tr>
+    </table>
+    <sub><i>
+        Figure 3. Left. A typical result after self-assembly. It is common for
+        the bilayer to appear inverted, but in reality the bilayer center simply
+        spans the periodic boundary conditions.<br>
+        Right. The same bilayer, but translated such that the bilayer is placed
+        in the center of the box. This centered representation is common, but
+        both are correct.
+    </i></sub>
 </div>
 
 ---
@@ -238,7 +256,7 @@ Then open the trajectory:
 vmd2 md/md.tpr md/md_whole.xtc
 ```
 
-Your VMD window should look similar to Figure 2.
+Your VMD window should look similar to one of the panels in Figure 3.
 
 ---
 
