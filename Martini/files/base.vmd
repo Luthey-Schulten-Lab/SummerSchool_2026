@@ -92,18 +92,19 @@ color change rgb 21 0.55 0.75 0.90; # Cyan 2
 color change rgb 31 0.95 0.37 0.0 ; # Orange 2
 color change rgb 32 0.96 0.63 0.0 ; # Orange 3
 
-# Convenience function to turn alpha background on or off.
-proc alpha {{state 1}} {
-  set env(VMDOPTIXWRITEALPHA) $state
-}
-
 set env(VMDOPTIXIMAGESIZE) "2000 2000"
 render aasamples TachyonLOptiXInternal 500
 # These are almost always what you want.
 set env(VMDOPTIXMAXTRANS) 1
 set env(VMDOPTIXAOMAXDIST) 1
 # Turn alpha background off by default.
-alpha 0
+# When turned on, make sure to set the file name in the Render menu to a .png
+# extension. If the generated png appears pale when viewing the image, make sure
+# to convert the generated file to a png again with, for example, imagemagick.
+# (I believe the reason for the pale pngs is that VMD generates pngs in the RGB
+# colorspace, while many programs expect sRGB. By converting the png again, it
+# will be usually be written as an sRGB png.)
+set env(VMDOPTIXWRITEALPHA) 0
 
 # This is something I really like. This will immediately convert the file to a
 # png and show it in my preferred image viewer.
