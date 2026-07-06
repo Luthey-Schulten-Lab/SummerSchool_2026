@@ -154,7 +154,7 @@ TS2CG PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB -defout membrane
 Inspect `membrane.gro` in _`VMD`_ before continuing.
 
 ```sh
-vmd2 membrane.gro
+vmd membrane.gro
 ```
 
 <div align="center">
@@ -324,7 +324,7 @@ The exact molecule counts (X) come directly from `membrane.top` and
 Visualize the cell model:
 
 ```sh
-vmd2 cell.gro
+vmd cell.gro
 ```
 
 ---

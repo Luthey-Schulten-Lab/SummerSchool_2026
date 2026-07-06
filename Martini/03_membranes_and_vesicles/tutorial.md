@@ -122,7 +122,7 @@ This creates a `point/` folder with the bilayer point distributions, an
 structure:
 
 ```sh
-vmd2 -m pointvisualization_data/Upper.gro pointvisualization_data/Lower.gro
+vmd -m pointvisualization_data/Upper.gro pointvisualization_data/Lower.gro
 ```
 
 You should see two leaflets of points representing the bilayer where lipids
@@ -177,7 +177,7 @@ bilayer.
 ### Visualize
 
 ```sh
-vmd2 output.gro
+vmd output.gro
 ```
 
 You should see a complete bilayer vesicle with no overlapping lipid
@@ -229,7 +229,7 @@ distribution.
 ### Visualize
 
 ```sh
-vmd2 output.gro
+vmd output.gro
 ```
 
 You should see a complete bilayer vesicle with randomly mixed POPC and DOPC
@@ -323,7 +323,7 @@ TS2CG PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB \
 ### Visualize
 
 ```sh
-vmd2 output.gro
+vmd output.gro
 ```
 
 You should see a vesicle with embedded proteins, no lipid-protein or
@@ -415,7 +415,7 @@ appropriate lipid types in each region.
 ### Visualize
 
 ```sh
-vmd2 output.gro
+vmd output.gro
 ```
 
 You should see a vesicle with embedded proteins, two distinct lipid
@@ -521,7 +521,7 @@ with the Martini force field files.
 ### Visualize
 
 ```sh
-vmd2 output.gro
+vmd output.gro
 ```
 
 You should see a continuous 1D Fourier sinusoidal membrane with wall beads
@@ -643,7 +643,7 @@ TS2CG PCG -dts point -str optimized_input.str -Bondlength 0.2 -LLIB Martini3.LIB
 ### Visualize and analyze
 
 ```sh
-vmd2 output.gro
+vmd output.gro
 ```
 
 You should see a continuous 1D Fourier sinusoidal membrane with CDL2

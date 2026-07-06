@@ -254,7 +254,7 @@ gmx trjconv -f md/md.xtc -s md/md.tpr -o md/md_whole.xtc -pbc whole
 Then open the trajectory:
 
 ```sh
-vmd2 md/md.tpr md/md_whole.xtc
+vmd md/md.tpr md/md_whole.xtc
 ```
 
 Your VMD window should look similar to one of the panels in Figure 3.

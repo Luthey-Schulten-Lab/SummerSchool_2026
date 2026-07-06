@@ -166,7 +166,7 @@ for MD simulation.
 ### Visualize
 
 ```sh
-vmd2 solvated_system.gro
+vmd solvated_system.gro
 ```
 
 You should observe:
@@ -250,7 +250,7 @@ position. Each voxel bead is named after the compartment it resides in.
 Visualize the voxel representation with VMD:
 
 ```sh
-vmd2 labels.gro
+vmd labels.gro
 ```
 
 Use the following selections to see the identified compartments:
@@ -384,7 +384,7 @@ bentopy-solvate -i system.gro -o solvated_system.gro -t topol.top \
 ### Visualize
 
 ```sh
-vmd2 solvated_system.gro
+vmd solvated_system.gro
 ```
 
 > [!TIP]
@@ -418,7 +418,7 @@ compartments, then place different proteins in each compartment.
 ### Inspect the double membrane structure
 
 ```sh
-vmd2 structures/double_membrane.gro
+vmd structures/double_membrane.gro
 ```
 
 The system has two lipid bilayers, creating four distinct regions: two
@@ -440,7 +440,7 @@ bentopy-mask structures/double_membrane.gro -b compartment_labels.gro
 Visualize the voxel representation:
 
 ```sh
-vmd2 compartment_labels.gro
+vmd compartment_labels.gro
 ```
 
 Double-check the different spatial compartments identified by the
@@ -531,7 +531,7 @@ bentopy-solvate -i system.gro -o solvated_system.gro -t topol.top \
 ### Visualize
 
 ```sh
-vmd2 solvated_system.gro
+vmd solvated_system.gro
 ```
 
 You should observe:

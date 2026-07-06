@@ -312,7 +312,7 @@ Open the trajectory in VMD 2 with the `.tpr` as the topology (see Tutorial I
 for the rationale):
 
 ```sh
-vmd2 md/md.tpr md/traj.xtc
+vmd md/md.tpr md/traj.xtc
 ```
 
 ---

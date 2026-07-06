@@ -141,7 +141,7 @@ gmx mdrun -v -deffnm em/em
 Visualize the result:
 
 ```sh
-vmd2 em/em.tpr em/em.gro
+vmd em/em.tpr em/em.gro
 ```
 
 The chains should fill the box uniformly at melt density.
@@ -218,7 +218,7 @@ gmx mdrun -v -deffnm em/em
 Visualize:
 
 ```sh
-vmd2 em/em.tpr em/em.gro
+vmd em/em.tpr em/em.gro
 ```
 
 You should see a single PEO chain filling a spherical region in the
@@ -276,7 +276,7 @@ gmx mdrun -v -deffnm em/em
 Visualize:
 
 ```sh
-vmd2 em/em.tpr em/em.gro
+vmd em/em.tpr em/em.gro
 ```
 
 The two polymer types are randomly interspersed in the starting
