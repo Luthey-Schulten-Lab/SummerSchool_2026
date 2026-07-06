@@ -45,7 +45,6 @@ menu graphics move 395 500
 menu color    move 125 225
 menu files    move 125 325
 menu labels   move 125 525
-menu render   move 125 525
 menu main     on
 
 # Better rendering defaults.
