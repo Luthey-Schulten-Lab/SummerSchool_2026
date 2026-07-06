@@ -1,0 +1,37 @@
+# Marieke Westendorp, 2026-07-06.
+#     <m.s.s.westendorp@rug.nl>
+#     <ma3ke.cyber@gmail.com>
+
+# source ../files/polymers.style
+# Polymers.
+mol selection resname PS
+mol color ColorID 31
+mol representation Licorice 2 12 12 0 1
+mol material AOChalky
+mol addrep $molid
+
+mol selection resname PEO
+mol color ColorID 32
+mol representation Licorice 2 12 12 0 1
+mol material AOChalky
+mol addrep $molid
+
+
+# source ../files/solvent.style
+# Solvent.
+mol selection name W NA CL
+mol color ColorID 8
+mol representation QuickSurf 0.6 0.5 0.5 1
+mol material GlassBubble
+mol addrep $molid
+set repid [expr [molinfo $molid get numreps] - 1]
+mol showrep $molid $repid 0
+
+# Ions.
+mol selection name NA CL
+mol color Name
+mol representation VDW 0.2
+mol material AOShiny
+mol addrep $molid
+set repid [expr [molinfo $molid get numreps] - 1]
+mol showrep $molid $repid 0

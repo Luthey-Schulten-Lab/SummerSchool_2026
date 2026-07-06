@@ -1,0 +1,10 @@
+# Marieke Westendorp, 2026-07-06.
+#     <m.s.s.westendorp@rug.nl>
+#     <ma3ke.cyber@gmail.com>
+
+# Chromosome.
+mol selection chromosome
+mol color ColorID 4
+mol representation VDW 0.8
+mol material AOChalky
+mol addrep $molid
