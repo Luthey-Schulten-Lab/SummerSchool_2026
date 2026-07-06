@@ -3,10 +3,34 @@
 > **Time:** ~30 minutes <br>
 > **Software:** GROMACS 2024.3 · bentopy · polyply · TS2CG · martinize2 · VMD 2 <br>
 
-**TODO:** improve prose
+The previous tutorials introduced the Martini CG force field and the ecosystem
+of tools for building complex coarse-grained models. In this tutorial we bring
+them together to construct a full cell model, based on the JCVI-Syn3A minimal
+bacterium.
 
-After introducing the Martini ecosystem in the previous tutorials, we will use
-these tools to construct a cell-like model based on the JCVI-Syn3A cell.
+The model has three main components:
+
+- A **chromosome**: a 20 kbp toy genome with a 3D structure obtained from
+  BTreeChromo, and backmapped to Martini resolution with _polyply_.
+- A **cell envelope**: a spherical lipid membrane containing a representative
+  subset of the Syn3A membrane proteins, built with _TS2CG_.
+- A **cytosol**: the full Syn3A proteome and metabolome at counts scaled down
+  from experimental proteomics and metabolomics data, packed into the cytosolic
+  space with _bentopy_.
+
+We combine these into a single whole-cell model and run a short MD simulation
+with _GROMACS_.
+
+---
+
+### Overview
+
+| #   | Step                        | Tool        |
+| :-: | :---                        | :---        |
+| 1   | Build the chromosome        | _`polyply`_ |
+| 2   | Build the cell envelope     | _`TS2CG`_   |
+| 3   | Pack the cytosol            | _`bentopy`_ |
+| 4   | Simulate the assembled cell | _`GROMACS`_ |
 
 To start this tutorial, navigate to the respective folder in the workshop
 repository.
@@ -15,69 +39,47 @@ repository.
 cd 06_martini_cell
 ```
 
-## Chromosome
+---
 
-For our cell-like model, we generated a random 20-kilobase pair sequence based
-on Syn3A's genome. This toy genome is stored in `genome.ig`. Using `Polyply` you
-can generate the corresponding Martini 3 topology file using the `gen_params`
-subcommand.
+## 1. Chromosome
 
-```sh
-polyply gen_params -f fake.ff -o chromosome.itp -name chromosome -seqf genome.ig -dsdna
-```
+### Topology
 
-> [!NOTE] As the name `fake.ff` implies, we will use placeholder Martini 3 DNA
-> parameters. This `Polyply` forcefield file contains the Martini 2 DNA geometry
-> instructions, but all the beads have been set to an arbitrary bead type. At
-> the time of writing this tutorial, there are no appropriate Martini 3 DNA
-> parameters available. There is an active effort toward creating these
-> parameters, and when these are available, they can be applied here instead.
+For our cell model we build the chromosome from a random 20 kbp sequence
+provided in `genome.ig`. There are no dedicated Martini 3 DNA parameters at the
+time of writing. We use a placeholder force field, `fake.ff`, that follows the
+Martini 2 DNA geometry but assigns all beads a single generic bead type. The
+resulting topology preserves the shape of the chromosome, but the non-bonded
+interactions are not chemically meaningful. Once Martini 3 DNA parameters
+become available, we can apply the protocol below to generate a Martini 3
+chromosome model, by replacing `fake.ff` with the Martini 3 force field file.
 
-The generated `.itp` file contains information on local bonds and angles, but
-the chromosome will not hold its shape with these alone. (Especially since we
-used some arbitrary, single bead type.) In order to let our chromosome hold its
-shape, we need to apply an elastic network and add it to the topology file.
-
-**TODO:** add EN code to this section and just file
+To generate the chromosome topology, run the command below.
 
 ```sh
-python3 gen_elastic.py chromosome.gro
+polyply gen_params -f fake.ff -o chromosome.itp -name chromosome \
+                   -seqf genome.ig -dsdna
 ```
 
-Now that we have the topology file, we have to generate a Martini 3 starting
-structure for the chromosome. The protocol for constructing coordinates for the
-chromosome at Martini resolution starts with interpolating the 10 bp per monomer
-polymer model generated as previously described (Figure 1, step 1). To this end,
-a periodic B-spline, m(s), is fitted to the monomer positions, {xi},
-representing the chromosome’s helical axis. Along the helical axis, the bp
-positions, {mj}, are sampled such that each curve segment between monomer
-centers contains 10 bp spaced equidistantly (Figure 1, step 2). Next, we align
-bp template coordinates at the Martini level using the resulting bp positions
-(Figure 1, step 3).
+The `-dsdna` flag tells _polyply_ that the sequence is double-stranded DNA.
+
+### Backmap to Martini
+
+The Martini coordinates for the chromosome come from backmapping a mesoscale polymer model. A one-bead-per-10-bp
+representation is generated with bTreeChromo.
+Polyply then fits a periodic B-spline through the monomer positions, samples
+base-pair positions along the spline (10 bp per segment), and aligns Martini
+base-pair templates onto them.
 
 <div align="center">
 <img src="../figures/05_dsDNA_forwardmapping.png" width="70%"/>
-</div>
+<br>
+<sub><i>Figure 1. Backmapping protocol. Steps used to generate Martini-resolution coordinates from a mesoscale polymer model.</i></sub>
+</div> <br>
 
-*__Figure 1: Martini backmapping protocol__ Schematic of the steps in the
-protocol used to generate coordinates in the Martini representation. By
-backmapping a dsDNA polymer model, the protocol efficiently creates a
-near-atomistic model of the entire chromosome.*
-
-To generate the Martini 3 model of our chromosome, we give as an input the
-subsampled chromosome coordinates in the file `coords.dat`. To finally generate
-the Martini 3 coordinates for this chromosome model, we use the `gen_coords`
-subcommand.
-
-**TODO:** try and fix this
-
-```sh
-polyply gen_coords -p topol.top -box 120 120 120 -o chromosome.gro -lib martini2 -bm_fudge 1.0 -bm_mode by-frame -mc coords.oxdna
-```
-
-> [!NOTE] This step may require quite some time to read the chromosome topology
-> (it is quite large). For the tutorial's sake, we will continue using the
-> prepared output of this command, which is provided in the current directory.
+Backmapping a chromosome of this size takes long enough that running it
+here is not practical, so a precomputed `chromosome.gro` is provided in
+the current directory for the rest of the tutorial.
 
 <div id="image-table">
     <table>
@@ -96,233 +98,259 @@ polyply gen_coords -p topol.top -box 120 120 120 -o chromosome.gro -lib martini2
       	    </td>
         </tr>
     </table>
+<center><i>Figure 2. Cell chromosome. Top left: mesoscale chromosome model from bTreeChromo. Top right: subsampled one-bead-per-base model used during backmapping. Bottom: backmapped Martini model of the chromosome.</i></center>
 </div>
 
-*__Figure 2: Cell chromosome__ Top left: A render of the initial structure of
-the mesoscale chromosome model generated by bTreeChromo. Top right: The
-subsampled one bead-per-base chromosome model used during backmapping. Bottom:
-The backmapped Martini 2 model of the cell chromosome using **Polyply**.*
 
-To verify that the building step was successful, inspect the generated
-`chromosome.gro` file in VMD.
+</div>
 
-## Envelope
+### Elastic network
 
-The next step in our cell modeling process is constructing the cell envelope.
-Fortunately, the cell envelope of the Syn3A is known to be almost spherical,
-which makes modeling the membrane quite simple. For the membrane, we use a
-spherical triangulated mesh scaled to encapsulate the previously generated
-chromosome. The membrane composition in our model represents an experimental
-lipidomics composition. For simplicity, we have chosen a minimal lipid diet. The
-corresponding triangulated surface file (`.tsi`) and membrane builder settings
-file (`.str`) are provided in the current directory.
+The bonded interactions in `chromosome.itp` capture the correct base-pair
+partitioning behavior, but they do not preserve the mesoscale conformation
+on their own. A small helper script reads the coordinates and appends
+harmonic restraints between beads within a cutoff, keeping the chromosome
+close to its starting shape during MD:
 
-The `.tsi` file also defines the vertices on which to place the membrane
-proteins present in the lipid membrane. In the current directory, we prepared a
-folder (`structures/membrane_proteins`) containing the structures of a selection
-of membrane proteins present in the Syn3A. This set includes ATP synthase as
-well as magnesium, calcium, and potassium transporters.
+```sh
+python3 gen_elastic.py chromosome.gro chromosome.itp
+```
 
-**TODO:** Update the listing of the membrane protein selection to make it match what we're actually end up with.
+> [!NOTE] An elastic network is needed to stabilize the Martini 2 DNA
+> parameters. For Martini 3 DNA parameters, we hope they will be able to
+> stabilize the geometry on their own.
+
+Inspect `chromosome.gro` in VMD before continuing.
+
+---
+
+## 2. Cell envelope
+
+The Syn3A cell is approximately spherical, so we model the cell membrane as
+a spherical bilayer scaled to enclose the chromosome. The mesh is specified
+in the triangulated surface file `sphere.tsi`. The lipid composition is
+based on experimental lipidomics data, listed in the TS2CG settings file
+`input.str`. The membrane proteins are a representative subset of the Syn3A
+proteome, including ATP synthase, a proton symporter, SecDF, PtsG, a
+potassium transporter, and an uncharacterized gene (JCVISYN3A_0005). Their
+structures are provided in `structures/membrane_proteins/`.
 
 ### Pointillism
 
-The _TS2CG_ protocol will be familiar from previous tutorials. As a first step,
-we subsample the mesh to create enough points to place the lipids.
+We first subsample the mesh to generate enough points to place the lipids and proteins:
 
 ```sh
-PLM -TSfile sphere.tsi -Mashno 3 -bilayerThickness 2.0
+TS2CG PLM -TSfile sphere.tsi -Mashno 2 -bilayerThickness 2.0
 ```
 
-### Backmap to Martini
+### Build the membrane
 
-Next, we build the membrane by placing the lipids and membrane proteins to
-create the membrane structure file.
+We use TS2CG to place the lipids and proteins and build the cell envelope:
 
 ```sh
-PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB -defout membrane
+TS2CG PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB -defout membrane
+```
+
+Inspect `membrane.gro` in _`VMD`_ before continuing.
+
+```sh
+vmd2 membrane.gro
 ```
 
 <div align="center">
-<img src="../figures/05_envelope.png" width="70%"/>
+<img src="../figures/05_envelope.png" width="65%"/>
+<br>
+<sub><i>Figure 3. Cell envelope. Spherical membrane with embedded proteins from the Syn3A proteome.</i></sub>
 </div>
 
-*__Figure 3: Cell envelope__ A render of the initial structure of the cell
-envelope generated by **TS2CG**.*
 
-To verify that the building step was successful, inspect the generated
-`membrane.gro` structure in VMD.
+---
 
-## Cytosol
+## 3. Cytosol
 
-Now that we have prepared our chromosome and cell envelope, we can bring the
-structures together. Inside of the cell envelope, we want to model the cytosol.
-We will place the chromosome into this compartment, and we want to fill the
-remaining space with protein and metabolites.
+The space between the chromosome and the envelope represents the cytosol space.
+We fill it with proteins and metabolites at physiological concentrations using
+_bentopy_. The chromosome and membrane act as the scaffolding around which the
+cytosolic components are packed.
 
-### Create a mask
+### Merge the chromosome and envelope
 
-First, we merge the chromosome model with the membrane model. This allows us to
-define a space based on the inside of this merged model in the next step.
+Combine the two scaffolding structures. _Bentopy_ uses this merged model
+to identify the available cytosolic space.
 
 ```sh
-bentopy merge chromosome.gro membrane.gro -o chromosome_membrane.gro
+bentopy-merge chromosome.gro membrane.gro -o chromosome_membrane.gro
 ```
 
-#### Inspecting the compartments
+### Inspect the compartments
 
-We are interested in the space inside our vesicle, excluding the space occupied
-already by the chromosome. To select this space from the merged
-`chromosome_membrane.gro` model, we generate a mask using _bentopy-mask_.
-To visually inspect the labels that are given to different regions of the space,
-we can write labeled voxels to a path provided with the
-`-b`/`--inspect-labels-path` flag.
+Generate a labeled voxel representation to see which compartments Bentopy
+identifies:
 
 ```sh
 bentopy-mask chromosome_membrane.gro -b labels.gro
 ```
 
-In the output, take a look at the containment graph. You can see that three
-compartments were identified: the inside (-1), the space occupied by the
-envelope and chromosome (1), and the outside (-2).
-```
+The output prints a containment graph:
+
+```text
 Containment Graph with 3 components (component: nvoxels: rank):
 └── [-2: 7942323: 3]
     └── [1: 1186249: 0]
         └── [-1: 4695428: 0]
 ```
 
-In many cases, including this case, the containment graph already tells you a
-great deal about what compartment you may want to select for your mask. To
-verify this, we can still visually inspect the labeled compartments.
+Three compartments are identified. Label -1 is the inside of the vesicle
+(the cytosol we want to pack). Label 1 is the space occupied by the
+envelope and chromosome. Label -2 is the extracellular space.
 
-A file called `labels.gro` will be written with beads placed at the center of
-each voxel. You can inspect the containment structure in VMD. The different
-label groups can be selected according to their atom name. For instance, the
-selection `name "-1"` will show the inside of the vesicle in our case, the
-envelope can be selected with `name "1"`, and `name "-2"` selects the outside.
-Note that the quotes are necessary for correctly selecting negative-numbered
-labels.
+Load `labels.gro` in VMD to verify visually. Select individual
+compartments by atom name (quotes are needed for negative labels):
 
-By selecting these different labels, you can find the exact space you are
-interested in. Write out the mask of the compartment you're interested as shown
-below.
+- `name "-1"` — cytosol.
+- `name 1` — envelope and chromosome.
+- `name "-2"` — outside.
+
+### Create the cytosolic mask
+
+Write out the cytosol compartment as a mask:
 
 ```sh
 bentopy-mask chromosome_membrane.gro -l -1:cytosol_mask.npz
 ```
 
-Some interesting information can be extracted from these masks. For example the
-volume accessible to proteins and metabolites in the cell in our model is
-approximately 5 &times; 10<sup>5</sup> nm&sup3; or 0.5 attoliters.
+The accessible volume for proteins and metabolites in this model is
+approximately 5 × 10⁵ nm³, or about 0.5 attoliters.
 
-<div id="image-table">
-    <table>
-	    <tr>
-    	    <td style="padding:10px" width="50%">
-                <img src="../figures/05_chromosome_and_envelope.png"/>
-      	    </td>
-    	    <td style="padding:10px" width="50%" float="center">
-                <img src="../figures/05_mask.png" width="100%"/>
-            </td>
-        </tr>
-    </table>
+<div align="center">
+
+| | |
+| :--: | :--: |
+| <img src="../figures/05_chromosome_and_envelope.png"/> | <img src="../figures/05_mask.png" width="100%"/> |
+
+<sub><i>Figure 4. Mask generation. Left: chromosome and envelope inside which the cytosol is packed. Right: mask generated by <code>bentopy-mask</code>, with occupied space (green), empty space inside the envelope (blue), and empty space outside (grey).</i></sub>
+
 </div>
 
-*__Figure 4: Steps of creating a packing mask__ Left panel: The structure, i.e.
-the chromosome and envelope, in which we want to pack our cytosol. Right panel:
-Visualisation of the mask generated by `bentopy mask`. The image shows three
-distinct regions, the occupied space in our system (green), the empty space
-**inside** of the structure (blue) and the empty space **outside** the structure
-(grey).*
+### Pack the cytosol
 
-### Pack the cell
+The `input.bent` file for this system is provided. It specifies:
 
-With the mask ready, we can move on to packing the cytosolic space with protein
-and metabolites. In order to specify the concentrations of biomolecules we want
-to include, we need to create an input file.
+- The cytosolic mask from the previous step as the packing compartment.
+- Protein counts, scaled down from experimental proteomics data.
+- Metabolite concentrations, taken from experimental measurements.
 
-Let's look at the `input.bent` used for the cell model.
+**TODO:** add in schematic representation of the .bent input file here.
 
-> *TODO:* some info on the bent file
->
-> - concentrations for metabolites and how they are transferable between models.
-> - protein counts
-> - scaled down from experimental proteomics data.
-
-*TODO:* Consider the question of whether metabolite concentrations are per cell volume or per chromosome-excluded cell volume?
-
-#### Packing and assembly
-
-With our input file, we can move on to packing the cell.
+Pack the system:
 
 ```sh
 bentopy-pack input.bent placements.json
 ```
 
-*TODO:* add some prose on how fast it is and that we can actually?! pack everything.
+Bentopy places 10⁴–10⁵ instances in seconds because collision detection
+runs on a voxel grid, which makes cell-scale packing tractable.
 
-From the placement list, we can create a `.gro` file using `bentopy-render`.
-
-With the `-t`/`--topology` flag, we specify a path to write a topology file to,
-based on the placement list. As you may recall, the _name_ field for each
-segment entry will be used as the identifier for each structure in the topology
-file. We render the structure to `cytosol.gro`.
+Render the placement list into a structure and topology:
 
 ```sh
-bentopy-render placements.json cytosol.gro -t topol.top
+bentopy-render placements.json cytosol.gro -t cytosol.top
 ```
 
-To create our final model, we merge the chromosome and envelope model with our
-cytosol model.
+### Assemble the final cell
+
+Merge the chromosome, envelope, and cytosol into one structure:
 
 ```sh
 bentopy-merge chromosome_membrane.gro cytosol.gro -o cell.gro
 ```
 
-We can now create a final `topol.top` that lists the chromosome, envelope
-components, and the packed cytosolic components in order.
+Assemble the final `topol.top` by combining three pieces:
 
-```
-TODO add an example topol.top here with the sections outlined, but with repetitive and long lists truncated with ellipses.
+- The Martini 3 force field includes (particle definitions, ffbonded, ions,
+  solvents, and the lipid classes matching the composition).
+- `chromosome.itp` from Section 1 and the membrane-protein topologies used
+  in Section 2.
+- The `[ molecules ]` entries written by _TS2CG_ (`membrane.top`) and by
+  `bentopy-render` (`cytosol.top`).
+
+Copy the `[ molecules ]` blocks from `membrane.top` and `cytosol.top` in
+order (envelope first, then cytosol) and prepend the chromosome. Write the
+result as `topol.top`:
+
+```text
+#include "martini_v3.0.0/martini_v3.0.0.itp"
+#include "martini_v3.0.0/martini_v3.0.0_ffbonded_v2.itp"
+#include "martini_v3.0.0/martini_v3.0.0_ions_v1.itp"
+#include "martini_v3.0.0/martini_v3.0.0_solvents_v1.itp"
+#include "martini_v3.0.0/martini_v3.0.0_phospholipids_PC_v2.itp"
+#include "chromosome.itp"
+#include "membrane_proteins.itp"
+#include "proteins.itp"
+
+[ system ]
+Martini Syn3A cell
+
+[ molecules ]
+; from Section 1
+chromosome   1
+; from membrane.top (TS2CG)
+ATP_synthase X
+...
+POPC         X
+SSM          X
+...
+; from cytosol.top (bentopy-render)
+005_monomer  X
+...
+ATPH         X
+NADH         X
+...
 ```
 
-<div id="image-table">
-    <table>
-	    <tr>
-    	    <td style="padding:10px" width="50%">
-                <img src="../figures/05_cytosolic_proteins.png"/>
-      	    </td>
-    	    <td style="padding:10px" width="50%" float="center">
-                <img src="../figures/cell.png"/>
-            </td>
-        </tr>
-    </table>
+The exact molecule counts (X) come directly from `membrane.top` and
+`cytosol.top`.
+
+<div align="center">
+
+| | |
+| :--: | :--: |
+| <img src="../figures/05_cytosolic_proteins.png"/> | <img src="../figures/cell.png"/> |
+
+<sub><i>Figure 5. Final cell model. Left: cytosolic proteins packed inside the mask. Right: full cell with chromosome, envelope, and cytosol combined.</i></sub>
+
 </div>
 
-*__Figure 5: Steps of packing the cell__ Left panel: A render of only the
-cytosolic proteins that have been packed inside of the predefined mask. Right
-panel: The final cell structure after concatenating together the chromosome,
-envelope and cytosol.*
-
-### Visualize the cell model
+Visualize the cell model:
 
 ```sh
 vmd2 cell.gro
 ```
 
-### Running a molecular dynamics simulation of the cell model
+---
 
-```
-# Solvate the model.
+## 4. Simulate the cell model
+
+Solvate the cell:
+
+```sh
 bentopy-solvate -i cell.gro -o solvated_cell.gro -t topol.top \
-    -s NA,CL:0.15M --charge neutral
+                -s NA,CL:0.15M --charge neutral
+```
 
-# Energy minimization.
-gmx grompp -f mdp_files/em.mdp -c solvated_cell.gro -p topol.top -o em.tpr -maxwarn 1
+Energy-minimize:
+
+```sh
+gmx grompp -f mdp_files/em.mdp -c solvated_cell.gro -p topol.top \
+           -o em.tpr -maxwarn 1
 gmx mdrun -v -deffnm em
+```
 
-# Make an index file.
+Build an index file with separate groups for the chromosome, lipids,
+solvent, and metabolites. These groups are used during equilibration and
+production to couple each to a separate thermostat:
+
+```sh
 gmx make_ndx -f em.gro -o index.ndx << 'EOF'
 name 1 Chromosome
 r POPC | r DOPG | r CHOL | r TOCL | r SSM
@@ -333,15 +361,23 @@ r NADH | r ACOA | r 10MG | r 10FG | r 5FTF | r DFAD | r COA | r NADPH | r UDPA |
 name 147 Metabolites
 q
 EOF
+```
 
-# Equilibration.
-gmx grompp -f mdp_files/eq.mdp -c em.gro -p topol.top -o eq.tpr -n index.ndx
+Equilibrate and run production:
+
+```sh
+# Equilibration
+gmx grompp -f mdp_files/eq.mdp -c em.gro -p topol.top -n index.ndx -o eq.tpr
 gmx mdrun -v -deffnm eq
 
-# Production run.
-gmx grompp -f mdp_files/md.mdp -c eq.gro -p topol.top -o md.tpr -n index.ndx
+# Production
+gmx grompp -f mdp_files/md.mdp -c eq.gro -p topol.top -n index.ndx -o md.tpr
 gmx mdrun -v -deffnm md
 ```
+
+**TODO:** insert short movie of the simulations and short proza around it.
+
+---
 
 ## References
 
