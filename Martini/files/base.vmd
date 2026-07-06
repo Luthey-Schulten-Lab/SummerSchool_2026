@@ -129,9 +129,9 @@ proc reset_viz {molid} {
     if {[llength $style_files]} {
       # If there are any style files, source their contents here.
       set sorted_files [lsort $style_files]
-      
+
       puts "Found [llength $sorted_files] style files. Sourcing in order:"
-      
+
       foreach file $sorted_files {
           puts "  Sourcing: $file"
           source $file
