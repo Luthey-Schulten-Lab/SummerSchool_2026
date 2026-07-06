@@ -2,7 +2,6 @@
 #     <m.s.s.westendorp@rug.nl>
 #     <ma3ke.cyber@gmail.com>
 
-# source ../files/proteins.style
 # Proteins.
 mol selection proteinbb
 mol color ColorID 21
@@ -11,7 +10,6 @@ mol material AOChalky
 mol addrep $molid
 
 
-# source ../files/solvent.style
 # Solvent.
 mol selection name W NA CL
 mol color ColorID 8

@@ -2,7 +2,6 @@
 #     <m.s.s.westendorp@rug.nl>
 #     <ma3ke.cyber@gmail.com>
 
-# source ../files/proteins.style
 # Proteins.
 mol selection proteinbb
 mol color ColorID 21
@@ -11,7 +10,6 @@ mol material AOChalky
 mol addrep $molid
 
 
-# source ../files/lipids.style
 # Lipid tails.
 mol selection lipid
 mol color ColorID 19
@@ -26,7 +24,6 @@ mol material AOChalky
 mol addrep $molid
 
 
-# source ../files/metabolites.style
 # Metabolites.
 mol selection metabolite
 mol color ColorID 5
@@ -35,7 +32,6 @@ mol material AOShiny
 mol addrep $molid
 
 
-# source ../files/chromosome.style
 # Chromosome.
 mol selection chromosome
 mol color ColorID 4
@@ -44,7 +40,6 @@ mol material AOChalky
 mol addrep $molid
 
 
-# source ../files/solvent.style
 # Solvent.
 mol selection name W NA CL
 mol color ColorID 8
