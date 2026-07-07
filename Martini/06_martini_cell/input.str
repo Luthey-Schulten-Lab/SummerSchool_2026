@@ -1,21 +1,25 @@
-include structures/membrane_proteins/ATP_synthase.gro
-include structures/membrane_proteins/Potassium_transporter.gro
-include structures/membrane_proteins/Calcium_transporter.gro
-include structures/membrane_proteins/Magnesium_transporter.gro
+include Proteins/ATP_synthase.gro
+include Proteins/KtrAB.gro
+include Proteins/GltPh.gro
+include Proteins/JCVISYN3A_0005.gro
+include Proteins/secDF.gro
+include Proteins/ptsG.gro
 
+; lipidnname ratio_up ratio_down  APL
 [Lipids List]
 Domain 0
-POPC 0.04 0.04 0.32
-SSM  0.18 0.18 0.32
-TOCL 0.17 0.17 0.54
+POPC 0.04 0.04 0.54
 CHOL 0.59 0.59 0.32
-DOPG 0.02 0.02 0.32
+SSM  0.18 0.18 0.45
+DOPG 0.02 0.02 0.54
+TOCL 0.17 0.17 1.04
 End
 
 [Protein List]
 ATP_synthase            1   0.01    0   0   -11
-Potassium_transporter   2   0.01    0   0   -5
-Calcium_transporter     3   0.01    0   0   -5
-Magnesium_transporter   4   0.01    0   0   -6
+KtrAB                   2   0.01    0   0   -5
+GltPh                   3   0.01    0   0   -2
+ptsG                    4   0.01    0   0   -2
+secDF                   5   0.01    0   0   -2.8
+JCVISYN3A_0005          6   0.01    0   0    2
 End Protein
-
