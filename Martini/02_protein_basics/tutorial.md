@@ -1,23 +1,22 @@
 # Tutorial II: Simulating a Protein with Martini 3
 
-> **Time:** ~45 minutes <br>
-> **Software:** GROMACS 2024.3 · martinize2 · VMD 2 · Xmgrace <br>
+> **Time:** ~30 minutes <br>
+> **Software:** _GROMACS 2026.0_ · _martinize2_ · _VMD 2_ · _Xmgrace_ <br>
 > **Based on:** [Martini Online Workshop 2025 — Proteins](https://cgmartini.nl/docs/tutorials/Martini3/ProteinsI/) and [Duve et al. 2025](https://doi.org/10.1101/2025.03.17.643608)<br>
 
 The Martini 3 protein model uses a 4-to-1 mapping of heavy atoms to
-coarse-grained beads, with one bead for the backbone and one or more for
-the side chains. The model is built in two layers[^duve2025]. Layer 1
-contains the standard Martini definition: the mapping, the chemical bead
-types, and the bonded terms. Layer 2 is a structure bias model that
-maintains the secondary, tertiary, and quaternary structure of the protein.
-The bias model is needed because the spherical Martini potentials lack the
-directionality that hydrogen bonds provide in atomistic models, so the
-standard bonded terms alone cannot preserve the native fold.
+coarse-grained beads, with one bead for the backbone and one or more for the
+side chains. The Martini protein model defines the mapping, bead types, and
+bonded terms. On top of that, a structure bias maintains the secondary,
+tertiary, and quaternary structure[^duve2025]. The bias is needed because the
+isotropic Martini potentials lack the directionality that hydrogen bonds
+provide in atomistic models, so the non-bonded interactions alone cannot
+preserve the native fold.
 
-In this tutorial, we generate a Martini 3 CG model with `martinize2` and run
-a short MD simulation. At the coarse-graining step we introduce the three
-options natively supported by `martinize2` (Elastic Network, GōMartini, and
-no structure bias) and let you choose one.
+In this tutorial, we generate a Martini 3 CG protein model with `martinize2`
+and run a short MD simulation. At the coarse-graining step we introduce the
+three options natively supported by `martinize2` (Elastic Network, GōMartini,
+and no structure bias) and let you choose one.
 
 The protein is **S-adenosylmethionine synthase**, a soluble enzyme from the
 *JCVI-Syn3A* proteome[^protein_uniprot]. The atomistic starting structure
@@ -35,8 +34,17 @@ was predicted with AlphaFold2.
 
 ### Get the files
 
+Move into the tutorial directory:
+
 ```sh
 cd 02_protein_basics
+```
+
+`martinize2` ships as part of the `vermouth` package. Install it into the
+active environment:
+
+```sh
+pip install vermouth
 ```
 
 ---
@@ -59,9 +67,9 @@ crystallographic waters, ligands, and other non-protein atoms.
 ## 2. Coarse-grain with martinize2
 
 We use `martinize2`[^martinize2] to generate the CG structure and topology
-from the atomistic input. `martinize2` also implements the structure bias
-options that make up Layer 2 of the Martini 3 protein model. The choice has
-a clear effect on the backbone dynamics seen later in the analysis[^duve2025].
+from the atomistic input. `martinize2` also applies the structure bias. The
+choice has a clear effect on the backbone dynamics seen later in the
+analysis[^duve2025].
 
 ### The three options
 
@@ -71,15 +79,12 @@ a clear effect on the backbone dynamics seen later in the analysis[^duve2025].
 | **GōMartini** | Lennard-Jones contacts derived from a native contact map. Often preferred as it balances stability and flexibility, and allows contact dissociation. |
 | **No structure bias** | Appropriate for intrinsically disordered proteins (IDPs), but not for folded ones. Included in this tutorial as a demonstration on a folded model protein. |
 
-For a research or production simulation of this folded protein, choose
-either **EN** or **GōMartini** and run the matching `martinize2` command
-below. The rest of the tutorial follows the same workflow regardless of
-the choice. GōMartini needs a small extra setup step, described in the
-corresponding collapsible. The third option, no structure bias, is
-included as a demonstration of what happens without stabilization.
-Running a folded protein without a bias is not recommended for research
-use, though it is a valid choice for intrinsically disordered proteins,
-where there is no fold to maintain.
+For a research simulation of this folded protein, choose either **EN** or
+**GōMartini** and run the matching `martinize2` command below. The rest of
+the tutorial follows the same workflow regardless of the choice. GōMartini
+needs a small extra setup step, shown in the collapsible under its command.
+The third option, no structure bias, is included only as a demonstration of
+what happens to a folded protein without stabilization.
 
 ### Option A — Elastic Network (EN)
 
@@ -181,13 +186,13 @@ available for the next steps:
 #include "martini_v3.0.0/martini_v3.0.0.itp"
 #include "martini_v3.0.0/martini_v3.0.0_ions_v1.itp"
 #include "martini_v3.0.0/martini_v3.0.0_solvents_v1.itp"
-#include "protein.itp"
+#include "protein_0.itp"
 
 [ system ]
 S-adenosylmethionine synthase
 
 [ molecules ]
-protein 1
+protein_0 1
 ```
 
 > [!IMPORTANT]
@@ -300,6 +305,13 @@ restraints are lifted, so these warnings no longer apply.
 
 ## 7. Visualize the trajectory
 
+Enable VMD in your terminal by running:
+
+```sh
+module use /projects/bgvl/alfiaparvez/modulefiles
+module load vmd/2.0.0
+```
+
 Before opening VMD, fix the periodic-boundary artifacts so the protein stays
 whole and centered in the box:
 
@@ -335,6 +347,13 @@ echo -e "Protein\nProtein" | gmx rms -s md/md.tpr -f md/traj.xtc \
 # RMSF per residue
 echo "Protein" | gmx rmsf -s md/md.tpr -f md/traj.xtc \
                           -o analysis/rmsf.xvg -res
+```
+
+Enable the graph viewer, `xmgrace`, used during the following analyses:
+
+```sh
+module use /projects/bgvl/alfiaparvez/modulefiles
+module load grace
 ```
 
 Open the results:
