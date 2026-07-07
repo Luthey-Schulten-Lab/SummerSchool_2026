@@ -369,7 +369,8 @@ gmx trjconv -f eq/eq.xtc -s eq/eq.tpr -pbc nojump -o eq/nojump.xtc
 ```
 
 Then run `gmx msd` with `-lateral z`, removing the center-of-mass motion
-(`-rmcomm`) and fitting only the linear regime of the MSD curve (`-beginfit`
+(`-rmcomm`). Later, you may want to refine the measurement by fitting the line
+only to the linear regime of the mean-square-displacement curve  (`-beginfit`
 and `-endfit`):
 
 ```sh
