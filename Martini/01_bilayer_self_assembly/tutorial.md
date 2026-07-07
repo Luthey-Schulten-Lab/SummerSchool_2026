@@ -1,7 +1,7 @@
 # Tutorial I: Bilayer Self-Assembly
 
 > **Time:** ~30 minutes <br>
-> **Software:** GROMACS 2024.3 · VMD 2 · Xmgrace <br>
+> **Software:** _GROMACS 2024.3_ · _VMD 2_ · _Xmgrace_ <br>
 > **Based on:** [Martini Online Workshop 2025 — Lipid Bilayers I](https://cgmartini.nl/docs/tutorials/Martini3/LipidsI/) <br>
 
 The Martini coarse-grained (CG) model was initially developed for lipids
@@ -212,16 +212,15 @@ inspecting the topology, we recommend the dedicated
 [martini-glass](https://github.com/Martini-Force-Field-Initiative/martini-glass)
 tool.
 
-Enable VMD in your terminal by running:
+VMD 2 is provided as a module. Load it into your environment:
 
 ```sh
 module use /projects/bgvl/alfiaparvez/modulefiles
 module load vmd/2.0.0
 ```
 
-A `vmdrc` configuration file with default representations for the workshop
-is provided in the `../files/` directory. Copy it to your home directory
-before opening VMD:
+The workshop ships a `vmdrc` with default representations for Martini systems.
+Copy it to your home directory so VMD reads it on startup:
 
 ```sh
 cp ../files/base.vmd ~/.vmdrc
@@ -238,7 +237,7 @@ gmx trjconv -f md/md.xtc -s md/md.tpr -o md/md_whole.xtc -pbc whole
     > System     [Enter]
 ```
 
-Now you can open the trajectory:
+Open the trajectory:
 
 ```sh
 vmd md/md.tpr md/md_whole.xtc
@@ -319,13 +318,15 @@ leaflet should be corrected separately as well.
 
 ## 8. Analysis
 
-We can now analyze the equilibrated trajectory. For clarity, create an analysis directory:
+With the bilayer equilibrated, we can measure its properties. Keep the
+outputs together in an analysis directory:
 
 ```sh
 mkdir -p analysis
 ```
 
-Enable the graph viewer, `xmgrace`, used during the following analyses:
+The analyses below plot `.xvg` files with `xmgrace`. Load it the same way as
+VMD:
 
 ```sh
 module use /projects/bgvl/alfiaparvez/modulefiles
