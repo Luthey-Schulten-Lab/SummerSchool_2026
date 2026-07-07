@@ -1,5 +1,5 @@
 [ moleculetype ]
-proton_symporter 1
+GltPh 1
 
 [ atoms ]
    1 Q5      1 MET BB     1    1
@@ -22746,15 +22746,9 @@ proton_symporter 1
 3222 2 3224 3223 3221 3220
 3336 2 3338 3337 3335 3334
 
-; This file was generated using the following command:
-; /usr/local/bin/martinize2 -f 685_686_10mer.pdb -x 685_686_10mer_cg.pdb -o topol.top -p backbone -ff martini3001 -elastic -cys auto -ef 700.0 -el 0.5 -eu 0.9 -ea 0 -ep 0 -merge F,B,A,J,I,D,C,E,H,G -maxwarn 99
-; martinize with vermouth 0.10.0
-
-; Please cite the following papers:
-; Souza, P C T; Alessandri, R; Barnoud, J; Thallmair, S; Faustino, I; Grünewald, F; Patmanidis, I; Abdizadeh, H; Bruininks, B M H; Wassenaar, T A; Kroon, P C; Melcr, J; Nieto, V; Corradi, V; Khan, H M; Domański, J; Javanainen, M; Martinez-Seara, H; Reuter, N; Best, R B; Vattulainen, I; Monticelli, L; Periole, X; Tieleman, D P; de Vries, A H; Marrink, S J;  Nature Methods 2021; 10.1038/s41592-021-01098-3
 
 [ moleculetype ]
-potassium_transporter 1
+KtrAB 1
 
 [ atoms ]
    1 Q5      1 MET BB     1    1
@@ -66210,15 +66204,9 @@ potassium_transporter 1
 5914 2 5916 5915 5913 5912
 6444 2 6446 6445 6443 6442
 
-; This file was generated using the following command:
-; /usr/local/bin/martinize2 -f 789_790_791_792_793_794_795_796_22mer.pdb -x 789_790_791_792_793_794_795_796_22mer_cg.pdb -o topol.top -p backbone -ff martini3001 -elastic -cys auto -ef 700.0 -el 0.5 -eu 0.9 -ea 0 -ep 0 -merge N,S,K,E,B,V,O,P,R,A,F,M,J,L,H,T,C,I,G,U,D,Q -maxwarn 99
-; martinize with vermouth 0.11.0
-
-; Please cite the following papers:
-; Souza, P C T; Alessandri, R; Barnoud, J; Thallmair, S; Faustino, I; Grünewald, F; Patmanidis, I; Abdizadeh, H; Bruininks, B M H; Wassenaar, T A; Kroon, P C; Melcr, J; Nieto, V; Corradi, V; Khan, H M; Domański, J; Javanainen, M; Martinez-Seara, H; Reuter, N; Best, R B; Vattulainen, I; Monticelli, L; Periole, X; Tieleman, D P; de Vries, A H; Marrink, S J;  Nature Methods 2021; 10.1038/s41592-021-01098-3
 
 [ moleculetype ]
-atp_synthase 1
+ATP_synthase 1
 
 [ atoms ]
     1 Q5      1 MET BB      1    1
