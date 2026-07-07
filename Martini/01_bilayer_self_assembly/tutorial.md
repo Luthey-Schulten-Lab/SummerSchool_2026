@@ -190,6 +190,62 @@ This takes about 10 minutes on a single CPU; by default `gmx mdrun` uses all
 available CPUs. The `-v` flag shows an estimated time to completion. See
 `gmx mdrun -h` for options on tuning the parallel threads.
 
+---
+
+## 6. Visualize the trajectory with VMD 2
+
+You can monitor progress during the run or inspect the final structure with
+[VMD 2](https://www.ks.uiuc.edu/Research/vmd/), which reads GROMACS output
+files directly (`.gro`, `.tpr`, `.xtc`). For atomistic systems, VMD infers
+bonds from typical experimental bond distances. This does not work for
+coarse-grained models, where the bonds between beads are different from the
+typical atomistic distances. Loading a `.gro` file therefore shows the beads
+but no bonds, which can still be visualized using a VDW representation.
+
+For Martini, loading the `.tpr` is the most practical option. It carries the
+bonded information from the topology, which lets you visualize the lipids with
+licorice or other bond-aware representations. Note that VMD does not guarantee
+that all bonds are drawn. Particles can have a maximum of 12 bonds in VMD and
+additional bonds are not drawn (higher bond numbers are not uncommon in CG
+models). For exact visualizations such as for publication figures or visually
+inspecting the topology, we recommend the dedicated
+[martini-glass](https://github.com/Martini-Force-Field-Initiative/martini-glass)
+tool.
+
+Enable VMD in your terminal by running:
+
+```sh
+module use /projects/bgvl/alfiaparvez/modulefiles
+module load vmd/2.0.0
+```
+
+A `vmdrc` configuration file with default representations for the workshop
+is provided in the `../files/` directory. Copy it to your home directory
+before opening VMD:
+
+```sh
+cp ../files/base.vmd ~/.vmdrc
+```
+
+Before opening the trajectory, make the molecules whole. During the
+simulation, lipids diffuse across the box faces and get split by the
+periodic boundary, so they appear as fragments on opposite sides of the box
+in VMD. `gmx trjconv -pbc whole` reconnects each molecule into a single
+unit in the periodic image closest to its center of mass:
+
+```sh
+gmx trjconv -f md/md.xtc -s md/md.tpr -o md/md_whole.xtc -pbc whole
+    > System     [Enter]
+```
+
+Now you can open the trajectory:
+
+```sh
+vmd md/md.tpr md/md_whole.xtc
+```
+
+Your VMD window should look similar to one of the panels in Figure 3.
+
 <div id="image-table">
     <table>
 	    <tr>
@@ -213,54 +269,6 @@ available CPUs. The `-v` flag shows an estimated time to completion. See
 
 ---
 
-## 6. Visualize the trajectory with VMD 2
-
-You can monitor progress during the run or inspect the final structure with
-[VMD 2](https://www.ks.uiuc.edu/Research/vmd/), which reads GROMACS output
-files directly (`.gro`, `.tpr`, `.xtc`). For atomistic systems, VMD infers
-bonds from typical experimental bond distances. This does not work for
-coarse-grained models, where the bonds between beads are longer. Loading
-a `.gro` file therefore shows the beads but no bonds, which can still be
-visualized using a VDW representation.
-
-For Martini, the `.tpr` is the most practical option. It carries the bonded
-information from the topology, which lets you visualize the lipids with
-licorice or other bond-aware representations. Note that VMD does not
-guarantee all bonds are drawn. Particles can have a maximum of 12 bonds in VMD
-and additional bonds are not drawn (higher bond numbers are not uncommon in CG
-models). For exact visualizations such as for publication figures or checking
-the topology, we recommend the dedicated
-[martini-glass](https://github.com/Martini-Force-Field-Initiative/martini-glass) tool.
-
-A `vmdrc` configuration file with default representations for the workshop
-is provided in the `../files/` directory. Copy it to your home directory
-before opening VMD:
-
-```sh
-cp ../files/base.vmd ~/.vmdrc
-```
-
-Before opening the trajectory, make the molecules whole. During the
-simulation, lipids diffuse across the box faces and get split by the
-periodic boundary, so they appear as fragments on opposite sides of the box
-in VMD. `gmx trjconv -pbc whole` reconnects each molecule into a single
-unit in the periodic image closest to its center of mass:
-
-```sh
-gmx trjconv -f md/md.xtc -s md/md.tpr -o md/md_whole.xtc -pbc whole
-    > System     [Enter]
-```
-
-Then open the trajectory:
-
-```sh
-vmd md/md.tpr md/md_whole.xtc
-```
-
-Your VMD window should look similar to one of the panels in Figure 3.
-
----
-
 ## 7. Bilayer equilibration
 
 Before continuing, check whether your bilayer formed in the *xy*-plane.
@@ -270,13 +278,12 @@ If not, rotate the system:
 gmx editconf -f md/md.gro -rotate 90 0 0 -o md/md.gro
 ```
 
-If no bilayer formed at all, extend the previous simulation or continue with
-the bilayer from the [worked examples](...).
-
 The self-assembly run used isotropic pressure coupling, which leaves the
-bilayer under tension. We now switch to semi-isotropic pressure coupling so
-the bilayer area can reach its equilibrium value (zero surface tension when
-in-plane and perpendicular pressures match). Run another 50 ns:
+bilayer under tension. We now switch to semi-isotropic pressure coupling so the
+xy- and z-dimensions of the simulation box can change independently. This
+allows the bilayer area (_xy_-area) to equilibrate independently of the box
+height (z-dimension), and reach zero surface tension. Run the simulation for
+another 50 ns:
 
 ```sh
 mkdir -p eq
@@ -312,13 +319,17 @@ leaflet should be corrected separately as well.
 
 ## 8. Analysis
 
-We can now analyze the equilibrated trajectory. If you do not want to wait
-for the simulation, pre-run trajectories are available [here](...).
-
-For clarity, create an analysis directory:
+We can now analyze the equilibrated trajectory. For clarity, create an analysis directory:
 
 ```sh
 mkdir -p analysis
+```
+
+Enable the graph viewer, `xmgrace`, used during the following analyses:
+
+```sh
+module use /projects/bgvl/alfiaparvez/modulefiles
+module load grace
 ```
 
 ### 8.1 Bilayer thickness
