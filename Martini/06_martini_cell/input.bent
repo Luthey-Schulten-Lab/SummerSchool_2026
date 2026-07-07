@@ -1,6 +1,6 @@
 
 [ general ]
-title	"Syn3A cytoplasm"
+title	"Cell model"
 
 [ space ]
 dimensions	120, 120, 120
@@ -8,6 +8,7 @@ resolution	0.5
 
 [ includes ]
 "martini_v3.0.0/martini_v3.0.0.itp"
+"martini_v3.0.0/nucleotide_ffbonded.itp"
 "martini_v3.0.0/martini_v3.0.0_ffbonded_v2.itp"
 "martini_v3.0.0/martini_v3.0.0_solvents_v1.itp"
 "martini_v3.0.0/martini_v3.0.0_ions_v1.itp"
@@ -16,11 +17,12 @@ resolution	0.5
 "martini_v3.0.0/martini_v3.0.0_phospholipids_PC_v2.itp"
 "martini_v3.0.0/martini_v3.0.0_phospholipids_PG_v2.itp"
 "martini_v3.0.0/martini_v3.0.0_phospholipids_SM_v2.itp"
-"martini_v3.0.0/nucleotide_ffbonded.itp"
+"martini_v3.0.0/martini_v3.0.0_fattyacids_v2.itp"
 "martini_v3.0.0/metabolites.itp"
 "martini_v3.0.0/small_molecules.itp"
 
 "cytosolic_proteins.itp"
+"membrane_proteins.itp"
 "chromosome.itp"
 
 [ compartments ]
