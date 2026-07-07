@@ -1,9 +1,9 @@
-include Proteins/ATP_synthase.gro
-include Proteins/KtrAB.gro
-include Proteins/GltPh.gro
-include Proteins/JCVISYN3A_0005.gro
-include Proteins/secDF.gro
-include Proteins/ptsG.gro
+include structures/membrane_proteins/ATP_synthase.gro
+include structures/membrane_proteins/KtrAB.gro
+include structures/membrane_proteins/GltPh.gro
+include structures/membrane_proteins/JCVISYN3A_0005.gro
+include structures/membrane_proteins/secDF.gro
+include structures/membrane_proteins/ptsG.gro
 
 ; lipidnname ratio_up ratio_down  APL
 [Lipids List]
