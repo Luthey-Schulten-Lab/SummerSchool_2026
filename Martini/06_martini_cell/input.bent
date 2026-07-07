@@ -413,11 +413,11 @@ cytosol from "cytosol_mask.npz"
 
 # Metabolites
 10FG   0.0001M      from  "structures/metabolites/10FG.gro"   in  cytosol
-10_MG  0.000064M    from  "structures/metabolites/10MG.gro"   in  cytosol
+10MG  0.000064M    from  "structures/metabolites/10MG.gro"   in  cytosol
 3GPP   0.00000981M  from  "structures/metabolites/3GPP.gro"   in  cytosol
 3PG    0.0011M      from  "structures/metabolites/3PG.gro"    in  cytosol
 5FTF   0.0001M      from  "structures/metabolites/5FTF.gro"   in  cytosol
-5_MG   0.0001M      from  "structures/metabolites/5MG.gro"    in  cytosol
+5MG   0.0001M      from  "structures/metabolites/5MG.gro"    in  cytosol
 A3P    0.00000689M  from  "structures/metabolites/A3P.gro"    in  cytosol
 ACEH   0.0001M      from  "structures/metabolites/ACEH.gro"   in  cytosol
 ACEP   0.000629M    from  "structures/metabolites/ACEP.gro"   in  cytosol
