@@ -1,8 +1,10 @@
 # Tutorial V: Packing Biomolecular Systems
 
 > **Time:** ~30 minutes <br>
-> **Software:** GROMACS 2024.3 · bentopy · VMD 2 <br>
-> **Based on:** [Bentopy workshop tutorial](https://cgmartini.nl/docs/tutorials/Martini3/Bentopy/) by J.A. Stevens and M.S.S. Westendorp<br>
+> **Software:** _GROMACS 2024.3_ · _bentopy_ · _VMD 2_ <br>
+> **Based on:** [Bentopy workshop
+> tutorial](https://cgmartini.nl/docs/tutorials/Martini3/Bentopy/) by J.A.
+> Stevens and M.S.S. Westendorp<br>
 > **Walkthrough video:** [YouTube](https://www.youtube.com/watch?v=C4LYZokS_t4) <br>
 
 *Bentopy* is a tool for packing molecules in arbitrary volumes, designed
@@ -12,17 +14,20 @@ assemble molecular structures into MD models with biological densities at
 cellular scales.
 
 *Bentopy* was built to create cellular-scale models by integrating multiple
-structural components at physiological concentrations while ensuring
-simulation compatibility. It uses voxels to represent space as a regular
-3D grid, providing computational efficiency for spatial operations such as
-collision detection and placement. For example, this voxel approach enables
-MDVContainment[^mdvcontainment] to automatically identify compartments
-within molecular models, which is a central feature of *bentopy*.
+structural components at physiological concentrations while ensuring simulation
+compatibility. It uses voxels to represent space as a regular 3D grid,
+providing computational efficiency for spatial operations such as collision
+detection and placement. For example, this voxel approach enables
+MDVContainment[^mdvcontainment] to automatically identify compartments within
+molecular models, which is a central feature of *bentopy*.
 
 <div align="center">
 <img src="../figures/05_logo_header.png" width="100%"/>
 <br>
-<sub><i>Figure 1: The bentopy logo, packed with bentopy. Those interested in how this model was constructed may enjoy this <a href="https://hachyderm.io/@ma3ke/114081904829438250">thread on the making of this model</a>.</i>
+<sub><i>Figure 1: The bentopy logo, packed with bentopy. Those interested in
+how this model was constructed may enjoy this <a
+href="https://hachyderm.io/@ma3ke/114081904829438250">thread on the making of
+this model</a>.</i>
 </sub>
 </div>
 <br>
@@ -30,12 +35,15 @@ within molecular models, which is a central feature of *bentopy*.
 In this tutorial, we will showcase _bentopy_'s capabilities through three
 progressively complex tutorials that build on each other:
 
-1. **Simple packing.** Learn the basic workflow by packing proteins in empty space.
-2. **Packing around existing structures.** Add a membrane and pack proteins around it.
-3. **Multi-compartment systems.** Add a second membrane creating distinct compartments for different proteins.
+1. **Simple packing.** Learn the basic workflow by packing proteins in empty
+   space.
+2. **Packing around existing structures.** Add a membrane and pack proteins
+   around it.
+3. **Multi-compartment systems.** Add a second membrane creating distinct
+   compartments for different proteins.
 
-Each tutorial builds on the previous one, showing how to evolve a simple system into a complex model
-while using the standard bentopy workflow.
+Each tutorial builds on the previous one, showing how to evolve a simple system
+into a complex model while using the standard bentopy workflow.
 
 <div align="center">
 <img src="../figures/05_progression.png" width="70%"/>
@@ -52,7 +60,17 @@ while using the standard bentopy workflow.
 2. Packing around existing structures.
 3. Multi-compartment systems with placement rules.
 
-### Get the files
+### Start the tutorial
+
+*Bentopy* is not shipped with the workshop environment. Install it with pip:
+
+```sh
+pip install bentopy
+```
+
+This installs the `bentopy-*` command-line tools used throughout the tutorial.
+
+Navigate to the tutorial folder:
 
 ```sh
 cd 05_packing_the_cytoplasm
@@ -62,6 +80,14 @@ The tutorial directory contains:
 
 - **`structures/`** — protein structures (`lysozyme.pdb`, `ubiquitin.pdb`) and membranes (`membrane.gro`, `double_membrane.gro`) and protein topologies (`lysozyme.itp`, `ubiquitin.itp`).
 - **`mdp_files/`** — example GROMACS input files (`em.mdp`, `eq.mdp`, `md.mdp`).
+
+Visualization throughout the tutorial uses VMD 2, provided as a module. Load
+it into your environment now:
+
+```sh
+module use /projects/bgvl/alfiaparvez/modulefiles
+module load vmd/2.0.0
+```
 
 ---
 
@@ -185,10 +211,10 @@ You should observe:
 <summary><b>Try a different analytical mask</b></summary>
 <br>
 
-Before moving to the next section, you can experiment by trying a
-different analytical compartment shape. Replace the compartment definition
-in `simple_packing.bent` to pack proteins inside a sphere instead of the
-entire space:
+Before moving to the next section, you can experiment by trying a different
+analytical compartment shape. Replace the compartment definition in
+`simple_packing.bent` to pack proteins inside a sphere instead of the entire
+space:
 
 ```ini
 [ compartments ]
@@ -202,12 +228,11 @@ Or declare a smaller cuboid:
 system as cuboid from 10, 10, 10 to 30, 30, 30
 ```
 
-> [!WARNING]
-> The available space to pack proteins has become smaller, so not all
-> requested proteins will be placed. *Bentopy* indicates this with the
-> `<` remark in the packing summary that gets printed to the terminal.
-> It is advised to save this summary to a file. It contains all the
-> relevant packing information for the project.
+> [!WARNING] The available space to pack proteins has become smaller, so not
+> all requested proteins will be placed. *Bentopy* indicates this with the `<`
+> remark in the packing summary that gets printed to the terminal. It is
+> advised to save this summary to a file. It contains all the relevant packing
+> information for the project.
 
 ```text
 Setting up compartments...
@@ -245,9 +270,9 @@ identifies in the system. Generate a visualization file:
 bentopy-mask structures/membrane.gro --visualize-labels labels.gro
 ```
 
-This creates a `labels.gro` file that contains a bead at every voxel
-position. Each voxel bead is named after the compartment it resides in.
-Visualize the voxel representation with VMD:
+This creates a `labels.gro` file that contains a bead at every voxel position.
+Each voxel bead is named after the compartment it resides in. Visualize the
+voxel representation with VMD:
 
 ```sh
 vmd labels.gro
@@ -289,9 +314,11 @@ resolution 0.5
 [ includes ]
 "martini_v3.0.0/martini_v3.0.0.itp"
 "martini_v3.0.0/martini_v3.0.0_ffbonded_v2.itp"
+
 "martini_v3.0.0/martini_v3.0.0_ions_v1.itp"
 "martini_v3.0.0/martini_v3.0.0_solvents_v1.itp"
 "martini_v3.0.0/martini_v3.0.0_phospholipids_PC_v2.itp"
+
 "structures/lysozyme.itp"
 "structures/ubiquitin.itp"
 
@@ -400,7 +427,10 @@ You should observe:
 <div align="center">
 <img src="../figures/05_tutorial_2.png" width="70%"/>
 <br>
-<sub><i>Figure 4. Membrane system with proximity rules. The membrane (grey) creates excluded volume. Lysozyme proteins (green) are distributed throughout the solvent region, and ubiquitin proteins (blue) are concentrated near the membrane surface.</i></sub>
+<sub><i>Figure 4. Membrane system with proximity rules. The membrane (grey)
+creates excluded volume. Lysozyme proteins (green) are distributed throughout
+the solvent region, and ubiquitin proteins (blue) are concentrated near the
+membrane surface.</i></sub>
 </div>
 <br>
 
@@ -409,11 +439,11 @@ You should observe:
 ## 3. Multi-compartment systems with placement rules
 
 Now we add more complexity by creating a double-membrane system that forms
-distinct compartments, with different proteins placed in each compartment.
-This section introduces compartment-specific protein placement.
+distinct compartments, with different proteins placed in each compartment. This
+section introduces compartment-specific protein placement.
 
-We use the provided double membrane to create two distinct open
-compartments, then place different proteins in each compartment.
+We use the provided double membrane to create two distinct open compartments,
+then place different proteins in each compartment.
 
 ### Inspect the double membrane structure
 
@@ -421,12 +451,12 @@ compartments, then place different proteins in each compartment.
 vmd structures/double_membrane.gro
 ```
 
-The system has two lipid bilayers, creating four distinct regions: two
-spaces between the two membranes, and the two membranes themselves. We
-could think of one inter-membrane space as the "outside" and the other as
-the "inside", similar to a vesicle or double-layer cell wall. However, the
-two inter-membrane spaces cannot be distinguished due to the periodic
-nature of the box, so we simply call them compartments **A** and **B**.
+The system has two lipid bilayers, creating four distinct regions: two spaces
+between the two membranes, and the two membranes themselves. We could think of
+one inter-membrane space as the "outside" and the other as the "inside",
+similar to a vesicle or double-layer cell wall. However, the two inter-membrane
+spaces cannot be distinguished due to the periodic nature of the box, so we
+simply call them compartments **A** and **B**.
 
 ### Create compartment-specific masks
 
@@ -478,9 +508,11 @@ resolution 0.5
 [ includes ]
 "martini_v3.0.0/martini_v3.0.0.itp"
 "martini_v3.0.0/martini_v3.0.0_ffbonded_v2.itp"
+
 "martini_v3.0.0/martini_v3.0.0_ions_v1.itp"
 "martini_v3.0.0/martini_v3.0.0_solvents_v1.itp"
 "martini_v3.0.0/martini_v3.0.0_phospholipids_PC_v2.itp"
+
 "structures/lysozyme.itp"
 "structures/ubiquitin.itp"
 
@@ -537,13 +569,17 @@ vmd solvated_system.gro
 You should observe:
 
 - Lysozyme proteins distributed throughout compartment **A**.
-- Ubiquitin proteins concentrated near the membrane surfaces in compartment **B**.
+- Ubiquitin proteins concentrated near the membrane surfaces in compartment
+  **B**.
 - No protein overlaps with the membrane structure.
 
 <div align="center">
 <img src="../figures/05_tutorial_3.png" width="70%"/>
 <br>
-<sub><i>Figure 5. Multi-compartment double-membrane system. The double membrane creates two distinct open compartments. Ubiquitin (blue) is confined to one compartment between the membranes (A), while lysozyme (green) is placed only in the other compartment (B).</i></sub>
+<sub><i>Figure 5. Multi-compartment double-membrane system. The double membrane
+creates two distinct open compartments. Ubiquitin (blue) is confined to one
+compartment between the membranes (A), while lysozyme (green) is placed only in
+the other compartment (B).</i></sub>
 </div>
 <br>
 
@@ -580,7 +616,9 @@ packing to a complex MD model.
 <div align="center">
 <img src="../figures/05_overview.png" width="75%"/>
 <br>
-<sub><i>Figure 6. Bentopy workflow overview. Models are built in consecutive steps: mask preparation, packing configuration, structure rendering, merging, and solvation.</i></sub>
+<sub><i>Figure 6. Bentopy workflow overview. Models are built in consecutive
+steps: mask preparation, packing configuration, structure rendering, merging,
+and solvation.</i></sub>
 </div>
 <br>
 
@@ -588,15 +626,16 @@ packing to a complex MD model.
 
 ## Advanced features and tips
 
-For more on *bentopy*, see the [*bentopy* wiki](https://github.com/marrink-lab/bentopy/wiki),
-which includes a [reference document](https://github.com/marrink-lab/bentopy/wiki/Reference-for-bent)
-for the `.bent` file format and additional example systems.
+For more on *bentopy*, see the [*bentopy*
+wiki](https://github.com/marrink-lab/bentopy/wiki), which includes a [reference
+document](https://github.com/marrink-lab/bentopy/wiki/Reference-for-bent) for
+the `.bent` file format and additional example systems.
 
 ### Solvation options
 
-*Bentopy* includes `bentopy-solvate`, optimized for large-scale systems.
-For the complete documentation, see the
-[`bentopy-solvate` README](https://github.com/marrink-lab/bentopy/blob/main/src/solvate/README.md).
+*Bentopy* includes `bentopy-solvate`, optimized for large-scale systems. For
+the complete documentation, see the [`bentopy-solvate`
+README](https://github.com/marrink-lab/bentopy/blob/main/src/solvate/README.md).
 
 **Ion substitutions with different quantities**
 
@@ -676,9 +715,8 @@ bentopy-render placements.json residue_beads.gro --mode residue
 bentopy-render placements.json instance_beads.gro --mode instance
 ```
 
-> [!NOTE]
-> Reduced rendering modes cannot generate topology files, since these are
-> only intended for visualization and validation. Use `--mode full`
+> [!NOTE] Reduced rendering modes cannot generate topology files, since these
+> are only intended for visualization and validation. Use `--mode full`
 > (default) when topology files are needed.
 
 **Residue numbering control** with `--resnum-mode`:
@@ -740,10 +778,9 @@ bentopy-init validate -i input.bent
 
 **Formatting `.bent` files**
 
-The parser is flexible about whitespace between keywords in any
-declaration, which allows formatting input files in ways that suit
-readability preferences. Long segment definitions can be written over
-multiple lines:
+The parser is flexible about whitespace between keywords in any declaration,
+which allows formatting input files in ways that suit readability preferences.
+Long segment definitions can be written over multiple lines:
 
 ```ini
 [ segments ]
@@ -808,8 +845,8 @@ Use `jq` to view placement files in a pretty-printed, readable format.
 Placement lists are not meant to be inspected directly, but it may be
 interesting to take a look. The placement list stores translations and
 rotations for all instances of each segment. Any important settings for
-reproducing a placement list (seed, rearrange-method, max-tries-mult) are
-also stored in its header.
+reproducing a placement list (seed, rearrange-method, max-tries-mult) are also
+stored in its header.
 
 ```sh
 jq . placements.json
@@ -820,42 +857,56 @@ jq . placements.json
 **Packing failures**
 
 - Check *bentopy*'s packing summary output to see which segments failed.
-- Use the `--verbose` flag of `bentopy-pack` for detailed information on the packing process.
+- Use the `--verbose` flag of `bentopy-pack` for detailed information on the
+  packing process.
 - Double-check molecule counts and concentrations against available space.
-- Use `max-tries-mult <number>` in the `general` section of the `.bent` file to increase the number of placement attempts. The default value is 1000.
+- Use `max-tries-mult <number>` in the `general` section of the `.bent` file to
+  increase the number of placement attempts. The default value is 1000.
 
 **Mask problems**
 
 - Ensure mask dimensions match *space dimensions* ÷ *resolution*.
-- Use `-b` (or `--visualize-labels`) with `bentopy-mask` to output a `.gro` visualization file for the voxel representation of the identified compartments.
-- Try different containment/mask resolutions if too many compartments are identified.
-- The `--morph` flag can be used to repair holes that might undesirably connect separate compartments, even at finer containment resolutions. By default it has the value `de`, meaning "dilate then erode", equivalent to a [morphological closing](https://en.wikipedia.org/wiki/Closing_(morphology)) operation.
+- Use `-b` (or `--visualize-labels`) with `bentopy-mask` to output a `.gro`
+  visualization file for the voxel representation of the identified
+  compartments.
+- Try different containment/mask resolutions if too many compartments are
+  identified.
+- The `--morph` flag can be used to repair holes that might undesirably connect
+  separate compartments, even at finer containment resolutions. By default it
+  has the value `de`, meaning "dilate then erode", equivalent to a
+  [morphological closing](https://en.wikipedia.org/wiki/Closing_(morphology))
+  operation.
 - Morphing can be disabled entirely with the `--no-morph` flag.
 
 **Rendering errors**
 
-- Verify that all structure paths in the placement list are accessible. If rendering in a different location than where the packing took place, the `--root <path>` option may be helpful. It sets the location from where input structure paths are resolved.
-- Check structure file formats. `.pdb` and `.gro` files are supported for input structures.
+- Verify that all structure paths in the placement list are accessible. If
+  rendering in a different location than where the packing took place, the
+  `--root <path>` option may be helpful. It sets the location from where input
+  structure paths are resolved.
+- Check structure file formats. `.pdb` and `.gro` files are supported for input
+  structures.
 
 **Topology issues**
 
-- Ensure segment names in the `.bent` file match molecule names in the `.itp` files. Use tags to distinguish different segments of the same structure.
-- Verify that all `.itp` files listed in the includes section exist and contain the expected topology information.
+- Ensure segment names in the `.bent` file match molecule names in the `.itp`
+  files. Use tags to distinguish different segments of the same structure.
+- Verify that all `.itp` files listed in the includes section exist and contain
+  the expected topology information.
 
-For additional support, examples, and updates, visit the
-[bentopy GitHub repository](https://github.com/marrink-lab/bentopy).
+For additional support, examples, and updates, visit the [bentopy GitHub
+repository](https://github.com/marrink-lab/bentopy).
 
 ---
 
 ## References
 
-[^bentopy]: Westendorp, Marieke S. S., Stevens, Jan A., Brown, Chelsea M., Dommer, Abigail C.,
-    Wassenaar, Tsjerk A., Bruininks, Bart M. H., & Marrink, Siewert J. (2026). Compartment-guided
-    assembly of large-scale molecular models with bentopy. Protein Science, e70480.
+[^bentopy]: Westendorp, Marieke S. S., Stevens, Jan A., Brown, Chelsea M.,
+    Dommer, Abigail C., Wassenaar, Tsjerk A., Bruininks, Bart M. H., & Marrink,
+    Siewert J. (2026). Compartment-guided assembly of large-scale molecular
+    models with bentopy. Protein Science, e70480.
     https://doi.org/10.1002/pro.70480
 
-[^mdvcontainment]: Bruininks, Bart M. H., & Vattulainen, Ilpo. (2025). Classification
-    of containment hierarchy for point clouds in periodic space. bioRxiv.
-    https://doi.org/10.1101/2025.08.06.668936
-
-
+[^mdvcontainment]: Bruininks, Bart M. H., & Vattulainen, Ilpo. (2025).
+    Classification of containment hierarchy for point clouds in periodic space.
+    bioRxiv. https://doi.org/10.1101/2025.08.06.668936
