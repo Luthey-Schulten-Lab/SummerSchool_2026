@@ -1,7 +1,7 @@
 # Tutorial VI: Constructing a Martini Cell Model
 
 > **Time:** ~30 minutes <br>
-> **Software:** GROMACS 2024.3 · bentopy · polyply · TS2CG · martinize2 · VMD 2 <br>
+> **Software:** _GROMACS 2024.3_ · _bentopy_ · _polyply_ · _TS2CG_ · _martinize2_ · _VMD 2_ <br>
 
 The previous tutorials introduced the Martini CG force field and the ecosystem
 of tools for building complex coarse-grained models. In this tutorial we bring
@@ -11,7 +11,7 @@ bacterium.
 The model has three main components:
 
 - A **chromosome**: a 20 kbp toy genome with a 3D structure obtained from
-  BTreeChromo, and backmapped to Martini resolution with _polyply_.
+  bTreeChromo, and backmapped to Martini resolution with _polyply_.
 - A **cell envelope**: a spherical lipid membrane containing a representative
   subset of the Syn3A membrane proteins, built with _TS2CG_.
 - A **cytosol**: the full Syn3A proteome and metabolome at counts scaled down
@@ -27,7 +27,7 @@ with _GROMACS_.
 
 | #   | Step                        | Tool        |
 | :-: | :---                        | :---        |
-| 1   | Build the chromosome        | _`polyply`_ |
+| 1   | Prepare the chromosome      | _`polyply`_ |
 | 2   | Build the cell envelope     | _`TS2CG`_   |
 | 3   | Pack the cytosol            | _`bentopy`_ |
 | 4   | Simulate the assembled cell | _`GROMACS`_ |
@@ -43,84 +43,42 @@ cd 06_martini_cell
 
 ## 1. Chromosome
 
-### Topology
+There are no Martini 3 DNA parameters yet, so we cannot parameterize the
+chromosome properly. Instead we provide a placeholder as a `chromosome.gro`
+and `chromosome.itp` pair. Its bonded terms follow the Martini 2 DNA geometry,
+so the shape is right, but every bead shares one generic type and the
+non-bonded interactions are not chemically meaningful.
 
-For our cell model we build the chromosome from a random 20 kbp sequence
-provided in `genome.ig`. There are no dedicated Martini 3 DNA parameters at the
-time of writing. We use a placeholder force field, `fake.ff`, that follows the
-Martini 2 DNA geometry but assigns all beads a single generic bead type. The
-resulting topology preserves the shape of the chromosome, but the non-bonded
-interactions are not chemically meaningful. Once Martini 3 DNA parameters
-become available, we can apply the protocol below to generate a Martini 3
-chromosome model, by replacing `fake.ff` with the Martini 3 force field file.
-
-To generate the chromosome topology, run the command below.
-
-```sh
-polyply gen_params -f fake.ff -o chromosome.itp -name chromosome \
-                   -seqf genome.ig -dsdna
-```
-
-The `-dsdna` flag tells _polyply_ that the sequence is double-stranded DNA.
-
-### Backmap to Martini
-
-The Martini coordinates for the chromosome come from backmapping a mesoscale polymer model. A one-bead-per-10-bp
-representation is generated with bTreeChromo.
-Polyply then fits a periodic B-spline through the monomer positions, samples
-base-pair positions along the spline (10 bp per segment), and aligns Martini
-base-pair templates onto them.
+The chromosome model coordinates come from backmapping a mesoscale polymer
+model. A one-bead-per-10-bp structure from bTreeChromo is resampled by polyply
+along a periodic B-spline at base-pair spacing and fitted with Martini
+base-pair templates (Figure 1). <br><br>
 
 <div align="center">
 <img src="../figures/05_dsDNA_forwardmapping.png" width="70%"/>
 <br>
-<sub><i>Figure 1. Backmapping protocol. Steps used to generate Martini-resolution coordinates from a mesoscale polymer model.</i></sub>
+<sub><i>Figure 1. Backmapping protocol. Martini-resolution coordinates are generated from a mesoscale polymer model.</i></sub>
 </div> <br>
 
-Backmapping a chromosome of this size takes long enough that running it
-here is not practical, so a precomputed `chromosome.gro` is provided in
-the current directory for the rest of the tutorial.
+The topology comes in two forms that differ only in the stiffest bonds.
+`chromosome.itp` models these as constraints, which fix each bond length
+exactly and let Martini run at its normal (20 fs) timestep. Constraints are
+hard to energy-minimize. A bond even slightly off its target length produces
+a near-infinite restoring force, and steepest descent cannot make progress
+against it. `chromosome_FLEX.itp` therefore replaces the constraints with
+stiff harmonic bonds, which minimize cleanly. Those stiff bonds are a poor
+choice for dynamics, though. The integrator timestep is set by the fastest
+oscillation in the system, and stiff bonds oscillate fast enough to force a
+much smaller step. Minimize with the FLEX topology, then run dynamics with the
+constrained one. Section 4 shows where to swap them.
 
-<div id="image-table">
-    <table>
-	    <tr>
-    	    <td style="padding:10px" align="center">
-                <img src="../figures/05_bead_positions.png"  width="70%"/>
-      	    </td>
-    	    <td style="padding:10px" align="center">
-                <img src="../figures/05_bp_positions.png" width="70%"/>
-            </td>
-        </tr>
-        <tr></tr>
-        <tr>
-   	 	    <td style="padding:10px" align="center" colspan="3">
-				<img src="../figures/05_chromosome.png" width="50%"/>
-      	    </td>
-        </tr>
-    </table>
-<center><i>Figure 2. Cell chromosome. Top left: mesoscale chromosome model from bTreeChromo. Top right: subsampled one-bead-per-base model used during backmapping. Bottom: backmapped Martini model of the chromosome.</i></center>
+Inspect `chromosome.gro` in VMD before continuing. It should look similar to Figure 2.
+
+<div align="center">
+<img src="../figures/05_chromosome.png" width="50%"/>
+<br>
+<sub><i>Figure 2. Backmapped Martini model of the chromosome.</i></sub>
 </div>
-
-
-</div>
-
-### Elastic network
-
-The bonded interactions in `chromosome.itp` capture the correct base-pair
-partitioning behavior, but they do not preserve the mesoscale conformation
-on their own. A small helper script reads the coordinates and appends
-harmonic restraints between beads within a cutoff, keeping the chromosome
-close to its starting shape during MD:
-
-```sh
-python3 gen_elastic.py chromosome.gro chromosome.itp
-```
-
-> [!NOTE] An elastic network is needed to stabilize the Martini 2 DNA
-> parameters. For Martini 3 DNA parameters, we hope they will be able to
-> stabilize the geometry on their own.
-
-Inspect `chromosome.gro` in VMD before continuing.
 
 ---
 
@@ -128,12 +86,14 @@ Inspect `chromosome.gro` in VMD before continuing.
 
 The Syn3A cell is approximately spherical, so we model the cell membrane as
 a spherical bilayer scaled to enclose the chromosome. The mesh is specified
-in the triangulated surface file `sphere.tsi`. The lipid composition is
-based on experimental lipidomics data, listed in the TS2CG settings file
-`input.str`. The membrane proteins are a representative subset of the Syn3A
-proteome, including ATP synthase, a proton symporter, SecDF, PtsG, a
-potassium transporter, and an uncharacterized gene (JCVISYN3A_0005). Their
-structures are provided in `structures/membrane_proteins/`.
+in the triangulated surface file `sphere.tsi`, and the lipid composition
+(based on experimental lipidomics data) is listed in the TS2CG settings
+file `input.str`.
+
+The membrane proteins are a representative subset of the Syn3A proteome:
+ATP synthase, a proton symporter, SecDF, PtsG, a potassium transporter,
+and an uncharacterized gene (JCVISYN3A_0005). Their structures are
+provided in `structures/membrane_proteins/`.
 
 ### Pointillism
 
@@ -148,10 +108,10 @@ TS2CG PLM -TSfile sphere.tsi -Mashno 2 -bilayerThickness 2.0
 We use TS2CG to place the lipids and proteins and build the cell envelope:
 
 ```sh
-TS2CG PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB -defout membrane
+TS2CG PCG -str input.str -LLIB Martini3.LIB -defout membrane
 ```
 
-Inspect `membrane.gro` in _`VMD`_ before continuing.
+Inspect `membrane.gro` in VMD before continuing.
 
 ```sh
 vmd membrane.gro
@@ -168,10 +128,10 @@ vmd membrane.gro
 
 ## 3. Cytosol
 
-The space between the chromosome and the envelope represents the cytosol space.
-We fill it with proteins and metabolites at physiological concentrations using
-_bentopy_. The chromosome and membrane act as the scaffolding around which the
-cytosolic components are packed.
+The space between the chromosome and the envelope is our cytosol. We fill
+it with proteins and metabolites at physiological concentrations using
+_bentopy_, with the chromosome and membrane as the scaffolding that
+defines the packing volume.
 
 ### Merge the chromosome and envelope
 
@@ -201,7 +161,7 @@ Containment Graph with 3 components (component: nvoxels: rank):
 ```
 
 Three compartments are identified. Label -1 is the inside of the vesicle
-(the cytosol we want to pack). Label 1 is the space occupied by the
+(the cytosolic space we want to pack). Label 1 is the space occupied by the
 envelope and chromosome. Label -2 is the extracellular space.
 
 Load `labels.gro` in VMD to verify visually. Select individual
@@ -234,13 +194,42 @@ approximately 5 × 10⁵ nm³, or about 0.5 attoliters.
 
 ### Pack the cytosol
 
-The `input.bent` file for this system is provided. It specifies:
+The provided `input.bent` file specifies the cytosolic composition. The
+`[ space ]` block sets the 120 nm cubic packing volume. The
+`[ compartments ]` block loads the mask we just wrote. The `[ segments ]`
+block lists the proteins as absolute counts (scaled down from experimental
+proteomics data) and the metabolites as molar concentrations (from
+experimental metabolomics). A simplified excerpt:
 
-- The cytosolic mask from the previous step as the packing compartment.
-- Protein counts, scaled down from experimental proteomics data.
-- Metabolite concentrations, taken from experimental measurements.
+```text
+[ general ]
+title     "Syn3A cytoplasm"
 
-**TODO:** add in schematic representation of the .bent input file here.
+[ space ]
+dimensions  120, 120, 120
+resolution  0.5
+
+[ includes ]
+"martini_v3.0.0/martini_v3.0.0.itp"
+"martini_v3.0.0/martini_v3.0.0_ffbonded_v2.itp"
+...
+"cytosolic_proteins.itp"
+"chromosome.itp"
+
+[ compartments ]
+cytosol  from "cytosol_mask.npz"
+
+[ segments ]
+# Proteins (counts from proteomics)
+002_monomer  2  from "structures/cytosolic_proteins/002_monomer.pdb"  in cytosol
+003_monomer  1  from "structures/cytosolic_proteins/003_monomer.pdb"  in cytosol
+...
+
+# Metabolites (concentrations from metabolomics)
+ATPH  0.00365M    from "structures/metabolites/ATPH.gro"  in cytosol
+GLR   0.000956M   from "structures/metabolites/GLR.gro"   in cytosol
+...
+```
 
 Pack the system:
 
@@ -280,13 +269,25 @@ result as `topol.top`:
 
 ```text
 #include "martini_v3.0.0/martini_v3.0.0.itp"
+#include "martini_v3.0.0/nucleotide_ffbonded.itp"
 #include "martini_v3.0.0/martini_v3.0.0_ffbonded_v2.itp"
+
 #include "martini_v3.0.0/martini_v3.0.0_ions_v1.itp"
 #include "martini_v3.0.0/martini_v3.0.0_solvents_v1.itp"
-#include "martini_v3.0.0/martini_v3.0.0_phospholipids_PC_v2.itp"
+
 #include "chromosome.itp"
+
 #include "membrane_proteins.itp"
-#include "proteins.itp"
+#include "martini_v3.0.0/martini_v3.0.0_sterols_v1.itp"
+#include "martini_v3.0.0/martini_v3.0.0_phospholipids_CL_v2.itp"
+#include "martini_v3.0.0/martini_v3.0.0_phospholipids_PC_v2.itp"
+#include "martini_v3.0.0/martini_v3.0.0_phospholipids_PG_v2.itp"
+#include "martini_v3.0.0/martini_v3.0.0_phospholipids_SM_v2.itp"
+
+#include "cytosolic_proteins.itp"
+#include "martini_v3.0.0/metabolites.itp"
+#include "martini_v3.0.0/small_molecules.itp"
+#include "martini_v3.0.0/martini_v3.0.0_fattyacids_v2.itp"
 
 [ system ]
 Martini Syn3A cell
@@ -301,7 +302,7 @@ POPC         X
 SSM          X
 ...
 ; from cytosol.top (bentopy-render)
-005_monomer  X
+002_monomer  X
 ...
 ATPH         X
 NADH         X
@@ -331,27 +332,68 @@ vmd cell.gro
 
 ## 4. Simulate the cell model
 
-Solvate the cell:
+Simulating the cell follows a short protocol. We minimize the packed model in
+vacuum, solvate it, minimize again, then equilibrate and run production.
+
+The vacuum step comes first for efficiency. Packing leaves high forces, mostly
+from overlaps in the TS2CG membrane, and clearing them in vacuum resolves the
+worst problems while the particle count is still low. Solvating first would
+only stack water on top of those forces and make the minimization harder. Once
+the solutes are relaxed we add water and minimize again, settling the
+solute-water interface before dynamics. Both minimizations run in double
+precision, because the forces in a freshly packed cell can exceed what
+single-precision GROMACS represents reliably.
+
+Install the double-precision, non-MPI GROMACS build:
 
 ```sh
-bentopy-solvate -i cell.gro -o solvated_cell.gro -t topol.top \
+micromamba install "gromacs=*=nompi_dblprec_*"
+```
+
+Both minimizations use the flexible chromosome. In `topol.top`, replace
+`#include "chromosome.itp"` with `#include "chromosome_FLEX.itp"`.
+
+Run the vacuum minimization:
+
+```sh
+mkdir -p vacuum_em
+gmx_d grompp -f mdp_files/em.mdp -c cell.gro -p topol.top \
+             -o vacuum_em/em.tpr -maxwarn 1
+gmx_d mdrun -v -deffnm vacuum_em/em
+```
+
+Solvate the relaxed structure:
+
+```sh
+bentopy-solvate -i vacuum_em/em.gro -o solvated_cell.gro -t topol.top \
                 -s NA,CL:0.15M --charge neutral
 ```
 
-Energy-minimize:
+Minimize again, still in double precision, now with solvent:
 
 ```sh
-gmx grompp -f mdp_files/em.mdp -c solvated_cell.gro -p topol.top \
-           -o em.tpr -maxwarn 1
-gmx mdrun -v -deffnm em
+mkdir -p em
+gmx_d grompp -f mdp_files/em.mdp -c solvated_cell.gro -p topol.top \
+             -o em/em.tpr -maxwarn 1
+gmx_d mdrun -v -deffnm em/em
 ```
+
+With the cell minimized, switch to the CUDA single-precision GROMACS build
+for equilibration and production:
+
+```sh
+micromamba install "gromacs=*=nompi_cuda_h*"
+```
+
+Restore the constrained chromosome for the dynamics. In `topol.top`, change
+`#include "chromosome_FLEX.itp"` back to `#include "chromosome.itp"`.
 
 Build an index file with separate groups for the chromosome, lipids,
 solvent, and metabolites. These groups are used during equilibration and
 production to couple each to a separate thermostat:
 
 ```sh
-gmx make_ndx -f em.gro -o index.ndx << 'EOF'
+gmx make_ndx -f em/em.gro -o index.ndx << 'EOF'
 name 1 Chromosome
 r POPC | r DOPG | r CHOL | r TOCL | r SSM
 name 145 Lipids
@@ -367,41 +409,48 @@ Equilibrate and run production:
 
 ```sh
 # Equilibration
-gmx grompp -f mdp_files/eq.mdp -c em.gro -p topol.top -n index.ndx -o eq.tpr
-gmx mdrun -v -deffnm eq
+mkdir -p eq
+gmx grompp -f mdp_files/eq.mdp -c em/em.gro -p topol.top -n index.ndx -o eq/eq.tpr
+gmx mdrun -v -deffnm eq/eq
 
 # Production
-gmx grompp -f mdp_files/md.mdp -c eq.gro -p topol.top -n index.ndx -o md.tpr
-gmx mdrun -v -deffnm md
+mkdir -p md
+gmx grompp -f mdp_files/md.mdp -c eq/eq.gro -p topol.top -n index.ndx -o md/md.tpr
+gmx mdrun -v -deffnm md/md
 ```
 
-**TODO:** insert short movie of the simulations and short proza around it.
+The cell model is simulated as a single system, and its components begin to
+equilibrate with resepct to one another. Over the trajectory the lipids diffuse
+in the envelope and the packed cytosol relaxes around the chromosome.
+
+<div align="center">
+<video src="../figures/06_cell_trajectory.mp4" width="65%" controls></video>
+<br>
+<sub><i>Video 1. Simulation trajectory of the Martini cell model.</i></sub>
+</div>
 
 ---
 
 ## References
 
-[^mdvc]: Bruininks, Bart M. H., & Vattulainen, Ilpo.
-  Classification of containment hierarchy for point clouds in periodic space.
-  _bioRxiv_. (2025)
-  <https://doi.org/10.1101/2025.08.06.668936>
+[^mdvc]: Bruininks, Bart M. H., & Vattulainen, Ilpo. Classification of
+    containment hierarchy for point clouds in periodic space. _bioRxiv_. (2025)
+    <https://doi.org/10.1101/2025.08.06.668936>
 
 [^TS2CG]: Schuhmann, Fabian, Stevens, Jan A., Rahmani, Neda, Lindahl, Isabell,
-  Brown, Chelsea M., Brasnett, Christopher, Anastasiou, Dimitrios, Vidal, Adrià
-  Bravo, Geiger, Beatrice, Marrink, Siewert J., & Pezeshkian, Weria.
-  TS2CG as a Membrane Builder.
-  _J. of Chem. Theory and Comput._ **21** (18), 9136-9146. (2025)
-  <https://doi.org/10.1021/acs.jctc.5c00833>
+    Brown, Chelsea M., Brasnett, Christopher, Anastasiou, Dimitrios, Vidal,
+    Adrià Bravo, Geiger, Beatrice, Marrink, Siewert J., & Pezeshkian, Weria.
+    TS2CG as a Membrane Builder. _J. of Chem. Theory and Comput._ **21** (18),
+    9136-9146. (2025) <https://doi.org/10.1021/acs.jctc.5c00833>
 
 [^polyply]: Grünewald, Fabian, Alessandri, Riccardo, Kroon, Peter C.,
-  Monticelli, Luca, Souza, Paulo C. T. & Marrink, Siewert J.
-  Polyply; a python suite for facilitating simulations of macromolecules and nanomaterials.
-  _Nat Commun_ **13**, 68. (2022)
-  <https://doi.org/10.1038/s41467-021-27627-4>
+    Monticelli, Luca, Souza, Paulo C. T. & Marrink, Siewert J. Polyply; a
+    python suite for facilitating simulations of macromolecules and
+    nanomaterials. _Nat Commun_ **13**, 68. (2022)
+    <https://doi.org/10.1038/s41467-021-27627-4>
 
 [^bentopy]: Westendorp, Marieke S. S., Stevens, Jan A., Brown, Chelsea M.,
-  Dommer, Abigail C., Wassenaar, Tsjerk A., Bruininks, Bart M. H., & Marrink,
-  Siewert J.
-  Compartment-guided assembly of large-scale molecular models with bentopy.
-  _Protein Science_, **35**(3), e70480. (2026)
-  <https://doi.org/10.1002/pro.70480>
+    Dommer, Abigail C., Wassenaar, Tsjerk A., Bruininks, Bart M. H., & Marrink,
+    Siewert J. Compartment-guided assembly of large-scale molecular models with
+    bentopy. _Protein Science_, **35**(3), e70480. (2026)
+    <https://doi.org/10.1002/pro.70480>
