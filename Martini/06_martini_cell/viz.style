@@ -28,7 +28,7 @@ mol addrep $molid
 mol selection metabolite
 mol color ColorID 5
 mol representation VDW
-mol material AOShiny
+mol material AOChalky
 mol addrep $molid
 
 
