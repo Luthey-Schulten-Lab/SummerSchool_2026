@@ -236,6 +236,7 @@ after idle {
       set ::Render::render_method "TachyonInternal"
     }
   }
+  menu render off
 }
 
 # These macros define selections for the Martini cell workshop.
