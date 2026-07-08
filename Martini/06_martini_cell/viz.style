@@ -27,7 +27,7 @@ mol addrep $molid
 # Metabolites.
 mol selection metabolite
 mol color ColorID 5
-mol representation Licorice 3 12 12 0
+mol representation VDW
 mol material AOShiny
 mol addrep $molid
 
