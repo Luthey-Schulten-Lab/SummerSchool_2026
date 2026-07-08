@@ -395,11 +395,11 @@ production to couple each to a separate thermostat:
 ```sh
 gmx make_ndx -f em/em.gro -o index.ndx << 'EOF'
 name 1 Chromosome
-r POPC | r DOPG | r CHOL | r TOCL | r SSM
+r POPC DOPG CHOL TOCL SSM
 name 145 Lipids
-r W | r ION
+r W ION
 name 146 Solvent
-r NADH | r ACOA | r 10MG | r 10FG | r 5FTF | r DFAD | r COA | r NADPH | r UDPA | r NAD | r DNAD | r NADP | r THFG | r UDPF | r DGDPH | r GTPH | r GDPH | r DADPH | r DGTPH | r 5MG | r DATPH | r UDPG | r PA | r ADPH | r DFMN | r DRBF | r RBF | r FMN | r SAM | r DTDPH | r ATPH | r DUDP | r DAMP | r DCTP | r DTTP | r TPPH | r GMP | r CTP | r A3P | r UTP | r AMP | r DUTP | r DGUO | r DGMP | r DCDP | r DADO | r UDP | r CMP | r DUMP | r CDP | r GUO | r UMP | r ADO | r DCMP | r DTMP | r NICR | r SPER | r THD | r PRPP | r S7P | r URD | r CYD | r PRP | r DURD | r DCYD | r GN6P | r FBP | r PALP | r LTYR | r MN6P | r GL6P | r LTRP | r RI5P | r X5P | r F6P | r LARG | r MANA | r LLYS | r LPHE | r GUA | r LHIS | r G6P | r M6P | r G1P | r ADE | r DR1P | r DR5P | r 3GPP | r R5P | r R1P | r E4P | r URA | r DHAP | r 3PG | r LGLN | r LMET | r LLEU | r PEP | r NIC | r LGLU | r GL2P | r LILE | r LTHR | r LVAL | r LASP | r LSER | r LCYS | r LPRO | r G3P | r G3H | r LALA | r GLR | r ACEP | r DPP | r PYR | r LGLY | r LAC | r PO4 | r O2 | r NH4 | r MG | r K | r ACET | r ACEH
+r NADH ACOA 10MG 10FG 5FTF DFAD COA NADPH UDPA NAD DNAD NADP THFG UDPF DGDPH GTPH GDPH DADPH DGTPH 5MG DATPH UDPG PA ADPH DFMN DRBF RBF FMN SAM DTDPH ATPH DUDP DAMP DCTP DTTP TPPH GMP CTP A3P UTP AMP DUTP DGUO DGMP DCDP DADO UDP CMP DUMP CDP GUO UMP ADO DCMP DTMP NICR SPER THD PRPP S7P URD CYD PRP DURD DCYD GN6P FBP PALP LTYR MN6P GL6P LTRP RI5P X5P F6P LARG MANA LLYS LPHE GUA LHIS G6P M6P G1P ADE DR1P DR5P 3GPP R5P R1P E4P URA DHAP 3PG LGLN LMET LLEU PEP NIC LGLU GL2P LILE LTHR LVAL LASP LSER LCYS LPRO G3P G3H LALA GLR ACEP DPP PYR LGLY LAC PO4 O2 NH4 MG K ACET ACEH
 name 147 Metabolites
 q
 EOF
