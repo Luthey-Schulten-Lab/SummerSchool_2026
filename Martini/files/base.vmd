@@ -137,7 +137,7 @@ proc reset_viz {molid} {
     } else {
       # Fallback style.
       mol selection all
-      mol color ColorID 1
+      mol color Name
       mol representation VDW
       mol material AOChalky
       mol addrep $molid
