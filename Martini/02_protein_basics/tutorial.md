@@ -1,7 +1,7 @@
 # Tutorial II: Simulating a Protein with Martini 3
 
 > **Time:** ~30 minutes <br>
-> **Software:** _GROMACS 2026.0_ · _martinize2_ · _VMD 2_ · _Xmgrace_ <br>
+> **Software:** _GROMACS 2024.3_ · _martinize2_ · _VMD 2_ · _Xmgrace_ <br>
 > **Based on:** [Martini Online Workshop 2025 — Proteins](https://cgmartini.nl/docs/tutorials/Martini3/ProteinsI/) and [Duve et al. 2025](https://doi.org/10.1101/2025.03.17.643608)<br>
 
 The Martini 3 protein model uses a 4-to-1 mapping of heavy atoms to
