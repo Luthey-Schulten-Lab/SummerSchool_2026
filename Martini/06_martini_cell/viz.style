@@ -5,7 +5,7 @@
 # Proteins.
 mol selection proteinbb
 mol color ColorID 21
-mol representation Licorice 3 12 12 0
+mol representation VDW
 mol material AOChalky
 mol addrep $molid
 
