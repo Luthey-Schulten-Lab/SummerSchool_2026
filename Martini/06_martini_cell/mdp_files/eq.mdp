@@ -1,15 +1,13 @@
 ;
 ; STANDARD MD INPUT OPTIONS FOR MARTINI 3.x
-; Updated 6 May 2024 by JAS
+; Updated 8 July 2026 by JAS
 ;
 title                    = Martini
-
-;define                   = -DPOSRES
 
 ; TIMESTEP IN MARTINI
 integrator               = md
 dt                       = 0.0010
-nsteps                   = 2000
+nsteps                   = 2500
 nstcomm                  = 100
 comm-grps		         =
 
