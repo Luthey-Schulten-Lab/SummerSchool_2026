@@ -6,7 +6,7 @@ title                    = Martini
 
 ; TIMESTEP IN MARTINI
 integrator               = md
-dt                       = 0.02
+dt                       = 0.01
 nsteps                   = 2500000
 nstcomm                  = 100
 
@@ -38,7 +38,7 @@ rvdw                     = 1.1
 
 ; MARTINI and TEMPERATURE/PRESSURE
 tcoupl                   = v-rescale
-tc-grps                  = Lipids Protein Chromosome Metabolites Solvent
+tc-grps                  = Chromosome Solvent Protein Lipids Metabolites
 tau_t                    = 1.0 1.0 1.0 1.0 1.0
 ref_t                    = 310 310 310 310 310
 Pcoupl                   = c-rescale
