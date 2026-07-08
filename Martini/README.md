@@ -8,20 +8,22 @@ Coarse-grained molecular dynamics simulations make it possible to study
 biological systems across a wide range of length and time scales, with
 whole-cell simulations only recently coming within reach.
 
-In this module, each tutorial focuses on a class of cellular components and
-how to build and simulate them in Martini: lipid bilayers, proteins, vesicles
-with embedded membrane proteins, polymers and nucleic acids, and crowded
-molecular systems. The final tutorial integrates these elements into a toy
-model of a bacterial cell.
+In this module, each tutorial focuses on a class of cellular components and how
+to build and simulate them in Martini: lipid bilayers, proteins, vesicles with
+embedded membrane proteins, polymers and nucleic acids, and crowded molecular
+systems. The final tutorial integrates these elements into a toy model of a
+bacterial cell.
 
-**Tools covered:** `martinize2` · `TS2CG` · `Polyply` · `Bentopy` · `GROMACS`
+**Tools covered:** _`martinize2`_ · _`TS2CG`_ · _`polyply`_ · _`bentopy`_ ·
+_`GROMACS`_
 
 </td>
 <td width="40%" align="center" valign="top">
 
 <img src="./figures/cell.png" width="320">
 
-<sub><i>Snapshot from a molecular dynamics simulation of the JCVI-syn3A minimal bacterial cell (Stevens et al., 2026).</i></sub>
+<sub><i>Snapshot from a molecular dynamics simulation of the JCVI-syn3A minimal
+bacterial cell (Stevens et al., 2026).</i></sub>
 
 </td>
 </tr>
@@ -33,8 +35,9 @@ model of a bacterial cell.
 
 A basic understanding of molecular dynamics and prior familiarity with GROMACS
 is assumed. For details on GROMACS usage, force fields, and run parameters, see
-the GROMACS [user guide](https://manual.gromacs.org/current/user-guide/index.html)
-and [website](www.gromacs.org). A collection of well-written GROMACS tutorials is
+the GROMACS [user
+guide](https://manual.gromacs.org/current/user-guide/index.html) and
+[website](www.gromacs.org). A collection of well-written GROMACS tutorials is
 also available [here](https://tutorials.gromacs.org/).
 
 ---
@@ -62,21 +65,21 @@ also available [here](https://tutorials.gromacs.org/).
 - Fill in the session form with the settings below (defaults are fine for
   anything not listed; *Name of the reservation* you can leave empty):
 
-  | Field | Value |
-  | :--- | :--- |
+  | Field           | Value                 |
+  | :---            | :---                  |
   | Container image | `RHEL 9 w/ CUDA 12.8` |
-  | Account         | `bgvl-delta-gpu` |
-  | Partition       | `gpuA40x4` |
-  | Duration of job | `4:00:00` |
-  | Number of CPUs  | `8` |
-  | Amount of RAM   | `64G` |
-  | Number of GPUs  | `1` |
+  | Account         | `bgvl-delta-gpu`      |
+  | Partition       | `gpuA40x4`            |
+  | Duration of job | `4:00:00`             |
+  | Number of CPUs  | `8`                   |
+  | Amount of RAM   | `64G`                 |
+  | Number of GPUs  | `1`                   |
 
-- Click **Launch** and wait for the session to be allocated (usually under
-  a minute).
-- Once the session card shows **Running**, click **Launch Desktop** to open
-  the remote desktop in your browser. Open a terminal inside the desktop
-  to continue.
+- Click **Launch** and wait for the session to be allocated (usually under a
+  minute).
+- Once the session card shows **Running**, click **Launch Desktop** to open the
+  remote desktop in your browser. Open a terminal inside the desktop to
+  continue.
 
 **2. Clone the workshop repository:**
 
