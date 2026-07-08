@@ -1,7 +1,7 @@
 # Tutorial III: Building Membranes with TS2CG 2.0
 
 > **Time:** ~30 minutes <br>
-> **Software:** GROMACS 2024.3 · TS2CG 2.0 · VMD 2 <br>
+> **Software:** _GROMACS 2024.3_ · _TS2CG 2.0_ · _VMD 2_ <br>
 > **Based on:** [TS2CG 2.0 workshop tutorial](https://cgmartini.nl/docs/tutorials/Martini3/TS2CG/) by J.A. Stevens and F. Schuhmann
 
 TS2CG builds coarse-grained membrane models with user-defined and
@@ -13,23 +13,27 @@ simulations into CG MD simulations[^backmapping][^freedts].
 
 The latest release, TS2CG 2.0, introduces automated protein placement,
 curvature-informed lipid distributions, and a Python API that streamlines
-integration with other tools. Although the code is force field agnostic,
-the current lipid library targets the Martini coarse-grained force
-field[^martini3]. Its scope ranges from simple bilayers to whole
-mitochondrial cristae reconstructed from cryo-EM data[^cristae], as shown
-in the gallery below.
+integration with other tools. Although the code is force field agnostic, the
+current lipid library targets the Martini coarse-grained force
+field[^martini3]. Its scope ranges from simple bilayers to whole mitochondrial
+cristae reconstructed from cryo-EM data[^cristae], as shown in the gallery
+below.
 
 
 In this tutorial we walk through TS2CG by building increasingly complex
 membrane models. Sections 1 to 4 start with a simple vesicle and progressively
 add lipid mixtures, membrane proteins, and protein-specific lipid domains.
-Sections 5 to 6 introduce an alternative workflow that builds membranes
-from analytical shapes, and apply curvature-informed lipid placement.
+Sections 5 to 6 introduce an alternative workflow that builds membranes from
+analytical shapes, and apply curvature-informed lipid placement.
 
 <div align="center">
 <img src="../figures/03_showcase.png" width="75%"/>
 <br>
-<sub><i>Figure 1. TS2CG 2.0 showcase models. (a) Mitochondrial crista with curvature-sorted lipids and proteins[^cristae]. (b) Martini 3 Möbius strip membrane. (c) Glycolipid membrane with CTxB peripheral membrane protein. (d) Mitochondrial membrane from cryo-ET data with curvature-dependent lipid placement.</i></sub>
+<sub><i>Figure 1. TS2CG 2.0 showcase models. (a) Mitochondrial crista with
+curvature-sorted lipids and proteins[^cristae]. (b) Martini 3 Möbius strip
+membrane. (c) Glycolipid membrane with CTxB peripheral membrane protein. (d)
+Mitochondrial membrane from cryo-ET data with curvature-dependent lipid
+placement.</i></sub>
 </div>
 <br>
 
@@ -48,31 +52,47 @@ from analytical shapes, and apply curvature-informed lipid placement.
 
 The TS2CG workflow consists of a few key steps:
 
-- **Input.** A triangulated surface (`.tsi`, `.q`, `.dat`) or an analytical shape definition.
-- **Pointillism (PLM).** Generates monolayer point distributions from a triangulated surface and stores them in a point folder.
-- **Point folder customization.** Three tools modify the point folder before lipids are placed:
+- **Input.** A triangulated surface (`.tsi`, `.q`, `.dat`) or an analytical
+  shape definition.
+- **Pointillism (PLM).** Generates monolayer point distributions from a
+  triangulated surface and stores them in a point folder.
+- **Point folder customization.** Three tools modify the point folder before
+  lipids are placed:
   - **INU** adds inclusions (proteins) and exclusions (membrane pores).
   - **DAI** creates circular lipid domains around protein types.
   - **DOP** optimizes lipid placement based on curvature preferences.
-- **Membrane building (PCG).** Places lipids and proteins on the customized point distribution.
+- **Membrane building (PCG).** Places lipids and proteins on the customized
+  point distribution.
 - **Output.** Simulation-ready coordinate and topology files for GROMACS.
 
 <div align="center">
 <img src="../figures/03_workflow.png" width="75%"/>
 <br>
-<sub><i>Figure 2. TS2CG 2.0 workflow. The workflow can start from an analytical shape or an arbitrary triangulated surface. PLM (or PCG) creates a point directory which can then be manipulated using the Python API to place proteins, exclusions, or lipid domains. PCG then turns the point folder into a membrane model ready for MD simulation.</i></sub>
+<sub><i>Figure 2. TS2CG 2.0 workflow. The workflow can start from an analytical
+shape or an arbitrary triangulated surface. PLM (or PCG) creates a point
+directory which can then be manipulated using the Python API to place proteins,
+exclusions, or lipid domains. PCG then turns the point folder into a membrane
+model ready for MD simulation.</i></sub>
 </div>
 
 ### Installation
 
-TS2CG 2.0 is not shipped with the workshop environment. Install the
-current version from GitHub:
+TS2CG 2.0 is not shipped with the workshop environment. Install the current
+version from GitHub:
 
 ```sh
 pip install git+https://github.com/weria-pezeshkian/TS2CG-v2.0.git
 ```
 
 The `TS2CG` command becomes available in the terminal after installation.
+
+Visualization throughout the tutorial uses VMD 2, provided as a module. Load it
+into your environment now:
+
+```sh
+module use /projects/bgvl/alfiaparvez/modulefiles
+module load vmd/2.0.0
+```
 
 ### Get the files
 
@@ -82,27 +102,29 @@ cd 03_membranes_and_vesicles
 
 The tutorial directory contains:
 
-- **`structures/`** — molecular structures: proteins (`protein_1.gro`, `protein_2.gro`), solvent (`water.gro`), and triangulated meshes (`sphere.tsi`).
-- **`topology/`** — Martini 3 force field files and protein topologies (`protein.itp`).
-- **`Martini3.LIB`** — TS2CG lipid library defining molecular connectivity for membrane building.
+- **`structures/`** — molecular structures: proteins (`protein_1.gro`,
+  `protein_2.gro`), solvent (`water.gro`), and triangulated meshes
+  (`sphere.tsi`) and protein topologies (`protein_1.itp`, `protein_2.itp`).
+- **`martini_v3.0.0/`** — Martini 3 force field files.
+- **`Martini3.LIB`** — TS2CG lipid library defining molecular connectivity for
+  membrane building.
 
 ---
 
 ## 1. Basic vesicle
 
-We start with the core TS2CG workflow by building a simple POPC vesicle.
-This section walks through the essential file formats (`.tsi` mesh,
-`input.str` composition, `Martini3.LIB` lipid library) and runs the
-**Mesh → PLM → PCG** sequence end to end. Everything in the later
-sections builds on this pattern.
+We start with the core TS2CG workflow by building a simple POPC vesicle. This
+section walks through the essential file formats (`.tsi` mesh, `input.str`
+composition, `Martini3.LIB` lipid library) and runs the **Mesh → PLM → PCG**
+sequence end to end. Everything in the later sections builds on this pattern.
 
 ### Generate the point folder with PLM
 
 Convert the spherical triangulated surface (`sphere.tsi`) into a point
-distribution using pointillism (PLM), which transforms the mesh into
-discrete points that guide membrane construction. The `.tsi` format contains
-vertex coordinates and triangle connectivity. For the full specification,
-see the [TS2CG documentation](https://github.com/weria-pezeshkian/TS2CG-v2.0).
+distribution using pointillism (PLM), which transforms the mesh into discrete
+points that guide membrane construction. The `.tsi` format contains vertex
+coordinates and triangle connectivity. For the full specification, see the
+[TS2CG documentation](https://github.com/weria-pezeshkian/TS2CG-v2.0).
 
 ```sh
 TS2CG PLM -TSfile structures/sphere.tsi -bilayerThickness 3 \
@@ -114,17 +136,17 @@ TS2CG PLM -TSfile structures/sphere.tsi -bilayerThickness 3 \
 - `-TSfile` — input triangulated surface file.
 - `-bilayerThickness` — distance between monolayers (nm).
 - `-rescalefactor` — scaling factors for x, y, z dimensions.
-- `-Mashno` — pointillism iterations to increase mesh resolution (typically 1 to 4).
+- `-Mashno` — pointillism iterations to increase mesh resolution (typically 1
+  to 4).
 
 This creates a `point/` folder with the bilayer point distributions, an
 `extended.tsi` with increased resolution, and a `pcg.log` file. The
 `pointvisualization_data/` folder contains files to inspect the generated
-structure:
+structure. Open them in VMD:
 
 ```sh
 vmd -m pointvisualization_data/Upper.gro pointvisualization_data/Lower.gro
 ```
-
 You should see two leaflets of points representing the bilayer where lipids
 will later be placed. Each point carries an associated coordinate frame
 defining the local membrane normal and tangent directions. Take a moment to
@@ -144,7 +166,8 @@ End
 **Format**
 
 - `Domain 0` — default domain for all lipids.
-- `POPC 1 1 0.64` — lipid type, upper leaflet ratio, lower leaflet ratio, area per lipid (nm²).
+- `POPC 1 1 0.64` — lipid type, upper leaflet ratio, lower leaflet ratio, area
+  per lipid (nm²).
 
 ### Build the membrane with PCG
 
@@ -164,11 +187,10 @@ TS2CG PCG -dts point -str input.str -Bondlength 0.2 -LLIB Martini3.LIB -defout o
 - `-defout` — base name for generated files (default: `output`).
 
 PCG performs the actual membrane assembly by placing lipids and writes
-`output.gro` (coordinates), `output.top` (GROMACS topology), and `pcg.log`.
-The number of lipids placed is determined by the specified area per lipid
-(APL) and the available points. The bond length is intentionally set small
-so that lipids can expand during energy minimization to form a continuous
-bilayer.
+`output.gro` (coordinates), `output.top` (GROMACS topology), and `pcg.log`. The
+number of lipids placed is determined by the specified area per lipid (APL) and
+the available points. The bond length is intentionally set small so that lipids
+can expand during energy minimization to form a continuous bilayer.
 
 > [!TIP]
 > When running PLM you can use `-monolayer 1` or `-monolayer -1` to create
@@ -193,9 +215,9 @@ placements.
 
 ## 2. Lipid mixtures
 
-Real biological membranes contain multiple lipid types at concentrations
-that can differ between leaflets. This section extends the basic workflow
-to a mixed composition by editing only the `input.str`.
+Real biological membranes contain multiple lipid types at concentrations that
+can differ between leaflets. This section extends the basic workflow to a mixed
+composition by editing only the `input.str`.
 
 ### Create a mixed composition
 
@@ -207,10 +229,10 @@ DOPC 0.5 0.5 0.67
 End
 ```
 
-We added a second lipid definition for a 50:50 mixture of POPC and DOPC.
-DOPC has a slightly larger APL (0.67 nm²) than POPC (0.64 nm²). When
-working with lipid mixtures, make sure the APL values are realistic for
-your chosen lipids and force field.
+We added a second lipid definition for a 50:50 mixture of POPC and DOPC. DOPC
+has a slightly larger APL (0.67 nm²) than POPC (0.64 nm²). When working with
+lipid mixtures, make sure the APL values are realistic for your chosen lipids
+and force field.
 
 ### Rebuild the membrane
 
@@ -246,8 +268,8 @@ lipids in both leaflets.
 ## 3. Membrane proteins
 
 Integral and peripheral membrane proteins are essential components of most
-biological membranes. This section uses TS2CG's INU tool to place proteins
-in the membrane while preventing lipid-protein and protein-protein clashes.
+biological membranes. This section uses TS2CG's INU tool to place proteins in
+the membrane while preventing lipid-protein and protein-protein clashes.
 
 ### Add proteins to the composition
 
@@ -264,7 +286,7 @@ DOPC 0.5 0.5 0.67
 End
 
 [Protein List]
-;proteinname  type     i       j     k    shift
+;proteinname  type  i         j     k     shift
 protein_1     1     0.01      0     0     -2
 protein_2     2     0.01      0     0     -2
 End Protein
@@ -274,15 +296,16 @@ End Protein
 
 - `proteinname` — must match the header of the `.gro` file.
 - `type_id` — unique integer assigned to each protein type.
-- `surface_coverage` — fraction of membrane area occupied by proteins (typically around 0.01).
+- `surface_coverage` — fraction of membrane area occupied by proteins
+  (typically around 0.01).
 - Two unused parameters — set to 0 for now.
 - `z_offset` — distance to move the protein along the membrane normal.
 
-> [!TIP]
-> To identify the transmembrane region of a protein and orient it correctly
-> along the membrane normal, use the [PPM webserver](https://opm.phar.umich.edu/ppm_server).
-> It determines the optimal membrane insertion depth and orientation from
-> the structure and hydrophobicity profile.
+> [!TIP] To identify the transmembrane region of a protein and orient it
+> correctly along the membrane normal, use the [PPM
+> webserver](https://opm.phar.umich.edu/ppm_server). It determines the optimal
+> membrane insertion depth and orientation from the structure and
+> hydrophobicity profile.
 
 ### Place proteins with INU
 
@@ -311,14 +334,14 @@ TS2CG PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB \
 
 **Additional PCG flags**
 
-- `-incdirtype Local` — use local reference frames for proteins placed by INU (required when using INU).
+- `-incdirtype Local` — use local reference frames for proteins placed by INU
+  (required when using INU).
 - `-Rcutoff` — cutoff distance for removing lipids near proteins (nm).
 
-> [!NOTE]
-> The `-Rcutoff` controls the exclusion distance around proteins. After
-> building, always check that no lipids ended up in unphysical locations
-> such as inside protein channels. If you find lipids inside protein
-> cavities, increase the cutoff radius and rebuild.
+> [!NOTE] The `-Rcutoff` controls the exclusion distance around proteins. After
+> building, always check that no lipids ended up in unphysical locations such
+> as inside protein channels. If you find lipids inside protein cavities,
+> increase the cutoff radius and rebuild.
 
 ### Visualize
 
@@ -333,21 +356,22 @@ leaflets.
 <div align="center">
 <img src="../figures/03_protein_vesicle.png" width="70%"/>
 <br>
-<sub><i>Figure 5. Vesicle with embedded membrane proteins. (a) Spherical vesicle with 50% POPC (green), 50% DOPC (cyan), and randomly distributed membrane proteins (grey). (b) Cross-sectional view.</i></sub>
+<sub><i>Figure 5. Vesicle with embedded membrane proteins. (a) Spherical
+vesicle with 50% POPC (green), 50% DOPC (cyan), and randomly distributed
+membrane proteins (grey). (b) Cross-sectional view.</i></sub>
 </div>
 
-> [!WARNING]
-> Verify protein orientation in the membrane. Type I proteins have their
-> N-terminus extracellular and C-terminus cytoplasmic; Type II have the
+> [!WARNING] Verify protein orientation in the membrane. Type I proteins have
+> their N-terminus extracellular and C-terminus cytoplasmic; Type II have the
 > opposite orientation.
 
 ---
 
 ## 4. Lipid domains around proteins
 
-Proteins often influence their local lipid environment, creating
-specialized microenvironments that contribute to function and stability.
-This section uses the DAI tool to define protein-specific lipid domains.
+Proteins often influence their local lipid environment, creating specialized
+microenvironments that contribute to function and stability. This section uses
+the DAI tool to define protein-specific lipid domains.
 
 ### Create circular domains with DAI
 
@@ -366,10 +390,10 @@ TS2CG DAI --point-dir point --protein-type 1 --radius 7 --domain 1
 - `-m, --manual-points` — comma-separated point IDs to use as centers (not used here).
 - `-o, --output-dir` — output directory (default: overwrite input with backup).
 
-DAI automatically identifies all proteins of the specified type and creates
-a circular domain around each. If circular domains overlap, the later
-command overwrites the earlier domain assignment. Keep this in mind when
-designing systems with multiple protein types or high protein densities.
+DAI automatically identifies all proteins of the specified type and creates a
+circular domain around each. If circular domains overlap, the later command
+overwrites the earlier domain assignment. Keep this in mind when designing
+systems with multiple protein types or high protein densities.
 
 ### Define domain-specific composition
 
@@ -394,11 +418,10 @@ protein_2     2     0.01      0     0     -2
 End Protein
 ```
 
-This creates two distinct environments: POPC in the bulk membrane
-(Domain 0) and DOPC around proteins (Domain 1).
+This creates two distinct environments: POPC in the bulk membrane (Domain 0)
+and DOPC around proteins (Domain 1).
 
-> [!TIP]
-> Many membrane proteins have experimentally validated preferences for
+> [!TIP] Many membrane proteins have experimentally validated preferences for
 > specific lipid types. These preferences can guide domain composition and
 > improve the biological relevance of the model.
 
@@ -409,8 +432,8 @@ TS2CG PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB \
           -incdirtype Local -Rcutoff 0.65
 ```
 
-PCG respects the domain assignments created by DAI and places the
-appropriate lipid types in each region.
+PCG respects the domain assignments created by DAI and places the appropriate
+lipid types in each region.
 
 ### Visualize
 
@@ -418,25 +441,27 @@ appropriate lipid types in each region.
 vmd output.gro
 ```
 
-You should see a vesicle with embedded proteins, two distinct lipid
-domains in both leaflets (POPC in the bulk, DOPC around proteins), and
-clear lipid domain boundaries.
+You should see a vesicle with embedded proteins, two distinct lipid domains in
+both leaflets (POPC in the bulk, DOPC around proteins), and clear lipid domain
+boundaries.
 
 <div align="center">
 <img src="../figures/03_domains_vesicle.png" width="70%"/>
 <br>
-<sub><i>Figure 6. Vesicle with protein-specific lipid domains. (a) DOPC (cyan) domains around membrane proteins (grey) in a POPC (green) bulk membrane. (b) Cross-sectional view.</i></sub>
+<sub><i>Figure 6. Vesicle with protein-specific lipid domains. (a) DOPC (cyan)
+domains around membrane proteins (grey) in a POPC (green) bulk membrane. (b)
+Cross-sectional view.</i></sub>
 </div>
 
 ---
 
 ## 5. Analytical shapes
 
-The first four sections built membranes from a triangulated mesh. TS2CG
-also supports building directly from an analytical shape definition, which
-gives parametric control and reproducibility for systematic studies. This
-section uses an analytical sinusoidal membrane as the example, and
-introduces shape-preserving walls that maintain the curvature during MD.
+The first four sections built membranes from a triangulated mesh. TS2CG also
+supports building directly from an analytical shape definition, which gives
+parametric control and reproducibility for systematic studies. This section
+uses an analytical sinusoidal membrane as the example, and introduces
+shape-preserving walls that maintain the curvature during MD.
 
 ### A sinusoidal membrane (1D Fourier)
 
@@ -470,15 +495,14 @@ TS2CG PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB \
 The Fourier modes control wavelength and amplitude of the membrane
 undulations.
 
-> [!TIP]
-> Experiment with the `Mode` parameters to create different curvature
-> patterns. The first number is the amplitude, the second the frequency,
-> and the third the phase offset.
+> [!TIP] Experiment with the `Mode` parameters to create different curvature
+> patterns. The first number is the amplitude, the second the frequency, and
+> the third the phase offset.
 
 ### Other analytical shapes
 
-Multiple analytical shapes are supported. All are built with the same
-command, swapping the `[Shape Data]` block:
+Multiple analytical shapes are supported. All are built with the same command,
+swapping the `[Shape Data]` block:
 
 | **Cylinder** | **Sphere** |
 | :--- | :--- |
@@ -486,14 +510,14 @@ command, swapping the `[Shape Data]` block:
 | **Flat** | **1D Fourier** |
 | <pre>Flat<br>    Box 40 40 40<br>    Density 2 2<br>    Thickness 4<br>    WallRange 0 1 0 1<br>End</pre> | <pre>1D Fourier Shape<br>    Box 20 10 20<br>    WallRange 0 1 0 1<br>    Density 3 1<br>    Thickness 4<br>    Mode 1.5 1 0<br>    Mode 0.5 2 0<br>End</pre> |
 
-> [!NOTE]
-> The density parameters control the number of lipids per unit area. Higher
-> densities create tighter packing, while lower densities may leave gaps.
+> [!NOTE] The density parameters control the number of lipids per unit area.
+> Higher densities create tighter packing, while lower densities may leave
+> gaps.
 
 ### Shape-preserving walls
 
-Membranes can deform during MD as the system equilibrates, which can
-destroy the precise geometry needed for studies such as lipid sorting or
+Membranes can deform during MD as the system equilibrates, which can destroy
+the precise geometry needed for studies such as lipid sorting or
 curvature-dependent protein behavior. Wall beads constrain the membrane to
 maintain its shape during the simulation.
 
@@ -507,16 +531,15 @@ TS2CG PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB \
 - `-Wall` — generate wall beads (WL).
 - `-WallH 0.1` — place wall beads 0.1 nm above the lipid headgroup.
 
-PCG writes a `Wall.itp` file containing wall bead parameters. The wall
-beads interact repulsively with lipid tail beads (C1 and C4h) and are
-invisible to headgroups. Include `Wall.itp` in your topology file along
-with the Martini force field files.
+PCG writes a `Wall.itp` file containing wall bead parameters. The wall beads
+interact repulsively with lipid tail beads (C1 and C4h) and are invisible to
+headgroups. Include `Wall.itp` in your topology file along with the Martini
+force field files.
 
-> [!WARNING]
-> Simulating wall-constrained membranes requires careful attention to the
-> protocol. Wall parameters must maintain the membrane shape while still
-> allowing normal lipid diffusion. For detailed protocols, see
-> [this book chapter](https://doi.org/10.1016/bs.mie.2024.03.010).
+> [!WARNING] Simulating wall-constrained membranes requires careful attention
+> to the protocol. Wall parameters must maintain the membrane shape while still
+> allowing normal lipid diffusion. For detailed protocols, see [this book
+> chapter](https://doi.org/10.1016/bs.mie.2024.03.010).
 
 ### Visualize
 
@@ -530,26 +553,27 @@ positioned around the bilayer.
 <div align="center">
 <img src="../figures/03_sinusoidal.png" width="75%"/>
 <br>
-<sub><i>Figure 7. Analytical sinusoidal membrane. (a) 1D Fourier membrane with 90% POPC (green) and 10% CDL2 (cyan). (b) The same membrane with wall beads (grey spheres) maintaining the curvature during simulation.</i></sub>
+<sub><i>Figure 7. Analytical sinusoidal membrane. (a) 1D Fourier membrane with
+90% POPC (green) and 10% CDL2 (cyan). (b) The same membrane with wall beads
+(grey spheres) maintaining the curvature during simulation.</i></sub>
 </div>
 
 ---
 
 ## 6. Curvature-based lipid placement
 
-This section introduces TS2CG's experimental DOP (Distribution-based
-Optimized Placement) tool, which performs curvature-informed lipid
-placement. DOP is a research-stage feature that requires careful parameter
-selection and validation.
+This section introduces TS2CG's experimental DOP (Distribution-based Optimized
+Placement) tool, which performs curvature-informed lipid placement. DOP is a
+research-stage feature that requires careful parameter selection and
+validation.
 
-Different lipid geometries have distinct curvature preferences in
-biological membranes. The critical packing parameter (CPP) summarizes a
-lipid's geometry as the ratio of its hydrophobic tail volume to the
-product of head group area and tail length. Cone-shaped lipids favor
-negative curvature regions; inverted-cone lipids favor positive curvature.
-DOP uses this principle to create non-random lipid distributions, which
-may reduce equilibration times and provide more realistic starting
-configurations.
+Different lipid geometries have distinct curvature preferences in biological
+membranes. The critical packing parameter (CPP) summarizes a lipid's geometry
+as the ratio of its hydrophobic tail volume to the product of head group area
+and tail length. Cone-shaped lipids favor negative curvature regions;
+inverted-cone lipids favor positive curvature. DOP uses this principle to
+create non-random lipid distributions, which may reduce equilibration times and
+provide more realistic starting configurations.
 
 ### The placement algorithm
 
@@ -568,22 +592,22 @@ Where:
 - $k$ is a user-defined scaling factor controlling domain sharpness.
 
 The algorithm iterates over each point in random order to avoid systematic
-bias, calculating placement probabilities for all lipid types and
-normalizing them to preserve the specified overall composition.
+bias, calculating placement probabilities for all lipid types and normalizing
+them to preserve the specified overall composition.
 
 ### Create the initial point distribution
 
-Using the sinusoidal configuration from Section 5, generate the point
-folder first:
+Using the sinusoidal configuration from Section 5, generate the point folder
+first:
 
 ```sh
 TS2CG PCG -str input.str -function analytical_shape -WPointDir
 ```
 
-The `-WPointDir` flag tells PCG to only generate the point folder. It
-writes `InnerBM.dat` and `OuterBM.dat`, which contain the geometric
-information needed for the curvature calculation (local coordinate frames
-and curvature tensors at each point).
+The `-WPointDir` flag tells PCG to only generate the point folder. It writes
+`InnerBM.dat` and `OuterBM.dat`, which contain the geometric information needed
+for the curvature calculation (local coordinate frames and curvature tensors at
+    each point).
 
 ### Define curvature preferences
 
@@ -603,12 +627,11 @@ Create `domain_input.txt`:
 - `c0` — preferred curvature for the lipid type (nm⁻¹).
 - `APL` — area per lipid (nm²).
 
-> [!NOTE]
-> Curvature preferences ($C_0$) are not well-defined physical constants.
-> They depend on membrane composition, temperature, and local environment,
-> and should be treated as adjustable parameters rather than fundamental
-> lipid properties. Experiment with different values and validate against
-> experimental data where available.
+> [!NOTE] Curvature preferences ($C_0$) are not well-defined physical
+> constants. They depend on membrane composition, temperature, and local
+> environment, and should be treated as adjustable parameters rather than
+> fundamental lipid properties. Experiment with different values and validate
+> against experimental data where available.
 
 ### Optimize placement with DOP
 
@@ -627,11 +650,10 @@ TS2CG DOP -p point -s domain_input.txt -ni optimized_input.str -k 250
 This produces a modified point folder with curvature-optimized lipid
 assignments, along with an updated `optimized_input.str`.
 
-> [!TIP]
-> The `k` parameter controls the strength of the curvature bias. Low
+> [!TIP] The `k` parameter controls the strength of the curvature bias. Low
 > values give weak preferences; high values can produce unrealistic
-> segregation. Start with moderate values and adjust based on the system.
-> The right range depends on both the lipid composition and the curvature
+> segregation. Start with moderate values and adjust based on the system. The
+> right range depends on both the lipid composition and the curvature
 > distribution of the membrane.
 
 ### Build the curvature-informed membrane
@@ -647,19 +669,20 @@ vmd output.gro
 ```
 
 You should see a continuous 1D Fourier sinusoidal membrane with CDL2
-(cardiolipin) concentrated in negatively curved regions and POPC
-distributed more uniformly with a slight preference for less curved areas.
+(cardiolipin) concentrated in negatively curved regions and POPC distributed
+more uniformly with a slight preference for less curved areas.
 
-> [!WARNING]
-> DOP is a recent addition to TS2CG. More work is needed to validate the
-> biological accuracy of the resulting distributions. It remains a useful
+> [!WARNING] DOP is a recent addition to TS2CG. More work is needed to validate
+> the biological accuracy of the resulting distributions. It remains a useful
 > tool for setting up lateral lipid organization, but the output should be
 > checked critically.
 
 <div align="center">
 <img src="../figures/03_curvature_sorted.png" width="75%"/>
 <br>
-<sub><i>Figure 8. Curvature-based lipid sorting. CDL2 (cyan) is preferentially located near negatively curved regions, while POPC (green) is more uniformly distributed.</i></sub>
+<sub><i>Figure 8. Curvature-based lipid sorting. CDL2 (cyan) is preferentially
+located near negatively curved regions, while POPC (green) is more uniformly
+distributed.</i></sub>
 </div>
 
 ---
@@ -667,10 +690,11 @@ distributed more uniformly with a slight preference for less curved areas.
 ## Going further
 
 For complete simulation protocols, including GROMACS `.mdp` files and
-instructions for running membrane simulations of TS2CG-built systems, see
-the [TS2CG tutorials wiki](https://github.com/weria-pezeshkian/TS2CG-v2.0/wiki/Tutorial-10).
-The full TS2CG documentation is available on the
-[TS2CG documentation site](https://weria-pezeshkian.github.io/TS2CG_python_documentation/).
+instructions for running membrane simulations of TS2CG-built systems, see the
+[TS2CG tutorials
+wiki](https://github.com/weria-pezeshkian/TS2CG-v2.0/wiki/Tutorial-10). The
+full TS2CG documentation is available on the [TS2CG documentation
+site](https://weria-pezeshkian.github.io/TS2CG_python_documentation/).
 
 ---
 
@@ -684,15 +708,14 @@ The full TS2CG documentation is available on the
     surfaces to coarse-grained membrane models. *Nat. Commun.*, 11, 2296.
     [doi:10.1038/s41467-020-16094-y](https://doi.org/10.1038/s41467-020-16094-y)
 
-[^freedts]: Pezeshkian, W., et al. (2024). Mesoscale simulation of
-    biomembranes with FreeDTS. *Nat. Commun.*, 15, 548.
+[^freedts]: Pezeshkian, W., et al. (2024). Mesoscale simulation of biomembranes
+    with FreeDTS. *Nat. Commun.*, 15, 548.
     [doi:10.1038/s41467-024-44819-w](https://doi.org/10.1038/s41467-024-44819-w)
 
-[^cristae]: Brown, C. M., et al. (2025). An integrative modelling approach
-    to the mitochondrial cristae. *Commun. Biol.*, 8, 972.
+[^cristae]: Brown, C. M., et al. (2025). An integrative modelling approach to
+    the mitochondrial cristae. *Commun. Biol.*, 8, 972.
     [doi:10.1038/s42003-025-08381](https://doi.org/10.1038/s42003-025-08381)
 
-[^martini3]: Souza, P. C. T., et al. (2021). Martini 3: a general purpose
-    force field for coarse-grained molecular dynamics. *Nat. Methods*, 18,
-    382–388.
+[^martini3]: Souza, P. C. T., et al. (2021). Martini 3: a general purpose force
+    field for coarse-grained molecular dynamics. *Nat. Methods*, 18, 382–388.
     [doi:10.1038/s41592-021-01098-3](https://doi.org/10.1038/s41592-021-01098-3)
