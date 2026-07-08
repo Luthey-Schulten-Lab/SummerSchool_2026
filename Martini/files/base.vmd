@@ -123,9 +123,6 @@ proc reset_viz {molid} {
 
   # Operate only on existing molecules.
   if {[lsearch [molinfo list] $molid] >= 0} {
-    # Remove the default Lines style.
-    mol delrep $molid 0
-
     if {[llength $style_files]} {
       # If there are any style files, source their contents here.
       set sorted_files [lsort $style_files]
@@ -182,6 +179,9 @@ after idle {
     # slice of the model and then turn it on again. When I work with smaller,
     # manageable models, I disable this.
     # mol off $molid
+
+    # Remove the existing default Lines representation.
+    mol delrep $molid 0
 
     # Reset each molecule visualization to our preferred defaults.
     reset_viz $molid
