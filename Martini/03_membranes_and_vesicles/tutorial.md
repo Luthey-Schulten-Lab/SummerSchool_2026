@@ -94,7 +94,9 @@ module use /projects/bgvl/alfiaparvez/modulefiles
 module load vmd/2.0.0
 ```
 
-### Get the files
+---
+
+Navigate to the tutorial directory.
 
 ```sh
 cd 03_membranes_and_vesicles

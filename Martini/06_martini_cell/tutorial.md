@@ -32,8 +32,7 @@ with _GROMACS_.
 | 3   | Pack the cytosol            | _`bentopy`_ |
 | 4   | Simulate the assembled cell | _`GROMACS`_ |
 
-To start this tutorial, navigate to the respective folder in the workshop
-repository.
+Navigate to the tutorial directory.
 
 ```sh
 cd 06_martini_cell

@@ -32,9 +32,7 @@ was predicted with AlphaFold2.
 4. Run energy minimization, equilibration, and production.
 5. Visualize the trajectory and analyze backbone RMSD and per-residue RMSF.
 
-### Get the files
-
-Move into the tutorial directory:
+Navigate to the tutorial directory.
 
 ```sh
 cd 02_protein_basics

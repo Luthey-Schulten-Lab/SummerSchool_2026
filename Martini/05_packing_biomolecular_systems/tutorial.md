@@ -70,7 +70,7 @@ pip install bentopy
 
 This installs the `bentopy-*` command-line tools used throughout the tutorial.
 
-Navigate to the tutorial folder:
+Navigate to the tutorial directory.
 
 ```sh
 cd 05_packing_the_cytoplasm

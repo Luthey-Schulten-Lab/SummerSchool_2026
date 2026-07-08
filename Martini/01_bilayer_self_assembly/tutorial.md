@@ -34,9 +34,7 @@ properties. The steps are:
 - `xmgrace` or another viewer for `.xvg` files.
 - Common command-line utilities and a text editor.
 
-### Get the files
-
-Navigate into the tutorial folder of the `martini-workshop` repository:
+Navigate to the tutorial directory.
 
 ```sh
 cd 01_bilayer_self_assembly
