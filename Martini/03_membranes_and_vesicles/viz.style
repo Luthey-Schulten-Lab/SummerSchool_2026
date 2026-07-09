@@ -2,42 +2,50 @@
 #     <m.s.s.westendorp@rug.nl>
 #     <ma3ke.cyber@gmail.com>
 
-# Proteins.
-mol selection proteinbb
-mol color ColorID 21
-mol representation VDW
-mol material AOChalky
-mol addrep $molid
 
-
-# Lipid tails.
-mol selection lipid
+# Lipid tails followed by headgroups.
+mol selection resname POPC
 mol color ColorID 19
-mol representation Licorice 3 12 12 0
+mol representation VDW 0.6
 mol material AOChalky
 mol addrep $molid
-# Lipid head group.
-mol selection lipid and headgroup
+mol selection resname POPC and headgroup
 mol color ColorID 7
 mol representation VDW 0.8
 mol material AOChalky
 mol addrep $molid
 
-
-# Solvent.
-mol selection name W NA CL
-mol color ColorID 8
-mol representation QuickSurf 0.6 0.5 0.5 3
-mol material GlassBubble
+mol selection resname DOPC CDL2
+mol color ColorID 22
+mol representation VDW 0.6
+mol material AOChalky
 mol addrep $molid
-set repid [expr [molinfo $molid get numreps] - 1]
-mol showrep $molid $repid 0
+mol selection resname DOPC CDL2 and headgroup
+mol color ColorID 10
+mol representation VDW 0.8
+mol material AOChalky
+mol addrep $molid
 
-# Ions.
-mol selection name NA CL
+
+# Proteins.
+mol selection proteinbb
+mol color ColorID 8
+mol representation QuickSurf 1.0 0.5 0.5 1.0
+mol material AOChalky
+mol addrep $molid
+
+
+# Surface points.
+mol selection resname Ver
 mol color Name
 mol representation VDW 0.2
 mol material AOShiny
 mol addrep $molid
-set repid [expr [molinfo $molid get numreps] - 1]
-mol showrep $molid $repid 0
+
+
+# Wall points.
+mol selection resname Wall
+mol color ColorID 5
+mol representation VDW 0.5
+mol material AOChalky
+mol addrep $molid

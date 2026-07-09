@@ -89,6 +89,7 @@ color change rgb  7 0.43 0.72 0.33; # Green
 color change rgb 10 0.1  0.65 0.95; # Cyan
 color change rgb 19 0.63 0.96 0.35; # Green 2
 color change rgb 21 0.55 0.75 0.90; # Cyan 2
+color change rgb 22 0.02 0.52 0.95; # Cyan 3
 color change rgb 31 0.95 0.37 0.0 ; # Orange 2
 color change rgb 32 0.96 0.63 0.0 ; # Orange 3
 
