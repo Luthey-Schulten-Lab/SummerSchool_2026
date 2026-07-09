@@ -235,7 +235,7 @@ the box, with no polymer beads outside the sphere.
 <div align="center">
 <img src="../figures/04_confined_PEO.png" width="50%"/>
 <br>
-<sub><i>Figure 2. Confined PEO. A single 1000-residue chain confined to a spherical volume of radius 7 nm.</i></sub>
+<sub><i>Figure 2. Confined PEO. A single 1000-residue chain confined to a spherical volume of radius 7 nm (represented by the dashed circle).</i></sub>
 </div>
 
 ---
