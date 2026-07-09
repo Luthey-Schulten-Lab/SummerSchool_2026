@@ -326,14 +326,18 @@ vmd cell.gro
 ## 4. Simulate the cell model
 
 Simulating the cell follows a short protocol. We minimize the packed model in
-vacuum, solvate it, minimize again, then equilibrate and run production.
+vacuum, solvate it, minimize again, then equilibrate and run a production simulation.
 
-The vacuum step comes first for efficiency. Packing leaves high forces, mostly
-from overlaps in the TS2CG membrane, and clearing them in vacuum resolves the
-worst problems while the particle count is still low. Solvating first would
-only stack water on top of those forces and make the minimization harder. Once
-the solutes are relaxed we add water and minimize again, settling the
-solute-water interface before dynamics. Both minimizations run in double
+The vacuum minimization comes first. TS2CG builds the bilayer compact so it
+relaxes into a well-packed membrane, but the initial configuration has some
+beads, mainly the lipids, overlapping more than they will at equilibrium. These
+overlaps give high initial forces, and clearing them in vacuum resolves the
+worst problems while the particle count is still low.
+
+Minimizing before solvation helps in two smaller ways. Water would add forces
+of its own to the minimization, and it would settle into the space the lipids
+expand into as they relax. After the vacuum step we add water and minimize
+again to settle the solute-water interface. Both minimizations run in double
 precision, because the forces in a freshly packed cell can exceed what
 single-precision GROMACS represents reliably.
 
