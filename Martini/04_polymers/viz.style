@@ -5,7 +5,7 @@
 # Polymers.
 mol selection resname PS
 mol color ColorID 31
-mol representation VDW
+mol representation Licorice 2 12 12 0
 mol material AOChalky
 mol addrep $molid
 
