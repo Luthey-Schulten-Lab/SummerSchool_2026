@@ -3,7 +3,14 @@
 #     <ma3ke.cyber@gmail.com>
 
 # Proteins.
-mol selection proteinbb
+# Cartoon representation for the all-atom model.
+mol selection protein
+mol color ColorID 21
+mol representation NewCartoon 0.3 12 4.5 0
+mol material AOChalky
+mol addrep $molid
+# Martini CG protein.
+mol selection {name BB "SC.*"}
 mol color ColorID 21
 mol representation VDW
 mol material AOChalky
