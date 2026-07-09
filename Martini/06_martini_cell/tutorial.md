@@ -401,7 +401,7 @@ Equilibrate and run production:
 ```sh
 # Equilibration
 mkdir -p eq
-gmx grompp -f mdp_files/eq.mdp -c em/em.gro -p topol.top -n index.ndx -o eq/eq.tpr
+gmx grompp -f mdp_files/eq.mdp -c em/em.gro -p topol.top -n index.ndx -o eq/eq.tpr -maxwarn 2
 gmx mdrun -v -deffnm eq/eq
 
 # Production
