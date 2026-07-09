@@ -136,7 +136,7 @@ Generate a labeled voxel representation to see which compartments Bentopy
 identifies:
 
 ```sh
-bentopy-mask chromosome_membrane.gro -b labels.gro -morph ddee
+bentopy-mask chromosome_membrane.gro -b labels.gro --morph ddee
 ```
 
 The `-morph ddee` flag smooths the voxel mask built from the underlying points
