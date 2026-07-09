@@ -376,7 +376,7 @@ With the cell minimized, switch to the CUDA single-precision GROMACS build
 for equilibration and production:
 
 ```sh
-micromamba install "gromacs=*=nompi_cuda_h*"
+micromamba install "gromacs=2024.3=nompi_cuda_h*"
 ```
 
 Build an index file with separate groups for the chromosome, lipids,
