@@ -309,7 +309,7 @@ The exact molecule counts (X) come directly from `membrane.top` and
 
 | | |
 | :--: | :--: |
-| <img src="../figures/05_cytosolic_proteins.png"/> | <img src="../figures/cell.png"/> |
+| <img src="../figures/05_packed.png"/> | <img src="../figures/cell.png"/> |
 
 <sub><i>Figure 5. Final cell model. Left: cytosolic proteins packed inside the mask. Right: full cell with chromosome, envelope, and cytosol combined.</i></sub>
 
