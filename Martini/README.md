@@ -71,7 +71,7 @@ also available [here](https://tutorials.gromacs.org/).
   | Account         | `bgvl-delta-gpu`      |
   | Partition       | `gpuA40x4`            |
   | Duration of job | `4:00:00`             |
-  | Number of CPUs  | `8`                   |
+  | Number of CPUs  | `32`                  |
   | Amount of RAM   | `64G`                 |
   | Number of GPUs  | `1`                   |
 
