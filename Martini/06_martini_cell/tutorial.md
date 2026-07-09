@@ -32,7 +32,8 @@ with _GROMACS_.
 | 3   | Pack the cytosol            | _`bentopy`_ |
 | 4   | Simulate the assembled cell | _`GROMACS`_ |
 
-Navigate to the tutorial directory.
+To start this tutorial, navigate to the respective folder in the workshop
+repository.
 
 ```sh
 cd 06_martini_cell
@@ -58,18 +59,6 @@ base-pair templates (Figure 1). <br><br>
 <br>
 <sub><i>Figure 1. Backmapping protocol. Martini-resolution coordinates are generated from a mesoscale polymer model.</i></sub>
 </div> <br>
-
-The topology comes in two forms that differ only in the stiffest bonds.
-`chromosome.itp` models these as constraints, which fix each bond length
-exactly and let Martini run at its normal (20 fs) timestep. Constraints are
-hard to energy-minimize. A bond even slightly off its target length produces
-a near-infinite restoring force, and steepest descent cannot make progress
-against it. `chromosome_FLEX.itp` therefore replaces the constraints with
-stiff harmonic bonds, which minimize cleanly. Those stiff bonds are a poor
-choice for dynamics, though. The integrator timestep is set by the fastest
-oscillation in the system, and stiff bonds oscillate fast enough to force a
-much smaller step. Minimize with the FLEX topology, then run dynamics with the
-constrained one. Section 4 shows where to swap them.
 
 Inspect `chromosome.gro` in VMD before continuing. It should look similar to Figure 2.
 
@@ -147,8 +136,13 @@ Generate a labeled voxel representation to see which compartments Bentopy
 identifies:
 
 ```sh
-bentopy-mask chromosome_membrane.gro -b labels.gro
+bentopy-mask chromosome_membrane.gro -b labels.gro -morph ddee
 ```
+
+The `-morph ddee` flag smooths the voxel mask built from the underlying points
+using a sequence of dilation and erosion steps. This improves compartment
+detection for unequilibrated models, where the packing can leave small gaps in
+the mask.
 
 The output prints a containment graph:
 
@@ -349,9 +343,6 @@ Install the double-precision, non-MPI GROMACS build:
 micromamba install "gromacs=*=nompi_dblprec_*"
 ```
 
-Both minimizations use the flexible chromosome. In `topol.top`, replace
-`#include "chromosome.itp"` with `#include "chromosome_FLEX.itp"`.
-
 Run the vacuum minimization:
 
 ```sh
@@ -383,9 +374,6 @@ for equilibration and production:
 ```sh
 micromamba install "gromacs=*=nompi_cuda_h*"
 ```
-
-Restore the constrained chromosome for the dynamics. In `topol.top`, change
-`#include "chromosome_FLEX.itp"` back to `#include "chromosome.itp"`.
 
 Build an index file with separate groups for the chromosome, lipids,
 solvent, and metabolites. These groups are used during equilibration and
@@ -419,7 +407,7 @@ gmx mdrun -v -deffnm md/md
 ```
 
 The cell model is simulated as a single system, and its components begin to
-equilibrate with resepct to one another. Over the trajectory the lipids diffuse
+equilibrate with respect to one another. Over the trajectory the lipids diffuse
 in the envelope and the packed cytosol relaxes around the chromosome.
 
 <div align="center">
