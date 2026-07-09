@@ -294,7 +294,7 @@ ATP_synthase X
 POPC         X
 SSM          X
 ...
-; from cytosol.top (bentopy-render)
+; already in topol.top (bentopy-render)
 002_monomer  X
 ...
 ATPH         X
