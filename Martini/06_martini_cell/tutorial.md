@@ -169,7 +169,7 @@ compartments by atom name (quotes are needed for negative labels):
 Write out the cytosol compartment as a mask:
 
 ```sh
-bentopy-mask chromosome_membrane.gro -l -1:cytosol_mask.npz
+bentopy-mask chromosome_membrane.gro -l -1:cytosol_mask.npz  --morph ddee
 ```
 
 The accessible volume for proteins and metabolites in this model is
