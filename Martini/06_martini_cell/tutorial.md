@@ -344,7 +344,7 @@ single-precision GROMACS represents reliably.
 Install the double-precision, non-MPI GROMACS build:
 
 ```sh
-micromamba install "gromacs=*=nompi_dblprec_*"
+micromamba install "gromacs=2024.3=nompi_dblprec_*"
 ```
 
 Run the vacuum minimization:
