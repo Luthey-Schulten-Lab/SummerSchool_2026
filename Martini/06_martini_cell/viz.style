@@ -13,13 +13,13 @@ mol addrep $molid
 # Lipid tails.
 mol selection lipid
 mol color ColorID 19
-mol representation Licorice 3 12 12 0
+mol representation VDW 0.8
 mol material AOChalky
 mol addrep $molid
 # Lipid head group.
 mol selection lipid and headgroup
 mol color ColorID 7
-mol representation VDW 0.8
+mol representation VDW 1
 mol material AOChalky
 mol addrep $molid
 
