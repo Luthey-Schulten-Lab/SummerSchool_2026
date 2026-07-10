@@ -907,8 +907,8 @@ repository](https://github.com/marrink-lab/bentopy).
     Dommer, Abigail C., Wassenaar, Tsjerk A., Bruininks, Bart M. H., & Marrink,
     Siewert J. (2026). Compartment-guided assembly of large-scale molecular
     models with bentopy. Protein Science, e70480.
-    https://doi.org/10.1002/pro.70480
+    <https://doi.org/10.1002/pro.70480>
 
 [^mdvcontainment]: Bruininks, Bart M. H., & Vattulainen, Ilpo. (2025).
     Classification of containment hierarchy for point clouds in periodic space.
-    bioRxiv. https://doi.org/10.1101/2025.08.06.668936
+    bioRxiv. <https://doi.org/10.1101/2025.08.06.668936>
