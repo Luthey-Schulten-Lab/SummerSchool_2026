@@ -333,8 +333,9 @@ vmd cell.gro
 
 ## 4. Simulate the cell model
 
-Simulating the cell follows a short protocol. We minimize the packed model in
-vacuum, solvate it, minimize again, then equilibrate and run a production simulation.
+We will now simulate the cell with a short protocol. We minimize the packed
+model in vacuum, solvate it, minimize again, then equilibrate and run a
+production simulation.
 
 The vacuum minimization comes first. TS2CG builds the bilayer compact so it
 relaxes into a well-packed membrane, but the initial configuration has some
