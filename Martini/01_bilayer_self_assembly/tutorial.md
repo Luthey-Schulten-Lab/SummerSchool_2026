@@ -346,8 +346,8 @@ gmx make_ndx -f eq/eq.gro
 Then compute the density along the bilayer normal:
 
 ```sh
-gmx density -f eq/eq.xtc -s eq/eq.tpr -b 15000 -n index.ndx \
-            -o analysis/p-density.xvg
+gmx density -f eq/eq.xtc -s eq/eq.tpr -b 15000 -trestart 500 \
+		    -n index.ndx -o analysis/p-density.xvg
     > P*         [Enter]
 ```
 
