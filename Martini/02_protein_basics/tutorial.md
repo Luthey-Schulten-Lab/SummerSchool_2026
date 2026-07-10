@@ -103,26 +103,30 @@ martinize2 -f protein.pdb -x protein_cg.pdb -o topol.top -name protein \
            -ff martini3001 -p backbone -dssp -go
 ```
 
-<details>
-<summary><b>Extra setup for GōMartini</b></summary>
-<br>
+#### Additional setup for GōMartini
 
-`martinize2` writes two additional files for the Gō network:
-`go_atomtypes.itp` and `go_nbparams.itp`. These need to be included in
-`martini_v3.0.0.itp` once, with the following two commands:
+`martinize2` writes two additional files for the Gō network: `go_atomtypes.itp`
+and `go_nbparams.itp`. These need to be included in `martini_v3.0.0.itp` once,
+with the following two commands.
 
 ```sh
-sed -i 's/\[ nonbond_params \]/#ifdef GO_VIRT\n#include "go_atomtypes.itp"\n#endif\n\n[ nonbond_params ]/' martini_v3.0.0/martini_v3.0.0.itp
+# Include the Gō atom types when activated.
+sed -i '/\[ nonbond_params \]/i #ifdef GO_VIRT\n#include "go_atomtypes.itp"\n#endif\n' martini_v3.0.0/martini_v3.0.0.itp
+# Include the Gō non-bonded forcefield parameters when activated.
+cat << 'EOF' >> martini_v3.0.0/martini_v3.0.0.itp
 
-echo -e "\n#ifdef GO_VIRT\n#include \"go_nbparams.itp\"\n#endif" >> martini_v3.0.0/martini_v3.0.0.itp
+#ifdef GO_VIRT
+#include "go_nbparams.itp"
+#endif
+EOF
 
+# Copy the referenced itp files to the forcefield directory.
 cp go_atomtypes.itp go_nbparams.itp martini_v3.0.0
 ```
 
-Run them only once. Then add `#define GO_VIRT` at the very top of `topol.top`
-so the includes activate.
-
-</details>
+Run these commands _once_. Finally, make sure the line `#define GO_VIRT` is
+included at the very top of your `topol.top`. This activates the Gō
+configuration we just added.
 
 ### Demonstration — No structure bias
 
@@ -177,8 +181,8 @@ default and do not need to be specified.
 ## 3. Build the topology
 
 The `topol.top` written by `martinize2` is minimal. Add the Martini 3 force
-field includes at the top so the system has water and ion parameters
-available for the next steps:
+field includes at the top so the system has water and ion parameters available
+for the next steps.
 
 ```text
 #include "martini_v3.0.0/martini_v3.0.0.itp"
@@ -194,9 +198,10 @@ protein_0 1
 ```
 
 > [!IMPORTANT]
-> If you chose **GōMartini**, also add `#define GO_VIRT` as the very first
-> line (above the `#include` lines), and make sure `go_atomtypes.itp` and
-> `go_nbparams.itp` were patched into `martini_v3.0.0.itp` (see Section 2).
+> If you chose **GōMartini**, make sure the line `#define GO_VIRT` is placed as
+> the very first line (above the `#include` lines) of your `topol.top`. Also
+> make sure `go_atomtypes.itp` and `go_nbparams.itp` were patched into
+> `martini_v3.0.0.itp` as described in Section 2.
 
 ---
 
