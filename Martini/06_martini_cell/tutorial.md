@@ -3,23 +3,23 @@
 > **Time:** ~30 minutes <br>
 > **Software:** _GROMACS 2024.3_ · _bentopy_ · _polyply_ · _TS2CG_ · _martinize2_ · _VMD 2_ <br>
 
-The previous tutorials introduced the Martini CG force field and the ecosystem
+The previous tutorials introduced the Martini CG force field[^martini3] and the ecosystem
 of tools for building complex coarse-grained models. In this tutorial we bring
-them together to construct a full cell model, based on the JCVI-Syn3A minimal
+them together to construct a full cell model[^cell], based on the JCVI-Syn3A minimal
 bacterium.
 
 The model has three main components:
 
 - A **chromosome**: a 20 kbp toy genome with a 3D structure obtained from
-  bTreeChromo, and backmapped to Martini resolution with _polyply_.
+  bTreeChromo, and backmapped to Martini resolution with _polyply_[^polyply].
 - A **cell envelope**: a spherical lipid membrane containing a representative
-  subset of the Syn3A membrane proteins, built with _TS2CG_.
+  subset of the Syn3A membrane proteins, built with _TS2CG_[^TS2CG].
 - A **cytosol**: the full Syn3A proteome and metabolome at counts scaled down
   from experimental proteomics and metabolomics data, packed into the cytosolic
-  space with _bentopy_.
+  space with _bentopy_[^bentopy].
 
 We combine these into a single whole-cell model and run a short MD simulation
-with _GROMACS_.
+with _GROMACS_[^gromacs].
 
 ---
 
@@ -424,6 +424,15 @@ in the envelope and the packed cytosol relaxes around the chromosome.
 ---
 
 ## References
+[^martini3]: Souza, Paulo C. T., Alessandri, Riccardo, Barnoud, Jonathan, et
+    al. Martini 3: a general purpose force field for coarse-grained molecular
+    dynamics. _Nat. Methods_ **18**, 382–388. (2021)
+    <https://doi.org/10.1038/s41592-021-01098-3>
+
+[^cell]: Stevens, J. A., Bozoflu, M., Westendorp, M. S. S., Grünewald, L.,
+    Brown, C. M., Bruininks, B. M. H., Grünewald, F., Luthey-Schulten, Z.,
+    Lindahl, E., & Marrink, S. J. Emergent Organization in a Molecular Dynamics
+    Simulation of a Bacterial Cell. Manuscript in preparation.
 
 [^mdvc]: Bruininks, Bart M. H., & Vattulainen, Ilpo. Classification of
     containment hierarchy for point clouds in periodic space. _bioRxiv_. (2025)
@@ -446,3 +455,9 @@ in the envelope and the packed cytosol relaxes around the chromosome.
     Siewert J. Compartment-guided assembly of large-scale molecular models with
     bentopy. _Protein Science_, **35**(3), e70480. (2026)
     <https://doi.org/10.1002/pro.70480>
+
+[^gromacs]: Abraham, Mark James, Murtola, Teemu, Schulz, Roland, Páll,
+    Szilárd, Smith, Jeremy C., Hess, Berk, & Lindahl, Erik. GROMACS: High
+    performance molecular simulations through multi-level parallelism from
+    laptops to supercomputers. _SoftwareX_ **1–2**, 19–25. (2015)
+    <https://doi.org/10.1016/j.softx.2015.06.001>
