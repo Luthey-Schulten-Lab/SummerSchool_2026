@@ -261,6 +261,7 @@ order (envelope first, then cytosol) and prepend the chromosome. Write the
 result as `topol.top`:
 
 ```text
+; from cytosol.top (bentopy)
 #include "martini_v3.0.0/martini_v3.0.0.itp"
 #include "martini_v3.0.0/nucleotide_ffbonded.itp"
 #include "martini_v3.0.0/martini_v3.0.0_ffbonded_v2.itp"
@@ -294,7 +295,7 @@ ATP_synthase X
 POPC         X
 SSM          X
 ...
-; already in topol.top (bentopy-render)
+; from cytosol.top (bentopy)
 002_monomer  X
 ...
 ATPH         X
