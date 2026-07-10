@@ -14,9 +14,9 @@ The model has three main components:
   bTreeChromo, and backmapped to Martini resolution with _polyply_[^polyply].
 - A **cell envelope**: a spherical lipid membrane containing a representative
   subset of the Syn3A membrane proteins, built with _TS2CG_[^TS2CG].
-- A **cytosol**: the full Syn3A proteome and metabolome at counts scaled down
-  from experimental proteomics and metabolomics data, packed into the cytosolic
-  space with _bentopy_[^bentopy].
+- A **cytosol**: the full Syn3A proteome and metabolome[^metabolome] at counts
+  scaled down from experimental proteomics and metabolomics data, packed into
+  the cytosolic space with _bentopy_[^bentopy].
 
 We combine these into a single whole-cell model and run a short MD simulation
 with _GROMACS_[^gromacs].
@@ -117,8 +117,8 @@ vmd membrane.gro
 ## 3. Cytosol
 
 The space between the chromosome and the envelope is our cytosol. We fill
-it with proteins and metabolites at physiological concentrations using
-_bentopy_, with the chromosome and membrane as the scaffolding that
+it with proteins and metabolites[^metabolome] at physiological concentrations
+using _bentopy_, with the chromosome and membrane as the scaffolding that
 defines the packing volume.
 
 ### Merge the chromosome and envelope
@@ -434,10 +434,6 @@ in the envelope and the packed cytosol relaxes around the chromosome.
     Lindahl, E., & Marrink, S. J. Emergent Organization in a Molecular Dynamics
     Simulation of a Bacterial Cell. Manuscript in preparation.
 
-[^mdvc]: Bruininks, Bart M. H., & Vattulainen, Ilpo. Classification of
-    containment hierarchy for point clouds in periodic space. _bioRxiv_. (2025)
-    <https://doi.org/10.1101/2025.08.06.668936>
-
 [^TS2CG]: Schuhmann, Fabian, Stevens, Jan A., Rahmani, Neda, Lindahl, Isabell,
     Brown, Chelsea M., Brasnett, Christopher, Anastasiou, Dimitrios, Vidal,
     Adrià Bravo, Geiger, Beatrice, Marrink, Siewert J., & Pezeshkian, Weria.
@@ -461,3 +457,8 @@ in the envelope and the packed cytosol relaxes around the chromosome.
     performance molecular simulations through multi-level parallelism from
     laptops to supercomputers. _SoftwareX_ **1–2**, 19–25. (2015)
     <https://doi.org/10.1016/j.softx.2015.06.001>
+
+[^metabolome]: Brasnett, Christopher, Brown, Chelsea M., Grünewald, Linus,
+    Stevens, Jan A., & Marrink, Siewert J. (2026). Martini 3 Metabolome.
+    Journal of Chemical Theory and Computation, 22(11), 5858-5866.
+    <https://doi.org/10.1021/acs.jctc.6c00463>
