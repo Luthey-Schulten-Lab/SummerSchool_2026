@@ -49,9 +49,15 @@ and `chromosome.itp` pair. Its bonded terms follow the Martini 2 DNA geometry,
 so the shape is right, but every bead shares one generic type and the
 non-bonded interactions are not chemically meaningful.
 
-The chromosome model coordinates come from backmapping a mesoscale polymer
-model. A one-bead-per-10-bp structure from bTreeChromo is resampled by polyply
-along a periodic B-spline at base-pair spacing and fitted with Martini
+Because `chromosome.itp` is a rather large file, it is included as a compressed file: `chromosome.itp.tar.gz`. You can decompress it as follows.
+
+```sh
+tar -xvzf chromosome.itp.tar.gz
+```
+
+The chromosome model coordinates were created by backmapping a mesoscale
+polymer model. A one-bead-per-10-bp structure from bTreeChromo is resampled by
+polyply along a periodic B-spline at base-pair spacing and fitted with Martini
 base-pair templates (Figure 1). <br><br>
 
 <div align="center">
@@ -60,7 +66,8 @@ base-pair templates (Figure 1). <br><br>
 <sub><i>Figure 1. Backmapping protocol. Martini-resolution coordinates are generated from a mesoscale polymer model.</i></sub>
 </div> <br>
 
-Inspect `chromosome.gro` in VMD before continuing. It should look similar to Figure 2.
+Inspect `chromosome.gro` in VMD before continuing. It should look similar to
+Figure 2.
 
 <div align="center">
 <img src="../figures/05_chromosome.png" width="50%"/>
