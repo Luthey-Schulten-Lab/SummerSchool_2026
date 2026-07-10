@@ -303,11 +303,11 @@ End Protein
 - Two unused parameters — set to 0 for now.
 - `z_offset` — distance to move the protein along the membrane normal.
 
-> [!TIP] To identify the transmembrane region of a protein and orient it
-> correctly along the membrane normal, use the [PPM
-> webserver](https://opm.phar.umich.edu/ppm_server). It determines the optimal
-> membrane insertion depth and orientation from the structure and
-> hydrophobicity profile.
+> [!TIP]
+> To identify the transmembrane region of a protein and orient it correctly
+> along the membrane normal, use the [PPM webserver](https://opm.phar.umich.edu/ppm_server).
+> It determines the optimal membrane insertion depth and orientation from the
+> structure and hydrophobicity profile.
 
 ### Place proteins with INU
 
@@ -340,7 +340,8 @@ TS2CG PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB \
   (required when using INU).
 - `-Rcutoff` — cutoff distance for removing lipids near proteins (nm).
 
-> [!NOTE] The `-Rcutoff` controls the exclusion distance around proteins. After
+> [!NOTE]
+> The `-Rcutoff` controls the exclusion distance around proteins. After
 > building, always check that no lipids ended up in unphysical locations such
 > as inside protein channels. If you find lipids inside protein cavities,
 > increase the cutoff radius and rebuild.
@@ -363,8 +364,9 @@ vesicle with 50% POPC (green), 50% DOPC (cyan), and randomly distributed
 membrane proteins (grey). (b) Cross-sectional view.</i></sub>
 </div>
 
-> [!WARNING] Verify protein orientation in the membrane. Type I proteins have
-> their N-terminus extracellular and C-terminus cytoplasmic; Type II have the
+> [!WARNING]
+> Verify protein orientation in the membrane. Type I proteins have their
+> N-terminus extracellular and C-terminus cytoplasmic; Type II have the
 > opposite orientation.
 
 ---
@@ -423,9 +425,10 @@ End Protein
 This creates two distinct environments: POPC in the bulk membrane (Domain 0)
 and DOPC around proteins (Domain 1).
 
-> [!TIP] Many membrane proteins have experimentally validated preferences for
-> specific lipid types. These preferences can guide domain composition and
-> improve the biological relevance of the model.
+> [!TIP]
+> Many membrane proteins have experimentally validated preferences for specific
+> lipid types. These preferences can guide domain composition and improve the
+> biological relevance of the model.
 
 ### Rebuild with domain-specific compositions
 
@@ -497,9 +500,10 @@ TS2CG PCG -str input.str -Bondlength 0.2 -LLIB Martini3.LIB \
 The Fourier modes control wavelength and amplitude of the membrane
 undulations.
 
-> [!TIP] Experiment with the `Mode` parameters to create different curvature
-> patterns. The first number is the amplitude, the second the frequency, and
-> the third the phase offset.
+> [!TIP]
+> Experiment with the `Mode` parameters to create different curvature patterns.
+> The first number is the amplitude, the second the frequency, and the third
+> the phase offset.
 
 ### Other analytical shapes
 
@@ -512,9 +516,9 @@ swapping the `[Shape Data]` block:
 | **Flat** | **1D Fourier** |
 | <pre>Flat<br>    Box 40 40 40<br>    Density 2 2<br>    Thickness 4<br>    WallRange 0 1 0 1<br>End</pre> | <pre>1D Fourier Shape<br>    Box 20 10 20<br>    WallRange 0 1 0 1<br>    Density 3 1<br>    Thickness 4<br>    Mode 1.5 1 0<br>    Mode 0.5 2 0<br>End</pre> |
 
-> [!NOTE] The density parameters control the number of lipids per unit area.
-> Higher densities create tighter packing, while lower densities may leave
-> gaps.
+> [!NOTE]
+> The density parameters control the number of lipids per unit area. Higher
+> densities create tighter packing, while lower densities may leave gaps.
 
 ### Shape-preserving walls
 
@@ -538,8 +542,9 @@ interact repulsively with lipid tail beads (C1 and C4h) and are invisible to
 headgroups. Include `Wall.itp` in your topology file along with the Martini
 force field files.
 
-> [!WARNING] Simulating wall-constrained membranes requires careful attention
-> to the protocol. Wall parameters must maintain the membrane shape while still
+> [!WARNING]
+> Simulating wall-constrained membranes requires careful attention to the
+> protocol. Wall parameters must maintain the membrane shape while still
 > allowing normal lipid diffusion. For detailed protocols, see [this book
 > chapter](https://doi.org/10.1016/bs.mie.2024.03.010).
 
@@ -629,11 +634,12 @@ Create `domain_input.txt`:
 - `c0` — preferred curvature for the lipid type (nm⁻¹).
 - `APL` — area per lipid (nm²).
 
-> [!NOTE] Curvature preferences ($C_0$) are not well-defined physical
-> constants. They depend on membrane composition, temperature, and local
-> environment, and should be treated as adjustable parameters rather than
-> fundamental lipid properties. Experiment with different values and validate
-> against experimental data where available.
+> [!NOTE]
+> Curvature preferences ($C_0$) are not well-defined physical constants. They
+> depend on membrane composition, temperature, and local environment, and
+> should be treated as adjustable parameters rather than fundamental lipid
+> properties. Experiment with different values and validate against
+> experimental data where available.
 
 ### Optimize placement with DOP
 
@@ -652,11 +658,11 @@ TS2CG DOP -p point -s domain_input.txt -ni optimized_input.str -k 250
 This produces a modified point folder with curvature-optimized lipid
 assignments, along with an updated `optimized_input.str`.
 
-> [!TIP] The `k` parameter controls the strength of the curvature bias. Low
-> values give weak preferences; high values can produce unrealistic
-> segregation. Start with moderate values and adjust based on the system. The
-> right range depends on both the lipid composition and the curvature
-> distribution of the membrane.
+> [!TIP]
+> The `k` parameter controls the strength of the curvature bias. Low values
+> give weak preferences; high values can produce unrealistic segregation. Start
+> with moderate values and adjust based on the system. The right range depends
+> on both the lipid composition and the curvature distribution of the membrane.
 
 ### Build the curvature-informed membrane
 
@@ -674,10 +680,11 @@ You should see a continuous 1D Fourier sinusoidal membrane with CDL2
 (cardiolipin) concentrated in negatively curved regions and POPC distributed
 more uniformly with a slight preference for less curved areas.
 
-> [!WARNING] DOP is a recent addition to TS2CG. More work is needed to validate
-> the biological accuracy of the resulting distributions. It remains a useful
-> tool for setting up lateral lipid organization, but the output should be
-> checked critically.
+> [!WARNING]
+> DOP is a recent addition to TS2CG. More work is needed to validate the
+> biological accuracy of the resulting distributions. It remains a useful tool
+> for setting up lateral lipid organization, but the output should be checked
+> critically.
 
 <div align="center">
 <img src="../figures/03_curvature_sorted.png" width="75%"/>

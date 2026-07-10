@@ -228,11 +228,12 @@ Or declare a smaller cuboid:
 system as cuboid from 10, 10, 10 to 30, 30, 30
 ```
 
-> [!WARNING] The available space to pack proteins has become smaller, so not
-> all requested proteins will be placed. *Bentopy* indicates this with the `<`
-> remark in the packing summary that gets printed to the terminal. It is
-> advised to save this summary to a file. It contains all the relevant packing
-> information for the project.
+> [!WARNING]
+> The available space to pack proteins has become smaller, so not all requested
+> proteins will be placed. *Bentopy* indicates this with the `<` remark in the
+> packing summary that gets printed to the terminal. It is advised to save this
+> summary to a file. It contains all the relevant packing information for the
+> project.
 
 ```text
 Setting up compartments...
@@ -715,9 +716,10 @@ bentopy-render placements.json residue_beads.gro --mode residue
 bentopy-render placements.json instance_beads.gro --mode instance
 ```
 
-> [!NOTE] Reduced rendering modes cannot generate topology files, since these
-> are only intended for visualization and validation. Use `--mode full`
-> (default) when topology files are needed.
+> [!NOTE]
+> Reduced rendering modes cannot generate topology files, since these are only
+> intended for visualization and validation. Use `--mode full` (default) when
+> topology files are needed.
 
 **Residue numbering control** with `--resnum-mode`:
 
