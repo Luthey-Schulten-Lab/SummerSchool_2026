@@ -241,6 +241,13 @@ JCVI-syn3A possesses the smallest genome among autonomously replicating organism
   Right: A visual summary of JCVI-syn3A’s genetic information processes, complex formation, and metabolism.</b>
 </p>
 
+We created a webpage summarizing the tertiary functions of the minimized proteome at [Syn3A Annotated Proteome](https://minimalcell4d.web.illinois.edu/home/wp-content/uploads/2026/07/syn3A_tertiary_function_composition.html). You have seen and will see some proteins in DNA dynamics, gene expression and essential metabolism. You're also encouraged to explore the full range of functions to get a feel for just how many capabilities this minimal life form possesses.
+
+<p align="center">
+  <img src="./figs/figs_WCM/annotated_proteome.png" width="900" alt="annotated_proteome"> <br>
+  <b>Figure 6. Screenshot of syn3A proteome with tertiary function annotated.</b> 
+</p>
+
 ### Genetic Information Processes
 
 Genetic information processes link the genetic blueprint encoded in DNA to functional proteins. In our current whole-cell model of the minimal cell, we include key processes, as outlined in the table below.
@@ -249,7 +256,7 @@ Genetic information processes link the genetic blueprint encoded in DNA to funct
 
 <p align="center">
   <img src="./figs/figs_WCM/gip_table.png" width="600" alt="GIP reactions"> <br>
-  <b>Figure 6. Left: Genetic information flow. <br>
+  <b>Figure 7. Left: Genetic information flow. <br>
   Right: Functions of genetic information processing (GIP) reactions.</b> 
 </p>
 
@@ -257,7 +264,7 @@ Genetic information processes link the genetic blueprint encoded in DNA to funct
 
 <p align="center">
   <img src="./figs/figs_WCM/oric_dnaA.png" width="600" alt="DnaA with Ori"> <br>
-  <b>Figure 7. Left: oriC region—nine-nucleotide DnaA-binding signatures (yellow and red) and AT-rich region (grey). <br>
+  <b>Figure 8. Left: oriC region—nine-nucleotide DnaA-binding signatures (yellow and red) and AT-rich region (grey). <br>
   Right: PDB structures showing DnaA binding: (a) Domain IV (PDB: 1J1V), (b) Domain III (PDB: 3R8F).</b> 
 </p>
 
@@ -270,14 +277,14 @@ The initiation process has three stages:
 
 <p align="center">
   <img src="./figs/figs_WCM/initiation.png" width="450" alt="Replication initiation"> <br>
-  <b>Figure 8. Three-stage model of DNA replication initiation.</b> 
+  <b>Figure 9. Three-stage model of DNA replication initiation.</b> 
 </p>
 
 Replication proceeds gene-by-gene as the replisomes travel bidirectionally from oriC to ter along the circular chromosome. Since gene locations are fixed, replication occurs in a predefined, ordered sequence. Thus, our model implements **ordered and bidirectional** replication.
 
 <p align="center">
   <img src="./figs/figs_WCM/rep.png" width="450" alt="Bidirectional replication"> <br>
-  <b>Figure 9. Ordered and bidirectional replication in JCVI-syn3A.</b> 
+  <b>Figure 10. Ordered and bidirectional replication in JCVI-syn3A.</b> 
 </p>
 
 The corresponding reactions for gene duplication are listed in Table 1. The replication rates in Table 2 follow the polymerization rate law proposed by Hofmeyr *et al.*[^hofmyer_rate].
@@ -295,8 +302,6 @@ The corresponding reactions for gene duplication are listed in Table 1. The repl
 | Degradation     | Degradosome + R<sub>locusNum</sub> → Degradosome:R<sub>locusNum</sub>                              | $k_{\text{degra}}^{\text{binding}}$                |
 |                 | Degradosome:R<sub>locusNum</sub> → NMPs + Degradosome                                              | $k_{\text{degra}}^{\text{depoly}}$                 |
 
-In this whole-cell model, transcription, translation and degradation are modeled with greater precision than the previous GIP reaction. Each process involves the binding to a complex machinery—either a RNAP to gene in transcription, a ribosome to mRNA for translation or a degradosome to mRNA for mRNA degradation. As one of the most active molecular species in genetic information processing, mRNA is subject to degradation upon binding to the degradosome. This competition between ribosome and degradosome binding serves as an important regulatory mechanism in gene expression, which we will explore in the results section. Transcription, translation and degradation are all depicted as a two-step binding and (de)polymerizatoin reactions, where the polymerizations to synthesize RNAs and proteins share the same rate form as gene replication. The rate for complete degradation from a mRNA to its monomers is calculated by divide the monomer depletion rate over the length of mRNA.
-
 **Table 2: Rate Form for Replication, Transcription, Translation and Degradation**
 
 | **Processes**   | **(De)polymerization Constants**                  | **Formulation**                                                                                                                                  |
@@ -305,6 +310,17 @@ In this whole-cell model, transcription, translation and degradation are modeled
 | Transcription   | $k_{\text{elongation}}^{\text{trsc}}$             | $\dfrac{k_{\text{transcription}}^{\text{cat}}}{\dfrac{K_{D1} K_{D2}}{[NTP_1][NTP_2]} + \sum_i \dfrac{K_{Di}}{[NTP_i]} + L_{\text{RNA}} - 1}$     |
 | Translation     | $k_{\text{elongation}}^{\text{trans}}$            | $`\dfrac{k_{\text{translation}}^{\text{cat}}}{\dfrac{K_{D1} K_{D2}}{[tRNA:aa_1][tRNA:aa_2]} + \sum_i \dfrac{K_{Di}}{[\text{tRNA:aa}_i]} + L_{\text{protein}} - 1}`$ |
 | Degradation     | $k_{\text{depoly}}^{\text{degra}}$                | $\dfrac{k_{\text{degradation}}^{\text{cat}}}{L_{\text{mRNA}}}$                                                                                        |
+
+16S rRNA transcription is used here as example to explain how the kinetics of transcription elongation simulated. Experimentally measured $k_{\text{translation}}^{\text{cat}}$ on rRNA operon is 85 nt/s; Binding constant between NTPs with RNAP $K_D$ is approximated to be 1$\mu M$; and the length of 16S rRNA in Syn3A is about 1,600 nts. The elongation rate $k_{\text{elongation}}^{\text{trsc}}$ for the entire 16S rRNA is thus calcualted based on the time-depedent cellular concentrations of NTPs.
+
+<p align="center">
+  <img src="./figs/figs_WCM/16SrRNA_Hofmeyr.png" width="450" alt="16S rRNA transcription"> <br>
+  <b>Figure 11. Ribosomal 16S RNA transcription kinetics using Hofmeyr rate law.</b> 
+</p>
+
+
+In this whole-cell model, transcription, translation and degradation are modeled with greater precision than the previous GIP reaction. Each process involves the binding to a complex machinery—either a RNAP to gene in transcription, a ribosome to mRNA for translation or a degradosome to mRNA for mRNA degradation. As one of the most active molecular species in genetic information processing, mRNA is subject to degradation upon binding to the degradosome. This competition between ribosome and degradosome binding serves as an important regulatory mechanism in gene expression, which we will explore in the results section. Transcription, translation and degradation are all depicted as a two-step binding and (de)polymerizatoin reactions, where the polymerizations to synthesize RNAs and proteins share the same rate form as gene replication. The rate for complete degradation from a mRNA to its monomers is calculated by divide the monomer depletion rate over the length of mRNA.
+
 
 ## 3. Essential Metabolism and Rate Law
 
@@ -316,14 +332,14 @@ All of these monomers are supplied by the metabolic network of JCVI-syn3A. The (
 
 <p align="center">
   <img src="./figs/figs_WCM/NTP_supply.png" width="600" alt="GTP synthesis"> <br>
-  <b>Figure 10. Supply of GTP and dGTP for nucleic acid synthesis in nucleotide metabolism. Metabolites in brackets are sourced from central metabolism.</b> 
+  <b>Figure 12. Supply of GTP and dGTP for nucleic acid synthesis in nucleotide metabolism. Metabolites in brackets are sourced from central metabolism.</b> 
 </p>
 
 The overall metabolic network is organized into five interconnected subsystems: central metabolism, nucleotide metabolism, lipid metabolism, cofactor metabolism, and amino acid metabolism. Glucose 6-phosphate (G6P), a key glycolysis intermediate, connects central and lipid metabolism. ATP, generated via glycolysis, serves as the universal energy carrier and powers reactions across all five subsystems.
 
 <p align="center">
   <img src="./figs/figs_WCM/metabolism.png" width="450" alt="Metabolism network"> <br>
-  <b>Figure 11. Metabolic network of JCVI-syn3A, including central, nucleotide, lipid, cofactor, and amino acid subsystems.</b> 
+  <b>Figure 13. Metabolic network of JCVI-syn3A, including central, nucleotide, lipid, cofactor, and amino acid subsystems.</b> 
 </p>
 
 In our current whole-cell model, 197 metabolites are included: 148 cytoplasmic and 49 extracellular. These are connected by 175 reactions. In the network diagram of central metabolism, orange nodes represent metabolites (with `_c` and `_e` suffixes denoting cytoplasmic and extracellular locations, respectively). Blue arrows represent reactions, annotated with reaction names (in dark blue) and the locus tags of related proteins.
@@ -332,7 +348,7 @@ ATP is the key energy currency for the cell; without it, cellular processes cann
 
 <p align="center">
   <img src="./figs/figs_WCM/central_pep.png" width="450" alt="Central metabolism"> <br>
-  <b>Figure 12. Central metabolism of JCVI-syn3A. PEP participates in both upstream and downstream glycolysis. PRPP, 1,3BPG, and PEP also appear in nucleotide metabolism.</b> 
+  <b>Figure 14. Central metabolism of JCVI-syn3A. PEP participates in both upstream and downstream glycolysis. PRPP, 1,3BPG, and PEP also appear in nucleotide metabolism.</b> 
 </p>
 
 ### Convenience Rate Law
@@ -349,7 +365,7 @@ The **random binding model** assumes that substrates bind to an enzyme or transp
 
 <p align="center">
   <img src="./figs/figs_WCM/convenience.png" width="600" alt="convenience rate law"> <br>
-  <b>Figure 13. Mechanism of reaction A+X to B+Y in random binding model. [E] is the concentration of enzyme, [A] concentration of molecule A </b> 
+  <b>Figure 15. Mechanism of reaction A+X to B+Y in random binding model. [E] is the concentration of enzyme, [A] concentration of molecule A </b> 
 </p>
 
 ## 4. Macromolecular Complex Assembly
@@ -371,7 +387,7 @@ The nucleoside ABC transporter rnsBACD comprises 4 distinct subunits of proteins
 
 <p align="center">
   <img src="./figs/figs_WCM/SSU_ABC_Nucleotide.png" width="600" alt="SSU_ABC_Nucleotide"> <br>
-  <b>Figure 14. (a): Hierarchical and parallel SSU assembly pathway with 145 intermediates. The green-marked pathway highlights the reduced model with 19 high-flux intermediates. <br> 
+  <b>Figure 16. (a): Hierarchical and parallel SSU assembly pathway with 145 intermediates. The green-marked pathway highlights the reduced model with 19 high-flux intermediates. <br> 
   (b): Typical domain architecture of ABC transporters in Gram-positive bacteria. SBP: Substrate Binding Protein, TMD: Transmembrane Domain, NBD: Nucleotide Binding Domain. <br>
   (c): Nucleotide metabolism of GTP and dGTP with reactions catalyzed by protein complexes circled. ABC transporter rnsBACD import guanosine and deoxyguanosine in GSNabc and DGSNabc reactions.</b> 
 </p>
@@ -398,7 +414,7 @@ To simulate the **co-evolution** of GIP and metabolism, the communication needs 
 
 <p align="center">
   <img src="./figs/figs_WCM/communication.png" alt="CMEODE communication" width="600"> <br>
-  <b> Figure 15. Communication between genetic information in CME and metabolism in ODE </b>
+  <b> Figure 17. Communication between genetic information in CME and metabolism in ODE </b>
 </p>
 
 One extra thing to notice is that the CME rates are also updated per second after the metabolism simulation in ODE to account for the possible shortage of monomers that will decrease the rate in genetic information process.
@@ -429,7 +445,7 @@ Gene replication times varied widely. With only one initial copy of the chromoso
 <p align="center"> 
   <img src="./figs/plots_WCM/replication initiation.jpg" width="450" alt="Replication Initiation Timing"> 
   <img src="./figs/plots_WCM/Time G replication.jpg" width="450" alt="Gene Replication Times"> <br>
-  <b>Figure 16. Left: Comparison of replication initiation times with fast and slow DnaA binding rates (medians: 1 min and 5 min). Green line indicates the median from 4DWCM. <br> 
+  <b>Figure 18. Left: Comparison of replication initiation times with fast and slow DnaA binding rates (medians: 1 min and 5 min). Green line indicates the median from 4DWCM. <br> 
   Right: Early replication of gene *0001* near the <i>oriC</i> and late replication of gene *0420* near the <i>terC</i>.</b>
 </p>
 
@@ -437,7 +453,7 @@ Cell volume doubled at a median of 67 minutes, after which chromosome partitioni
 
 <p align="center"> 
   <img src="./figs/plots_WCM/Time Doubling.jpg" width="450" alt="Doubling of DNA, Volume, and Surface Area">  <br>
-  <b>Figure 17. Scaled progression of chromosome replication, volume, and surface area over the cell cycle.</b>
+  <b>Figure 19. Scaled progression of chromosome replication, volume, and surface area over the cell cycle.</b>
 </p>
 
 ---
@@ -449,7 +465,7 @@ The model closely reproduced the initial counts of RNAP (97), ribosomes (500), a
 <p align="center"> 
   <img src="./figs/plots_WCM/Hists of Scaled RNAP, Ribo and Degra.jpg" width="450" alt="Final Complex Abundances"> 
   <img src="./figs/plots_WCM/Time Active RNAP, Ribo, Deg.jpg" width="450" alt="Active Complex Fractions"> <br>
-  <b>Figure 18. Left: Distribution of final scaled abundances for RNAP, ribosome, and degradosome (medians: 2.09, 1.81, and 1.77). <br> 
+  <b>Figure 20. Left: Distribution of final scaled abundances for RNAP, ribosome, and degradosome (medians: 2.09, 1.81, and 1.77). <br> 
   Right: Active fractions of RNAP, ribosomes, and degradosomes throughout the cell cycle.</b>
 </p>
 
@@ -464,7 +480,7 @@ To support symmetric cell division, proteins must be approximately doubled. The 
 <p align="center"> 
   <img src="./figs/plots_WCM/Stochastic Synthesis of Protein DnaA in Rep 4.png" width="450" alt="Stochastic Synthesis of DnaA"> 
   <img src="./figs/plots_WCM/Hist Scaled Entire Proteome.jpg" width="450" alt="Proteome Duplication Distribution">  <br>
-  <b>Figure 19. Left: Stochastic synthesis of DnaA/0001. Solid lines represent one replicate; shaded regions represent the full range over 10 replicates. <br> 
+  <b>Figure 21. Left: Stochastic synthesis of DnaA/0001. Solid lines represent one replicate; shaded regions represent the full range over 10 replicates. <br> 
   Right: Distribution of scaled protein abundances at the end of the cell cycle (median: 2.07).</b>
 </p>
 
@@ -480,7 +496,7 @@ From our simulation results, the number of translation events per unique mRNA tr
 
 <p align="center"> 
   <img src="./figs/plots_WCM/mRNA binding probability to ribosome over degradosome.png" width="450" alt="mRNA binding to ribo or deg"> <img src="./figs/plots_WCM/Hist Translation per mRNA entire.jpg" width="450" alt="translation per mRNA">  <br>
-  <b>Figure 20. Left: Ratio of mRNA binding to ribosome over binding to degradosome. The population averaged ratio is 8.2 at steady-state. <br> 
+  <b>Figure 22. Left: Ratio of mRNA binding to ribosome over binding to degradosome. The population averaged ratio is 8.2 at steady-state. <br> 
   Right: Distribution of translation per mRNA for 455 unique mRNAs with median 7.76 marked by purple dotted line. </b>
 </p>
 
@@ -492,7 +508,7 @@ Monomer pools regenerated via metabolism can become temporarily depleted due to 
 
 <p align="center"> 
   <img src="./figs/plots_WCM/Transcription slow down.jpg" width="450" alt="Slow Transcription"> <br>
-  <b>Figure 21. Low UTP concentration supplied from nucleotide metabolism slows down transcription elongation</b>
+  <b>Figure 23. Low UTP concentration supplied from nucleotide metabolism slows down transcription elongation</b>
 </p>
 
 ---
