@@ -605,11 +605,22 @@ them to preserve the specified overall composition.
 ### Create the initial point distribution
 
 Using the sinusoidal configuration from Section 5, generate the point folder
-first:
+first.
 
 ```sh
 TS2CG PCG -str input.str -function analytical_shape -WPointDir
 ```
+
+> [!NOTE]
+> Due to a quirk in TS2CG, you may need to remove the `point/IncData.dat` file
+> before executing these steps. The programs may get confused about whether
+> inclusions are present, since this inclusion data file lingers around, even
+> when the leaflet points information is overwritten and has no relation to the
+> inclusion data anymore.
+>
+> ```sh
+> rm point/IncData.dat
+> ```
 
 The `-WPointDir` flag tells PCG to only generate the point folder. It writes
 `InnerBM.dat` and `OuterBM.dat`, which contain the geometric information needed
