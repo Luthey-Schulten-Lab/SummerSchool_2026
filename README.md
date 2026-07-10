@@ -32,7 +32,7 @@ The workshop is split into modules, where each module focuses on a different met
 Before the first session, set up your Delta access and confirm you can log in:
 
 - **[QCB Gateway setup](QCB_Gateway_setup.md)** — set up and log in to the QCB Delta Gateway. Covers the SSH tunnel, login, resource allocation, and cloning this repository. Start here.
-- **[vmd guide](vmd_guide.md)** — log in to the Open OnDemand Desktop for VMD visualization.
+- **[VMD guide](vmd_guide.md)** — log in to the Open OnDemand Desktop for VMD visualization.
 
 ### Useful links
 
