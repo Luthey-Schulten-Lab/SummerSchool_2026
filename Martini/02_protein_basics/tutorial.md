@@ -343,7 +343,7 @@ echo -e "Protein\nProtein" | gmx rms -s md/md.tpr -f md/traj.xtc \
                                      -o analysis/rmsd.xvg
 
 # RMSF per residue
-echo "Protein" | gmx rmsf -s md/md.tpr -f md/traj.xtc \
+echo "Protein" | gmx rmsf -s md/md.gro -f md/traj.xtc \
                           -o analysis/rmsf.xvg -res
 ```
 
