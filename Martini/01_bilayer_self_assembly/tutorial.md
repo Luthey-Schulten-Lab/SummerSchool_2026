@@ -268,7 +268,7 @@ Your VMD window should look similar to one of the panels in Figure 3.
 
 ## 7. Bilayer equilibration
 
-Before continuing, check whether your bilayer formed in the *xy*-plane.
+Before continuing, check whether your bilayer formed in the _xy_-plane.
 If not, rotate the system:
 
 ```sh
@@ -277,9 +277,9 @@ gmx editconf -f md/md.gro -rotate 90 0 0 -o md/md.gro
 
 The self-assembly run used isotropic pressure coupling, which leaves the
 bilayer under tension. We now switch to semi-isotropic pressure coupling so the
-xy- and z-dimensions of the simulation box can change independently. This
+_xy_- and _z_-dimensions of the simulation box can change independently. This
 allows the bilayer area (_xy_-area) to equilibrate independently of the box
-height (z-dimension), and reach zero surface tension. Run the simulation for
+height (_z_-dimension), and reach zero surface tension. Run the simulation for
 another 50 ns:
 
 ```sh
