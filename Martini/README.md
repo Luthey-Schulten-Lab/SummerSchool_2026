@@ -84,7 +84,7 @@ also available [here](https://tutorials.gromacs.org/).
 **2. Clone the workshop repository:**
 
 ```sh
-git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
+git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git --depth 1
 cd SummerSchool_2026/Martini
 ```
 
