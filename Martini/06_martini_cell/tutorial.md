@@ -136,10 +136,10 @@ Generate a labeled voxel representation to see which compartments Bentopy
 identifies:
 
 ```sh
-bentopy-mask chromosome_membrane.gro -b labels.gro --morph ddee
+bentopy-mask chromosome_membrane.gro --morph ddee -b labels.gro
 ```
 
-The `-morph ddee` flag smooths the voxel mask built from the underlying points
+The `--morph ddee` flag smooths the voxel mask built from the underlying points
 using a sequence of dilation and erosion steps. This improves compartment
 detection for unequilibrated models, where the packing can leave small gaps in
 the mask.
@@ -169,7 +169,7 @@ compartments by atom name (quotes are needed for negative labels):
 Write out the cytosol compartment as a mask:
 
 ```sh
-bentopy-mask chromosome_membrane.gro -l -1:cytosol_mask.npz  --morph ddee
+bentopy-mask chromosome_membrane.gro --morph ddee -l -1:cytosol_mask.npz
 ```
 
 The accessible volume for proteins and metabolites in this model is
