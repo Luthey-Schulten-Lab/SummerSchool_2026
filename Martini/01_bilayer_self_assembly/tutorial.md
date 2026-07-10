@@ -47,12 +47,12 @@ cd 01_bilayer_self_assembly
 <div align="center">
     <img width="25%" src="../figures/01_POPC_CG.png">
 	<br>
-    <sub><i>Figure 1. Martini 3 representation of a POPC lipid.</i></sub>
+    <sub><i>Figure 1. Martini representation of a POPC lipid.</i></sub>
 </div>
 
 We use POPC (1-palmitoyl-2-oleoyl-*sn*-glycero-3-phosphocholine) as our model
 lipid. It is one of the more abundant lipids in the JCVI-Syn3A minimal cell.
-A render of its Martini representation is shown on the right.
+A render of its Martini representation is shown in Figure 1.
 
 To self-assemble a bilayer, we first need a random starting configuration of
 lipids and water in the simulation box. We start from a file containing a
