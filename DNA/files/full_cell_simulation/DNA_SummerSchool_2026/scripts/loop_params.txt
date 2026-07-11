@@ -1,0 +1,9 @@
+# Overwritten at runtime by run_btree_chromo.py (defaults: N=20, v_translocation=350, tau_basal=100, tau_stall=100, tau_bypass=7).
+basal_death_prob=0.000571
+step_prob=1.0
+stall_death_prob=0.000571
+knockoff=0.991837
+bypass=0.008163
+N=54338
+numSmc=20
+smcWidth=1

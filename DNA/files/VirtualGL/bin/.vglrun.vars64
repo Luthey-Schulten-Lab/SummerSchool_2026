@@ -1,0 +1,2 @@
+LD_LIBRARY_PATH=/projects/bgvl/SummerSchool_2026/DNA/files/VirtualGL/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+export LD_LIBRARY_PATH

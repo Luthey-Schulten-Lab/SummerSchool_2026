@@ -1,6 +1,7 @@
 # Simulating DNA with LAMMPS
 
 ## Description:
+
 <img align="right" width="300" src="./figures/1. Introduction to simulation with btree_chromo and LAMMPS/spotlight.png">
 
 We will walk you through how to set up and run a LAMMPS simulation using GPUs on the Delta HPC cluster. We will simulate the DNA dynamics of the Minimal Cell JCVI-syn3A, including DNA replication, disentanglement of daughter chromosomes, and partitioning of daughter chromosomes into their respective daughter volumes. The coarse-grained model of the DNA, ribosomes and cell membrane will be discussed, as well as the use of LAMMPS to perform energy minimizations and Brownian dynamics. We will also go into greater detail about how we model biological mechanisms such as topoisomerase-induced strand crossing and SMC looping. After the runs complete, you will get a chance to visualize your trajectory in VMD.
@@ -9,15 +10,13 @@ We will walk you through how to set up and run a LAMMPS simulation using GPUs on
 
 ## Outline of tutorial:
 
-**Setup (do once in JupyterLab)**
+**Setup (Tuesday evening — submit before Wednesday session)**
 
-1. Set up the tutorial on QCB Delta Gateway
-2. Open the gateway in your browser
-3. Allocate compute resources on the Gateway
-4. Clone the repository and open the DNA module
-5. **Run the full-cell simulation** — submit the Slurm job over SSH (do this on Monday)
+1. Set up on Delta (clone the repository — skip if you did Martini)
+2. **Submit the full-cell simulation** (~14 h GPU job — run overnight)
+3. Check job status (Wednesday morning)
 
-**Background and analysis**
+**Background and analysis (Wednesday)**
 
 6. Introduction to DNA simulation with LAMMPS
 7. Generating an initial structure
@@ -27,168 +26,95 @@ We will walk you through how to set up and run a LAMMPS simulation using GPUs on
 11. Understanding btree_chromo commands
 12. Visualization with VMD
 
-> The full simulation runs as a **Slurm batch job**. From a Delta login node (`ssh`), copy the launch files into your folder and `sbatch launch_simulation.sh`; the job runs on a GPU node independently of your Gateway session. See section 5 below for the exact commands.
+> **Tuesday evening:** open a Delta terminal (OOD Desktop or SSH login), run the submit script (section 2), and let the job run overnight. **Wednesday:** read sections 6–11 while the job finishes (if needed), then visualize in section 12.
 
 Most of the content of this tutorial, including the implementation of energy terms for the DNA polymer, DNA disentanglement, and general procedure for simulating Brownian dynamics and energy minimization with LAMMPS on a GPU, is also explained in our recent manuscript[^thornburg2025] which you can check out on bioRxiv. The content on SMC blocking/bypassing and daughter chromosome partitioning without the need for an additional fictitious force is a work in progress.
 
-## 1. Set up the tutorial on QCB Delta Gateway
+## 1. Set up on Delta
 
-> You are in the **DNA** module. Complete steps 1–5 below once to set up the Gateway and submit your simulation, then work through sections 6–12 for background and analysis.
+> You are in the **DNA** module. Complete sections 1–2 on **Tuesday evening** (after the Martini tutorial) so the simulation runs overnight. Work through sections 6–12 on **Wednesday**.
 
-See the [Getting Started: QCB Delta Gateway](../README.md#getting-started-qcb-delta-gateway) section in the top-level README for full instructions. In short:
+This tutorial follows the same [Martini module](../Martini/README.md) setup: the repository lives in your **home directory** (`~/SummerSchool_2026`, i.e. `/u/$USER/SummerSchool_2026`). You do **not** need the QCB Gateway for DNA.
 
-Open a terminal on your laptop and run the following command. Replace `USERNAME` with your NCSA username:
+If you completed Martini, you already cloned the repo in an **Open OnDemand Desktop** terminal — skip to section 2. Otherwise, launch an OOD Desktop session (see Martini README) or SSH to Delta and clone:
 
 ```bash
-ssh -L 8000:dt-svc-bbkw01.hsn.cm.delta.internal.ncsa.edu:8000 USERNAME@login.delta.ncsa.illinois.edu
+cd ~
+git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git --depth 1
 ```
 
-You will be prompted for your **NCSA password** and **two-factor authentication (2FA)**. Once you're in, **leave the terminal open** — closing it tears down the tunnel.
-
-## 2. Open the gateway in your browser
-
-Once the SSH tunnel is up, open this URL in any browser on your laptop:
+The DNA module lives at `~/SummerSchool_2026/DNA/`:
 
 ```
-https://dt-svc-bbkw01.delta.ncsa.illinois.edu:8000/hub/org/
+~/SummerSchool_2026/DNA/
+├── README.md                       # this file
+├── figures/                        # tutorial figures
+└── files/
+    ├── full_cell_simulation/
+    │   ├── submit_simulation.sh      # verify + sbatch (section 2)
+    │   ├── prelaunch_simulation.sh
+    │   ├── launch_simulation.sh
+    │   └── DNA_SummerSchool_2026/    # simulation runs in-place here
+    └── vmd/                        # VMD scripts (section 12)
 ```
 
-Click on the **QCB Gateway** tab. You should see the **JupyterHub login page** for the QCB Delta Gateway.
-
-<img src="../figs/QCB_Gateway_homepage.png" alt="QCB Gateway homepage" width="700">
-
-Click **CI Logon** and sign in with your NCSA Delta credentials.
-
-<img src="../figs/QCB_Gateway_Login.png" alt="QCB Gateway CI Logon page" width="700">
-
-> [!NOTE]
-> If your Gateway account is not approved, please ask the admin, Alfia Parvez, at alfiap@illinois.edu to approve it first.
-
-After logging in, choose compute resources before your Jupyter session starts (see **Step 3** below).
-
-## 3. Allocate compute resources on the Gateway
-
-After logging in, choose the following settings on the resource allocation form (see [Step 3 in the top-level README](../README.md#getting-started-qcb-delta-gateway) for all screenshots):
-
-| Setting | Value |
-| --- | --- |
-| **Allocation** | **A100 GPU - up to 8 (bgvl-delta-gpu)** — **Batch** (non-interactive) |
-| **Number of CPUs** | **8** |
-| **GPU Environment** | **4DCell (LAMMPS/LM)** |
-| **Number of GPUs** | **1** |
-| **Memory** | **64 GB** |
-| **Time limit** | **4 hours** |
-
-> [!IMPORTANT]
-> Select the **non-interactive** session with the **`A100 GPU - up to 8 (bgvl-delta-gpu)`** option. The DNA simulation itself runs as a **separate Slurm batch job** (section 5) on its own GPU node, so this Gateway session is only for browsing the repo and reading — the default time limit is fine and you do not need to keep it open while the job runs.
-
-<img src="../figs/Resource_Allocation.png" alt="QCB Gateway resource allocation form" width="700">
-
-Click **Start** and wait for your session to launch.
-
-## 4. Clone the repository and open the DNA module
-
-When your Jupyter session starts, an **Untitled.ipynb** notebook will already be open in JupyterLab.
-
-<img src="../figs/jupyter_env.png" alt="JupyterLab environment with Untitled.ipynb" width="700">
-
-In a **code cell**, clone the repository (skip if you already have it) and open the DNA folder:
-
-```python
-import os
-
-if not os.path.isdir("SummerSchool_2026"):
-    !git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
-
-%cd SummerSchool_2026/DNA
-print(os.getcwd())
-```
-
-In the Jupyter file browser, open **`SummerSchool_2026/DNA/`**. You should see:
-
-```
-SummerSchool_2026/DNA/
-├── README.md                       # background, run steps (§5), and VMD (§12 → vmd_guide.md)
-├── files/
-│   ├── prelaunch_btree_chromo.sh   # copies the launch script + template to your folder (§5 step 2)
-│   ├── launch_simulation.sh        # the Slurm job you submit (§5 step 3)
-│   ├── DNA_SummerSchool_2026/      # workshop template (scripts + inputs)
-│   └── examples/                   # shorter btree_chromo demos
-└── figures/
-```
-
-The ~4 GB Apptainer image is **not** in git. On Delta it lives at:
+Shared infrastructure on bgvl (not in git — read-only at runtime) lives under `/projects/bgvl/SummerSchool_2026/DNA/files/`:
 
 ```
 /projects/bgvl/SummerSchool_2026/DNA/files/DNA_summer2025.sif
+/projects/bgvl/SummerSchool_2026/DNA/files/btree_chromo_gpu/
 ```
 
-Your simulation **output** is written under your personal folder `/projects/bgvl/$USER/DNA_SummerSchool_2026/`, where `$USER` is your **NCSA username** (the folder named after you under `/projects/bgvl/`). Each participant has their own folder, so outputs never collide.
+Your personal simulation output is written under `~/SummerSchool_2026/DNA/files/full_cell_simulation/DNA_SummerSchool_2026/data/`.
 
-## 5. Run the full-cell simulation (do this on Monday)
+## 2. Submit the full-cell simulation
 
-The full simulation runs as a **Slurm batch job** on a Delta GPU node, submitted with `sbatch`. The Gateway's Jupyter container has no Slurm client, so you submit from a **Delta login node** over SSH. Once submitted, the job runs on its own — you can close the Gateway and your laptop, and it does not tie up your interactive session.
-
-### Step 1 — Log in to Delta
-
-Connect to Delta and complete your password + 2FA. Replace `USERNAME` with your NCSA username:
+Run this **once per participant** from a Delta terminal — an **OOD Desktop** shell (same as Martini) or an **SSH login session** (Tuesday evening). It verifies your clone and submits the ~14 hour GPU job:
 
 ```bash
-ssh USERNAME@login.delta.ncsa.illinois.edu
+bash ~/SummerSchool_2026/DNA/files/full_cell_simulation/submit_simulation.sh
 ```
 
-(You can also open a terminal inside JupyterLab — *File → New → Terminal* — and run the same `ssh` there, instead of a separate laptop terminal.)
-
-### Step 2 — Copy the launch script and template into your folder
+Or step by step:
 
 ```bash
-bash /projects/bgvl/SummerSchool_2026/DNA/files/prelaunch_btree_chromo.sh
+bash ~/SummerSchool_2026/DNA/files/full_cell_simulation/prelaunch_simulation.sh
+sbatch --output=~/SummerSchool_2026/DNA/DNA_tutorial.log \
+  ~/SummerSchool_2026/DNA/files/full_cell_simulation/launch_simulation.sh
 ```
 
-This copies `launch_simulation.sh` and the `DNA_SummerSchool_2026/` template into your personal directory, `/projects/bgvl/$USER/` (on a login node `$USER` is already your NCSA username).
-
-### Step 3 — Submit the simulation
-
-```bash
-cd /projects/bgvl/$USER/
-sbatch launch_simulation.sh
-```
-
-The job runs `run_sc_chain_generation.sh` then `run_btree_chromo.py` inside `DNA_summer2025.sif` (~14 h on one A100) and writes output under `/projects/bgvl/$USER/DNA_SummerSchool_2026/`:
-
-```
-/projects/bgvl/$USER/
-├── launch_simulation.sh
-└── DNA_SummerSchool_2026/
-    ├── data/
-    │   ├── coords/
-    │   ├── loops/
-    │   ├── rep_states/
-    │   └── *.lammpstrj         # trajectory (when complete)
-    └── scripts/
-        ├── run_btree_chromo.py
-        ├── template.inp
-        ├── run_sc_chain_generation.sh
-        ├── Syn3A_chromosome_init.inp
-        └── BD_lengths.txt
-```
-
-Monitor your job (job id, run time, partition, GPU node):
+Confirm the job is queued:
 
 ```bash
 squeue -u $USER
 ```
 
-The Slurm log (`slurm-<jobid>.out`) is written in `/projects/bgvl/$USER/`.
+The job runs inside the **`DNA_summer2025.sif`** Apptainer image on an A100 GPU (`gpuA100x4`, account `bgvl-delta-gpu`). It uses the protein_science `btree_chromo` binary mounted from `files/btree_chromo_gpu/` at `/ps` inside the container.
 
 > [!NOTE]
-> Submit the job first so it runs while you read sections 6–11. Visualize the trajectory in section 12 once it finishes.
+> Submit Tuesday evening so the run finishes Wednesday morning (~14 h walltime). You can read sections 6–11 while it runs.
+
+Output appears under `~/SummerSchool_2026/DNA/files/full_cell_simulation/DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete). The Slurm log is `~/SummerSchool_2026/DNA/DNA_tutorial.log`.
+
+## 3. Check job status
+
+From any Delta terminal (OOD Desktop or SSH):
+
+```bash
+squeue -u $USER
+tail -f ~/SummerSchool_2026/DNA/DNA_tutorial.log
+ls ~/SummerSchool_2026/DNA/files/full_cell_simulation/DNA_SummerSchool_2026/data/
+```
+
+To cancel: `scancel JOBID`.
 
 ---
 
+
+
 ## 6. Introduction to DNA simulation with LAMMPS
 
-Here, we simulate DNA replication and dynamics using [LAMMPS](https://www.lammps.org/#gsc.tab=0) (Large-scale Atomic/Molecular Massively Parallel Simulator), a molecular dynamics program from Sandia National Laboratories. We will not have to worry about writing our own LAMMPS input scripts. Instead, we will be running the C++ program `btree_chromo`, available online at https://github.com/Luthey-Schulten-Lab/btree_chromo_gpu/tree/btree_chromo_gpu_SummerSchool2025. This program was created mainly for the purposes of simulating the minimal cell chromosome, but it can be used to simulate any circular chromosome. The main purpose of the program is to model replication states of the chromosome, as well as perform simulation of chromosome dynamics by calling LAMMPS. 
+Here, we simulate DNA replication and dynamics using [LAMMPS](https://www.lammps.org/#gsc.tab=0) (Large-scale Atomic/Molecular Massively Parallel Simulator), a molecular dynamics program from Sandia National Laboratories. We will not have to worry about writing our own LAMMPS input scripts. Instead, we will be running the C++ program `btree_chromo`, available online at [https://github.com/Luthey-Schulten-Lab/btree_chromo_gpu/tree/btree_chromo_gpu_SummerSchool2025](https://github.com/Luthey-Schulten-Lab/btree_chromo_gpu/tree/btree_chromo_gpu_SummerSchool2025). This program was created mainly for the purposes of simulating the minimal cell chromosome, but it can be used to simulate any circular chromosome. The main purpose of the program is to model replication states of the chromosome, as well as perform simulation of chromosome dynamics by calling LAMMPS. 
 
 <img align="center" width="300" src="./figures/1. Introduction to simulation with btree_chromo and LAMMPS/DNA_model_0.png">
 
@@ -196,7 +122,7 @@ The DNA that btree_chromo simulates is coarse-grained at a 10 bp resolution. Thi
 
 Today you will run a simulation using a variant of LAMMPS which utilizes the GPUs on the Delta HPC cluster. We will simulate the cell cycle of the minimal cell including the effects of SMC proteins, topoisomerase, and Brownian dynamics. We will start by generating an initial configuration for the DNA and ribosomes of the minimal cell in a spherical cell membrane. The DNA will replicate, disentangle, and partition, and the cell membrane will grow and divide. At the end of the simulation we should have two cells that each look roughly like the cell we started with.
 
-At the core of the simulation we use LAMMPS for simulating the DNA dynamics, but there are several layers of code wrapped around LAMMPS that are designed to make our lives easier. These layers are as follows: we submit a Slurm script that launches an Apptainer container. This container runs the Fortran program to generate the initial DNA/ribosome coordinates, and then runs a Python script which writes and executes 90 `btree_chromo` input scripts, each of which corresponds to 1 biological minute of the Syn3A cell cycle. Each `btree_chromo` script involves writing and executing 6 LAMMPS input scripts (each of which corresponds to 2 biological seconds of DNA replication and SMC looping).
+At the core of the simulation we use LAMMPS for simulating the DNA dynamics, but their are several layers code wrapped around LAMMPS that are designed to make our lives easier. These layers are as follows: we will submit a slurm script that launches an Apptainer container. This container runs the fortran program to generate the initial DNA/ribosome coordinates, and then runs a python script which writes and executes 90 `btree_chromo` input scripts, each of which correspond to 1 biological minute of the Syn3A cell cycle. Each `btree_chromo` script involves writing and executing 6 LAMMPS input scripts (each of which correspond to 2 biological seconds of DNA replication and SMC looping).
 
 At one level even deeper, LAMMPS uses Kokkos, a library that lets the same LAMMPS code run efficiently on different types of hardware, like AMD and NVIDIA GPUs. In our case, Kokkos lets us perform the force calculations for the energy minimizations and Brownian dynamics on the GPU. Running on the GPU is around an order of magnitude faster than running on the CPU, and some GPUs can be much faster than others - for example, the A100 GPUs on Delta are around 2.5 times as fast as the RTX A5000 GPUs on my office desktop computer.
 
@@ -212,13 +138,13 @@ The very first thing that the job we submitted to Delta does is to generate init
 
 ## 8. Modeling DNA replication
 
-The JCVI-syn3A minimal cell has a 543379 bp (543 kbp) genome comprised of 493 genes. This means an unreplicated chromosome is represented as a circular polymer of 54338 beads. Replication begins at a location on the genome called the origin (_Ori_), proceeds along the DNA in the clockwise and counterclockwise directions with Y-shaped structures (Fork), and ends at the terminal site, also called the terminus (_Ter_).  It turns out the replication states of the minimal cell aren't that interesting: it undergoes one replication initiation event per cell cycle, which means it starts with one unreplicated circular chromosome, and replication proceeds from _Ori_ to _Ter_ until we have two complete circular chromosomes.
+The JCVI-syn3A minimal cell has a 543379 bp (543 kbp) genome comprised of 493 genes. This means an unreplicated chromosome is represented as a circular polymer of 54338 beads. Replication begins at a location on the genome called the origin (*Ori*), proceeds along the DNA in the clockwise and counterclockwise directions with Y-shaped structures (Fork), and ends at the terminal site, also called the terminus (*Ter*).  It turns out the replication states of the minimal cell aren't that interesting: it undergoes one replication initiation event per cell cycle, which means it starts with one unreplicated circular chromosome, and replication proceeds from *Ori* to *Ter* until we have two complete circular chromosomes.
 
 <img align="center" width="700" src="./figures/4. Modeling chromosome dynamics/rep_state.png">
 
-**Figure 1: Representing replication states.**  _Ori_, _Ter_, and Forks given in red, orange, and violet respectively.
+**Figure 1: Representing replication states.**  *Ori*, *Ter*, and Forks given in red, orange, and violet respectively.
 
-As replication proceeds (starting from the _Ori_, along the Forks), the mother chromosome splits into two chromosomes, which we call the left and right daughter chromosomes. The structure is now no longer circular; it is now called a "theta structure" due to its resemblance to the Greek letter $\theta$. Both the left and right daughters have their own _Ori_'s, so in principle, they could begin to replicate too. However, DNA sequencing of the minimal cell indicates that we have only one replication initiation event per cell cycle.
+As replication proceeds (starting from the *Ori*, along the Forks), the mother chromosome splits into two chromosomes, which we call the left and right daughter chromosomes. The structure is now no longer circular; it is now called a "theta structure" due to its resemblance to the Greek letter $\theta$. Both the left and right daughters have their own *Ori*'s, so in principle, they could begin to replicate too. However, DNA sequencing of the minimal cell indicates that we have only one replication initiation event per cell cycle.
 
 For our simulations, we implement the "train-track" model of bacterial DNA replication[^gogou2021], where replisomes independently move along the opposite arms of the mother chromosome at each replication fork, replicating the DNA. There is another model called the "replication factory" model, but since Syn3A has so few regulatory mechanisms, this second one unlikely. (Plus, the train track model is also more consistent with our understanding of replication initiation[^thornburg2022].) In our implementation, new monomers are added to the left and right daughter chromosomes during replication by creating pairs of monomers centered around the corresponding position of the mother chromosome's monomers. 
 
@@ -230,6 +156,8 @@ In our simulations, we update the replication state every 2 seconds of biologica
 
 ## 9. Modeling chromosome dynamics
 
+
+
 ### Energy of the system
 
 The total potential energy for the chromosome/ribosome system is
@@ -240,8 +168,8 @@ The energies for the bending, stretching and excluded volume interactions are sh
 
 |**Bending:** | **Stretching** | **Excluded Volume** |
 |:--:|:--:|:--:|
-| <img src="./figures/4.%20Modeling%20chromosome%20dynamics/DNA_model_bending_0.png/" width="300"/>  |  <img src="./figures/4.%20Modeling%20chromosome%20dynamics/DNA_model_stretching_0.png/" width="200"/> |  <img src="./figures/4.%20Modeling%20chromosome%20dynamics/DNA_model_LJ_0.png/" width="120"/> |
-|$U_i^b=\kappa_b\left[1-\cos \left(\pi-\theta_i\right)\right]$|$U_i^s= -\frac{\kappa_s L_0^2}{2} \log \left[1-\left(l_i / L_0\right)^2\right]$ $+4 \epsilon_s\left[\left(\frac{\sigma_s^s}{l_i}\right)^{12}-\left(\frac{\sigma_s}{l_i}\right)^6\right]$ $\times \Theta\left(2^{\frac{1}{6}} \sigma_s-l_i\right)$  |$U_{i j}^{e . v .}=  4 \epsilon_{e . v}\left[\left(\frac{\sigma_{e . v}}{r_{i j}}\right)^{12}-\left(\frac{\sigma_{e . v}}{r_{i j}}\right)^6\right]$ $\times  \Theta\left(2^{\frac{1}{6}} \sigma_{{e.v. }}-r_{i j}\right)$|
+| <img src="./figures/4. Modeling chromosome dynamics/DNA_model_bending_0.png" width="300"/> | <img src="./figures/4. Modeling chromosome dynamics/DNA_model_stretching_0.png" width="200"/> | <img src="./figures/4. Modeling chromosome dynamics/DNA_model_LJ_0.png" width="120"/> |
+|$U_i^b=\kappa_b\left[1-\cos \left(\pi-\theta_i\right)\right]$|$U_i^s= -\frac{\kappa_s L_0^2}{2} \log \left[1-\left(l_i / L_0\right)^2\right]$ $+4 \epsilon_s\left[\left(\frac{\sigma_s^s}{l_i}\right)^{12}-\left(\frac{\sigma_s}{l_i}\right)^6\right]$ $\times \Theta\left(2^{\frac{1}{6}} \sigma_s-l_i\right)$|$U_{i j}^{e . v .}= 4 \epsilon_{e . v}\left[\left(\frac{\sigma_{e . v}}{r_{i j}}\right)^{12}-\left(\frac{\sigma_{e . v}}{r_{i j}}\right)^6\right]$ $\times \Theta\left(2^{\frac{1}{6}} \sigma_{{e.v. }}-r_{i j}\right)$|
 
 The excluded volume interaction between the DNA/ribosomes and "boundary" beads (cell membrane) ensure the DNA and ribosomes stay inside the spherical/overlapping sphere shaped volume.
 
@@ -279,8 +207,7 @@ During the genome reduction process of Syn3A, guided by transposon mutagenesis s
 
 **Figure 3: DNA loop extrusion by SMC complex.**  A series of snapshots shows DNA loop extrusion intermediates caused by SMC on a SxO-stained double-tethered DNA strand. A constant flow at a large angle to DNA axis stretches extruded loop and maintains DNA in imaging plane. Adapted from Ganji et al[^ganji2018].
 
-
-https://github.com/user-attachments/assets/e46c7361-aabe-438c-96b5-40ca38abdc43
+[https://github.com/user-attachments/assets/e46c7361-aabe-438c-96b5-40ca38abdc43](https://github.com/user-attachments/assets/e46c7361-aabe-438c-96b5-40ca38abdc43)
 
 **Movie 1: Real-time imaging of DNA loop extrusion by SMC complex.**  Movie corresponding to Figure 6 showing DNA loop extrusion by SMC on a SxO-stained double-tethered DNA strand. A constant flow at a large angle to DNA axis stretches extruded loop and maintains DNA in imaging plane. From Ganji et al[^ganji2018].
 
@@ -294,12 +221,14 @@ We take an extrusion rate of 500 bp/s, split into 250 bp/s for each side. This s
 
 There is also the question of the step size of the SMC's. It turns out the exact step size does not matter much in our simulations with respect to partitioning of the daughter chromosomes, but here update the SMC positions in our LAMMPS simulations every 2 biological seconds, which corresponds to extruding 500 bp on each side.
 
-| Parameter | Description |
-| --- | --- |
-| Total number of loops | Number of active anchor+hinge pairs that are extruding loops. We know that there are ~100 SMC dimers[^gilbert2023]. In our simulations we estimate around half of them are bound at one time. |
-| Loop extrusion frequency (s^-1) | How often does loop extrusion occur? Our best estimate is around every 0.4 s[^nomidis2022]. In our simulations we update the loops every 2 s.|
-| Unbind/Rebind frequency (s^-1) | How fast are SMC unbind and rebinding? In our simulations, dwell times are on the order of minutes. We assume the unbinding and rebinding frequencies are equal, so that half of the SMCs are bound at one time|
-| Extrusion step size (bp) | ~200 bp[^ryu2022]. In our simulations we update loops every 5 extrusion steps, corresponding to 1kbp or 500 bp on each side for bidirectional extrusion.|
+
+| Parameter                       | Description                                                                                                                                                                                                     |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Total number of loops           | Number of active anchor+hinge pairs that are extruding loops. We know that there are ~100 SMC dimers[^gilbert2023]. In our simulations we estimate around half of them are bound at one time.                   |
+| Loop extrusion frequency (s^-1) | How often does loop extrusion occur? Our best estimate is around every 0.4 s[^nomidis2022]. In our simulations we update the loops every 2 s.                                                                   |
+| Unbind/Rebind frequency (s^-1)  | How fast are SMC unbind and rebinding? In our simulations, dwell times are on the order of minutes. We assume the unbinding and rebinding frequencies are equal, so that half of the SMCs are bound at one time |
+| Extrusion step size (bp)        | ~200 bp[^ryu2022]. In our simulations we update loops every 5 extrusion steps, corresponding to 1kbp or 500 bp on each side for bidirectional extrusion.                                                        |
+
 
 In order to get the daughter chromosomes to partition, it turns out it is necessary to model another type of SMC behavior, namely blocking/bypassing. When SMCs encounter each other in our simulations, they block each other from translocating any further, and there is some rate for bypassing each other. Similarly, there is some rate for SMCs to bypass replication forks, but for these simulations we set that to zero.
 
@@ -318,6 +247,7 @@ We don't have a great way of keeping track of strand crossings, but they usually
 Consider the following toy example. Suppose we have five SMC’s that load uniformly on a segment of DNA. The SMCs will bind to the DNA and start to form loops, and as they do they will bridge progressively distant genomic sites. 
 
 Below, we represent the looping state of the DNA in three ways: the physical structure, an arc diagram, and a contact map. 
+
 - The physical structure of the DNA shows how the SMC contacts naturally leads to loop formation
 - The arc diagram is a 1D line representing genomic locations where arc between i and j shows a contact between genomic locations i and j
 - The contact map is a matrix where each axis represents genomic locations and a point corresponds to a contact between two locations. Although the matrix is symmetric, usually the elements both above and below the main diagonal are shown, as we do here. An SMC that bridges genomic locations i and j will be represented on the map by the points (i,j) and (j,i). For the uniform loading case, each of the 5 SMC’s spawn on the main diagonal, and then move diagonally away as i decreases and j increases at the same rate. We represent the growing SMCs with a green dot.
@@ -338,7 +268,7 @@ For such theta structures, we can have blocking at the forks. This will appear o
 
 Below, I have attached a movie that shows how the replication/loop state of chromosome changes throughout an ~90 minute cell cycle. Each axis represents the genomic position, which spans 543379 bp × 2 = 1086758 bp since eventually we will have two chromosomes. Starting with the mother chromosome (gray square), the left and right daughter chromosomes grow until we have two complete chromosomes (lime and magenta squares). For these simulations, we start with 50 loops, and add loops proportional to the total amount of DNA until we have 100 loops. Notice how for this set of parameters, most of the loops are fully blocked. You can also see the formation of "+" signs made from several loops, which corresponds to many loops that are blocked in a "traffic jam".
 
-https://github.com/user-attachments/assets/1c6cfac8-d1d2-4148-9c79-f8d8c935bb40
+[https://github.com/user-attachments/assets/1c6cfac8-d1d2-4148-9c79-f8d8c935bb40](https://github.com/user-attachments/assets/1c6cfac8-d1d2-4148-9c79-f8d8c935bb40)
 
 It seems pretty plausible that SMC looping can help with chromosome partitioning, since it scrunches up DNA of the same type (left, right, mother). If you have something that is mixed up and you want to seperate them into distinct volumes, you can de-mix them by introducing bonds between components of the same type (think oil and water): this is exactly what SMC proteins do, and it close to the idea of enthalpy-driven phase separation. You might wonder if there is also an entropic component to the seperation. This is less clear. In organisms with clear nucleoid regions, the phase seperation is aided by crowding and depletion forces which are entropic in nature, but Syn3A does not have a defined nucleoid region. Entropy has been shown to aid with chromosome partitioning in cylindrically shaped bacteria, but Syn3A is spherical during replication.
 
@@ -348,18 +278,20 @@ In our simulations, SMC's start loading onto daughter chromosomes immediately af
 
 In the movie below, I took a chromosome state which is about 2/3 of the way replicated, and ran dynamics for 3 seconds. The system is equilibrated, so it is free to mix if it wanted to, but despite this we only see repositioning within the cell of each of the chromosome domains (L lime, R magenta, and mother violet) and we do not see mixing of those domains. At the center of each of of these domains lies a cluster of SMC's.
 
-https://github.com/user-attachments/assets/8387c708-43c8-486a-8082-b665156d4bbf
+[https://github.com/user-attachments/assets/8387c708-43c8-486a-8082-b665156d4bbf](https://github.com/user-attachments/assets/8387c708-43c8-486a-8082-b665156d4bbf)
 
 ## 11. Understanding btree_chromo Commands
 
-The job's Python driver (`run_btree_chromo.py`) fills in the directive **`template.inp`** for each biological minute and runs it. View the shared copy from your Jupyter session (it is also staged into your `DNA_SummerSchool_2026/scripts/` folder):
+Open the input template from your Jupyter session:
 
 ```python
-template = "/projects/bgvl/SummerSchool_2026/DNA/files/DNA_SummerSchool_2026/scripts/template.inp"
+import os
+
+template = f"{os.environ['HOME']}/SummerSchool_2026/DNA/files/full_cell_simulation/DNA_SummerSchool_2026/scripts/template.inp"
 !head -40 {template}
 ```
 
-The most important lines are:
+Or edit it on Delta with `vim` if you prefer. The most important lines are:
 
 ```bash
 # run for 12 seconds of bio time (6 batches of 2 seconds) with dynamics
@@ -402,76 +334,69 @@ The command `simulator_form_loops:F` reads in the loop state from `btree_chromo`
 
 ## 12. Visualization with VMD
 
-Section 12 uses the **Open OnDemand Desktop** (graphical session), not Jupyter.
+Section 12 uses the **Open OnDemand Desktop** (graphical session), not Jupyter. Follow the shared [VMD guide](../vmd_guide.md) for OOD Desktop setup and VirtualGL, then use the DNA-specific steps below.
 
-**Shared setup (OOD login, Desktop allocation, VirtualGL, `module load vmd`):** [vmd_guide.md](../vmd_guide.md) — complete **sections 1–2** there first.
+### Preprocess trajectory and load VMD
 
-DNA-specific steps below (sample vs. your own LAMMPS trajectory, `load_btree_chromo.tcl`, representations).
-
-### Load a DNA trajectory
-
-#### Option A — pre-run sample (recommended if you did not run the full simulation)
-
-A ready-to-load, full-model trajectory (`full_model.lammpstrj`, ~100 frames) is staged in the shared folder:
+In the **OOD Desktop terminal**, run:
 
 ```bash
-cd /projects/bgvl/SummerSchool_2026/DNA/files/sample_trajectory/
-vglrun -d egl vmd
-```
+source /projects/bgvl/SummerSchool_2026/DNA/files/VirtualGL/setup_env.sh
+module use /projects/bgvl/alfiaparvez/modulefiles
+module load vmd/2.0.0
 
-This folder already contains both `full_model.lammpstrj` (already preprocessed) and a matching `load_btree_chromo.tcl`, so you can skip `modify_lammpstrj.py` and go straight to step 3.
-
-#### Option B — your own run
-
-Your run (section 5) writes its trajectory under `/projects/bgvl/$USER/DNA_SummerSchool_2026/data/`, which the OOD Desktop can read directly:
-
-```bash
-cd /projects/bgvl/$USER/DNA_SummerSchool_2026/data/
+cd ~/SummerSchool_2026/DNA/files/full_cell_simulation/DNA_SummerSchool_2026/data/
 python3 modify_lammpstrj.py
-cp /projects/bgvl/SummerSchool_2026/DNA/files/load_btree_chromo.tcl .
-mv modified.lammpstrj full_model.lammpstrj
+cp /projects/bgvl/SummerSchool_2026/DNA/files/vmd/load_btree_chromo.tcl .
+
 vglrun -d egl vmd
 ```
 
-`modify_lammpstrj.py` colors left, right, and mother DNA differently (~3 minutes) and writes `modified.lammpstrj`; renaming it to `full_model.lammpstrj` matches the filename `load_btree_chromo.tcl` expects. `load_btree_chromo.tcl` sets up the VMD representation.
+`modify_lammpstrj.py` colors left, right, and mother DNA differently (~3 minutes). `load_btree_chromo.tcl` sets up the VMD representation.
 
-**Confirm the GPU is active:** VMD's startup log (or `display glinfo` in the Tk Console) should report `OpenGL renderer: NVIDIA A100...`, *not* `llvmpipe`. If `vglrun -d egl` cannot reach the GPU, list devices with `eglinfo -e` and pass one explicitly, e.g. `vglrun -d /dev/dri/card0 vmd`.
+### Load the LAMMPS trajectory file
 
-### 3. Load the LAMMPS trajectory file
    In the VMD "Main" window, click on "Extensions" and then "TkConsole". In the "TkConsole" window, do 
+
 ```bash
 source load_btree_chromo.tcl
 ```
+
 This script will take ~2 minutes to run.
 You should see a representation of the trajectory for the Minimal Cell growth and division!
 
 **Important considerations for Windows Users:**
 For those using a Windows machine, you will need to make sure your environmental variables for LAMMPS are set correctly by setting them via command line outside of VMD. Before starting VMD, in Windows Command Shell, please do the following:
+
 ```bash
 setx LAMMPSDUMMYPOS "$xd,$yd,$zd"
 setx LAMMPSMAXATOMS "200000"
 setx LAMMPSREMAPFIELDS "vx=c_id_track,vy=c_type_track"
 ```
+
 Each entry should produce “SUCCESS: Specified value was saved.”
 
 This workaround is only needed on Windows VMD (i.e. not on Linux and Mac VMD). This issue will be addressed in upcoming VMD releases. As of writing this, the latest VMD is Version 1.9.4.
 
-| Monomer type | Color | Bead Size |
-| --- | --- | --- |
-| DNA | gray(M), lime(L), magenta(R) | 13.0 |
-| Ori | red | 39.0 |
-| Ter | orange | 39.0 |
-| Fork | violet | 39.0 |
-| Ribosome | mauve | 70.0 |
-| Boundary | silver | 32.5 |
-| SMC1 | black | 19.5 |
-| SMC2 | white | 19.5 |
+
+| Monomer type | Color                        | Bead Size |
+| ------------ | ---------------------------- | --------- |
+| DNA          | gray(M), lime(L), magenta(R) | 13.0      |
+| Ori          | red                          | 39.0      |
+| Ter          | orange                       | 39.0      |
+| Fork         | violet                       | 39.0      |
+| Ribosome     | mauve                        | 70.0      |
+| Boundary     | silver                       | 32.5      |
+| SMC1         | black                        | 19.5      |
+| SMC2         | white                        | 19.5      |
+
 
 For the presentation on the last day, it would be nice to have a movie of the trajectory on one of your slides. For those who are interested in making a movie, I will work with whoever is interested in our extra time to make it. I have some commands to render each of the frames, and then to compile it into a `.mp4`.
 
 You can use these commands to generate a higher quality movie than allowed by VMD Movie Maker:
 
 Set directory to save frames: set this to something reasonable
+
 ```
 set outdir "/tmp"
 ```
@@ -481,10 +406,10 @@ file mkdir $outdir
 ```
 
 Set the number of frames in the trajectory
+
 ```
 set nframes [molinfo top get numframes]
 ```
-
 
 ```bash
 # Loop over each frame
@@ -506,13 +431,16 @@ for {set i 0} {$i < $nframes} {incr i} {
 ffmpeg -framerate 30 -i frame%04d.tga -c:v libx264 -pix_fmt yuv420p -crf 18 high_quality_movie.mp4
 ```
 
+
+
 ## References
-[^gilbert2023]: Gilbert, Benjamin R., Zane R. Thornburg, Troy A. Brier, Jan A. Stevens, Fabian Grünewald, John E. Stone, Siewert J. Marrink, and Zaida Luthey-Schulten. “Dynamics of Chromosome Organization in a Minimal Bacterial Cell.” Frontiers in Cell and Developmental Biology 11 (August 9, 2023). https://doi.org/10.3389/fcell.2023.1214962.
-[^gogou2021]: Gogou, Christos, Aleksandre Japaridze, and Cees Dekker. “Mechanisms for Chromosome Segregation in Bacteria.” Frontiers in Microbiology 12 (June 2021). https://doi.org/10.3389/fmicb.2021.685687.
-[^thornburg2022]: Thornburg, Zane R., David M. Bianchi, Troy A. Brier, Benjamin R. Gilbert, Tyler M. Earnest, Marcelo C. R. Melo, Nataliya Safronova, et al. “Fundamental Behaviors Emerge from Simulations of a Living Minimal Cell.” Cell 185, no. 2 (January 20, 2022): 345-360.e28. https://doi.org/10.1016/j.cell.2021.12.025.
-[^thornburg2025]: Thornburg, Zane R., Andrew Maytin, Jiwoong Kwon, Troy A. Brier, Benjamin R. Gilbert, Enguang Fu, Yang-Le Gao, Jordan Quenneville, Tianyu Wu, Henry Li, Talia Long, Weria Pezeshkian, Lijie Sun, John I. Glass, Angad Mehta, Taekjip Ha, and Zaida Luthey-Schulten. “Bringing the Genetically Minimal Cell to Life on a Computer in 4D.” bioRxiv, June 10, 2025. https://doi.org/10.1101/2025.06.10.658899.
-[^ryu2022]: Ryu, Je-Kyung, Sang-Hyun Rah, Richard Janissen, Jacob W J Kerssemakers, Andrea Bonato, Davide Michieletto, and Cees Dekker. “Condensin Extrudes DNA Loops in Steps up to Hundreds of Base Pairs That Are Generated by ATP Binding Events.” Nucleic Acids Research 50, no. 2 (January 25, 2022): 820–32. https://doi.org/10.1093/nar/gkab1268.
-[^nomidis2022]: Nomidis, Stefanos K, Enrico Carlon, Stephan Gruber, and John F Marko. “DNA Tension-Modulated Translocation and Loop Extrusion by SMC Complexes Revealed by Molecular Dynamics Simulations.” Nucleic Acids Research 50, no. 9 (May 20, 2022): 4974–87. https://doi.org/10.1093/nar/gkac268.
-[^ganji2018]: Ganji, Mahipal, Indra A. Shaltiel, Shveta Bisht, Eugene Kim, Ana Kalichava, Christian H. Haering, and Cees Dekker. “Real-Time Imaging of DNA Loop Extrusion by Condensin.” Science 360, no. 6384 (April 2018): 102–5. https://doi.org/10.1126/science.aar7831.
-[^bonato2021]: Bonato, Andrea, and Davide Michieletto. “Three-Dimensional Loop Extrusion.” Biophysical Journal 120, no. 24 (December 2021): 5544–52. https://doi.org/10.1016/j.bpj.2021.11.015.
-[^zawadzki2015]: Zawadzki, Pawel, Mathew Stracy, Katarzyna Ginda, Katarzyna Zawadzka, Christian Lesterlin, Achillefs N. Kapanidis, and David J. Sherratt. “The Localization and Action of Topoisomerase IV in Escherichia Coli Chromosome Segregation Is Coordinated by the SMC Complex, MukBEF.” Cell Reports 13, no. 11 (December 22, 2015): 2587–96. https://doi.org/10.1016/j.celrep.2015.11.034.
+
+[^gilbert2023]: Gilbert, Benjamin R., Zane R. Thornburg, Troy A. Brier, Jan A. Stevens, Fabian Grünewald, John E. Stone, Siewert J. Marrink, and Zaida Luthey-Schulten. “Dynamics of Chromosome Organization in a Minimal Bacterial Cell.” Frontiers in Cell and Developmental Biology 11 (August 9, 2023). [https://doi.org/10.3389/fcell.2023.1214962](https://doi.org/10.3389/fcell.2023.1214962).
+[^gogou2021]: Gogou, Christos, Aleksandre Japaridze, and Cees Dekker. “Mechanisms for Chromosome Segregation in Bacteria.” Frontiers in Microbiology 12 (June 2021). [https://doi.org/10.3389/fmicb.2021.685687](https://doi.org/10.3389/fmicb.2021.685687).
+[^thornburg2022]: Thornburg, Zane R., David M. Bianchi, Troy A. Brier, Benjamin R. Gilbert, Tyler M. Earnest, Marcelo C. R. Melo, Nataliya Safronova, et al. “Fundamental Behaviors Emerge from Simulations of a Living Minimal Cell.” Cell 185, no. 2 (January 20, 2022): 345-360.e28. [https://doi.org/10.1016/j.cell.2021.12.025](https://doi.org/10.1016/j.cell.2021.12.025).
+[^thornburg2025]: Thornburg, Zane R., Andrew Maytin, Jiwoong Kwon, Troy A. Brier, Benjamin R. Gilbert, Enguang Fu, Yang-Le Gao, Jordan Quenneville, Tianyu Wu, Henry Li, Talia Long, Weria Pezeshkian, Lijie Sun, John I. Glass, Angad Mehta, Taekjip Ha, and Zaida Luthey-Schulten. “Bringing the Genetically Minimal Cell to Life on a Computer in 4D.” bioRxiv, June 10, 2025. [https://doi.org/10.1101/2025.06.10.658899](https://doi.org/10.1101/2025.06.10.658899).
+[^ryu2022]: Ryu, Je-Kyung, Sang-Hyun Rah, Richard Janissen, Jacob W J Kerssemakers, Andrea Bonato, Davide Michieletto, and Cees Dekker. “Condensin Extrudes DNA Loops in Steps up to Hundreds of Base Pairs That Are Generated by ATP Binding Events.” Nucleic Acids Research 50, no. 2 (January 25, 2022): 820–32. [https://doi.org/10.1093/nar/gkab1268](https://doi.org/10.1093/nar/gkab1268).
+[^nomidis2022]: Nomidis, Stefanos K, Enrico Carlon, Stephan Gruber, and John F Marko. “DNA Tension-Modulated Translocation and Loop Extrusion by SMC Complexes Revealed by Molecular Dynamics Simulations.” Nucleic Acids Research 50, no. 9 (May 20, 2022): 4974–87. [https://doi.org/10.1093/nar/gkac268](https://doi.org/10.1093/nar/gkac268).
+[^ganji2018]: Ganji, Mahipal, Indra A. Shaltiel, Shveta Bisht, Eugene Kim, Ana Kalichava, Christian H. Haering, and Cees Dekker. “Real-Time Imaging of DNA Loop Extrusion by Condensin.” Science 360, no. 6384 (April 2018): 102–5. [https://doi.org/10.1126/science.aar7831](https://doi.org/10.1126/science.aar7831).
+[^bonato2021]: Bonato, Andrea, and Davide Michieletto. “Three-Dimensional Loop Extrusion.” Biophysical Journal 120, no. 24 (December 2021): 5544–52. [https://doi.org/10.1016/j.bpj.2021.11.015](https://doi.org/10.1016/j.bpj.2021.11.015).
+[^zawadzki2015]: Zawadzki, Pawel, Mathew Stracy, Katarzyna Ginda, Katarzyna Zawadzka, Christian Lesterlin, Achillefs N. Kapanidis, and David J. Sherratt. “The Localization and Action of Topoisomerase IV in Escherichia Coli Chromosome Segregation Is Coordinated by the SMC Complex, MukBEF.” Cell Reports 13, no. 11 (December 22, 2015): 2587–96. [https://doi.org/10.1016/j.celrep.2015.11.034](https://doi.org/10.1016/j.celrep.2015.11.034).

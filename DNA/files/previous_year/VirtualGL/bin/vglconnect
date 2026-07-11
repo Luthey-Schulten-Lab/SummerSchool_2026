@@ -1,0 +1,153 @@
+#!/bin/sh
+
+# Copyright (C)2007 Sun Microsystems, Inc.
+# Copyright (C)2021 Karl Kleinpaste
+# Copyright (C)2009-2011, 2014-2018, 2021-2022 D. R. Commander
+#
+# This library is free software and may be redistributed and/or modified under
+# the terms of the wxWindows Library License, Version 3.1 or (at your option)
+# any later version.  The full license is in the LICENSE.txt file included
+# with this distribution.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# wxWindows Library License for more details.
+
+maketemp()
+{
+	umask 077
+	mktemp /tmp/$1.XXXXXX || exit 1
+}
+
+VGLTUNNEL=0
+FORCE=0
+IPV6=0
+SSHCMD=ssh
+VARG=
+
+usage()
+{
+	echo
+	echo "USAGE: $0"
+	echo "       [vglconnect options] [user@]hostname [Additional SSH options]"
+	echo
+	echo "vglconnect options:"
+	echo "-display <d> = X display name of the 2D X server, the X server on which the"
+	echo "               VirtualGL Client will be started"
+	echo "               (default: read from DISPLAY environment variable)"
+	echo "-s = Tunnel VGL Transport and forward X11 through SSH"
+	echo "     (default: only forward X11 through SSH)"
+	echo "-v = When using -s, preload VirtualGL into all processes launched in the remote"
+	echo "     shell."
+	echo "-ipv6 = Use IPv6 sockets"
+	echo "-e <program> = Execute <program> on the VirtualGL server (if using the -s"
+	echo "               option, <program> is executed after running vgllogin.)"
+	echo "-g = Use gsissh from Globus Toolkit to make all SSH connections"
+	echo "-force = Force a new vglclient instance (use with caution)"
+	echo "-bindir <d> = Path in which the VGL executables and scripts are installed on"
+	echo "              the server (default: /opt/VirtualGL/bin).  Can also be set"
+	echo "              with the VGL_BINDIR environment variable on the client."
+	echo
+	exit $1
+}
+
+if [ -z $VGL_BINDIR ]; then
+	VGL_BINDIR=/opt/VirtualGL/bin
+fi
+
+while [ $# -gt 0 ]
+do
+	case "$1" in
+	-d*) DISPLAY=$2; shift ;;
+	-b*) VGL_BINDIR=$2; shift ;;
+	-f*) FORCE=1 ;;
+	-ipv6) IPV6=1 ;;
+	-s*) VGLTUNNEL=1 ;;
+	-v*) VARG=-v ;;
+	-g*) SSHCMD=gsissh; GLOBUS=1 ;;
+	-e*) COMMAND=$2; shift ;;
+	-h*) usage ;;
+	-?) usage ;;
+	*) break ;;
+	esac
+	shift
+done
+
+if [ $# -eq 0 ]; then
+	usage 0
+fi
+
+if [ "$DISPLAY" = "" ]; then
+	echo "[VGL] ERROR: An X display must be specified, either by using the -display"
+	echo "[VGL]    argument to vglconnect or by setting the DISPLAY environment variable"
+	exit 1
+fi
+
+LOGDIR=$HOME/.vgl
+if [ ! -d $LOGDIR ]; then mkdir $LOGDIR; fi
+LOGDISPLAY=`basename $DISPLAY`
+LOGFILE=$LOGDIR/vglconnect-$HOSTNAME-$LOGDISPLAY.log
+
+VGLARGS="-l "$LOGFILE" -display "$DISPLAY" -detach"
+if [ "$FORCE" = "1" ]; then VGLARGS=$VGLARGS" -force"; fi
+if [ "$IPV6" = "1" ]; then VGLARGS=$VGLARGS" -ipv6"; fi
+if [ ! "$VGL_PORT" = "" -a "$__VGL_SSHTUNNEL" = "1" ]; then
+	PORT=$VGL_PORT
+else
+	VGLCLIENT=`dirname $0`/vglclient
+	if [ ! -x $VGLCLIENT ]; then
+		if [ -x /opt/VirtualGL/bin/vglclient ]; then
+			VGLCLIENT=/opt/VirtualGL/bin/vglclient
+		else
+			VGLCLIENT=vglclient
+		fi
+	fi
+	PORT=`$VGLCLIENT $VGLARGS`
+	if [ $? -ne 0 -o "$PORT" = "" ]; then
+		echo "[VGL] ERROR: vglclient failed to execute."
+		exit 1
+	fi
+	echo
+fi
+
+if [ $VGLTUNNEL = 1 ]; then
+	CONTROLMASTERARG="-o ControlMaster=auto"
+	CONTROLPATHARG="-o ControlPath=\"~/.ssh/vglconnect-%r@%h:%p\""
+	CONTROLPERSISTARG="-o ControlPersist=60"
+	XFWDARG="-Y"
+	# Cygwin doesn't support ControlMaster (yet).
+	case "`uname -s`" in
+	CYGWIN*)
+		CONTROLMASTERARG=
+		CONTROLPATHARG=
+		CONTROLPERSISTARG=
+		XFWDARG="-x"
+		;;
+	esac
+	echo Making preliminary SSH connection to find a free port on the server ...
+	REMOTEPORT=`$SSHCMD ${1+"$@"} $CONTROLMASTERARG $CONTROLPATHARG $CONTROLPERSISTARG $XFWDARG "$VGL_BINDIR/nettest -findport && $VGL_BINDIR/vgllogin -check"`
+	if [ $? -ne 0 -o "$REMOTEPORT" = "" ]; then
+		echo "[VGL] ERROR: The server does not appear to have VirtualGL 2.1 or later"
+		echo "[VGL]    installed."
+		exit 1
+	fi
+	echo Making final SSH connection ...
+	if [ "$COMMAND" != "" ]; then
+		$SSHCMD $CONTROLPATHARG $CONTROLPERSISTARG -t -Y -R$REMOTEPORT:localhost:$PORT ${1+"$@"} <<EOF
+$VGL_BINDIR/vgllogin $VARG -s $REMOTEPORT
+$COMMAND
+EOF
+	else
+		$SSHCMD $CONTROLPATHARG $CONTROLPERSISTARG -t -Y -R$REMOTEPORT:localhost:$PORT ${1+"$@"} "$VGL_BINDIR/vgllogin $VARG -s "$REMOTEPORT
+	fi
+	exit 0
+fi
+
+if [ "$COMMAND" != "" ]; then
+	$SSHCMD -Y ${1+"$@"} <<EOF
+$COMMAND
+EOF
+else
+	$SSHCMD -Y ${1+"$@"}
+fi

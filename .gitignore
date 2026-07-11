@@ -27,6 +27,11 @@ env/
 # Simulation result files (can be very large — distribute separately)
 *.lm
 *-jlmcache.h5
+*.lammpstrj
+
+# DNA src code from protein science paper, DNA container
+DNA/files/btree_chromo_gpu/
+DNA/files/DNA_summer2025.sif
 
 # Tutorial-generated plots (users produce these by running the notebooks)
 LM/**/Plots/*.png
