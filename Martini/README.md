@@ -37,7 +37,7 @@ A basic understanding of molecular dynamics and prior familiarity with GROMACS
 is assumed. For details on GROMACS usage, force fields, and run parameters, see
 the GROMACS [user
 guide](https://manual.gromacs.org/current/user-guide/index.html) and
-[website](www.gromacs.org). A collection of well-written GROMACS tutorials is
+[website](https://www.gromacs.org). A collection of well-written GROMACS tutorials is
 also available [here](https://tutorials.gromacs.org/).
 
 ---
