@@ -16,7 +16,7 @@ Fork replication and SMC translocation use separate speeds:
     v_replication = 100 bp/s  (transform / map_replication batch amounts)
     v_translocation = 350 bp/s (translocate directive and SMC loop kinetics)
 
-Summer-school defaults: N=20, v_translocation=350 bp/s, tau_basal=100 s, tau_stall=100 s,
+Summer-school defaults: N=50, v_translocation=500 bp/s, tau_basal=100 s, tau_stall=100 s,
     tau_bypass=7 s.
 
 Replication is batched in 60 s of bio time per minute (12 s with BD + 48 s without).
