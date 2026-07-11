@@ -17,7 +17,9 @@
 
 set -euo pipefail
 
-SIM_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Slurm copies this script to /var/spool/slurmd/job*/ — do not resolve paths from BASH_SOURCE.
+REPO="${HOME}/SummerSchool_2026"
+SIM_DIR="${REPO}/DNA/files/full_cell_simulation"
 SHARED_FILES="/projects/bgvl/SummerSchool_2026/DNA/files"
 FILES_ROOT="${SHARED_FILES}"
 
