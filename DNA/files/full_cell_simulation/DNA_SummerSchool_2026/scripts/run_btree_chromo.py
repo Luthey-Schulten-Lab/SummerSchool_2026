@@ -78,9 +78,9 @@ LOOP_EQUIL = "translocate:360000,F"  # 1 h bio time at 100 beads/s
 LOOP_PARAMS_FILE = os.path.join(template_dir, "loop_params.txt")
 
 # SMC looping parameters (see Minimal_Cell_ChromosomeSegregation submit_jobs_3d_sweep.sh)
-N_SMC_DEFAULT = 20
+N_SMC_DEFAULT = 50
 V_REPLICATION_DEFAULT = 100
-V_TRANSLOCATION_DEFAULT = 350
+V_TRANSLOCATION_DEFAULT = 500
 TAU_BASAL_DEFAULT = 100
 TAU_STALL_DEFAULT = 100
 TAU_BYPASS_DEFAULT = 7
