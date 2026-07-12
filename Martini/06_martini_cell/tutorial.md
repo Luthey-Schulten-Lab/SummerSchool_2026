@@ -254,6 +254,10 @@ Merge the chromosome, envelope, and cytosol into one structure:
 bentopy-merge chromosome_membrane.gro cytosol.gro -o cell.gro
 ```
 
+
+
+
+
 Assemble the final `topol.top` by combining three pieces:
 
 - The Martini 3 force field includes (particle definitions, ffbonded, ions,
@@ -424,15 +428,10 @@ equilibrate with respect to one another. Over the trajectory the lipids diffuse
 in the envelope and the packed cytosol relaxes around the chromosome.
 
 <div align="center">
-<video src="https://github.com/Luthey-Schulten-Lab/SummerSchool_2026/blob/d7d174e02c6da63deb28cc52785bd24e1cc03715/Martini/figures/06_cell_trajectory.mp4" width="65%" autoplay loop muted controls></video>
+<video src="https://github.com/Luthey-Schulten-Lab/SummerSchool_2026/raw/refs/heads/main/Martini/figures/06_cell_trajectory.mp4" width="65%" autoplay loop muted controls></video>
 <br>
 <sub><i>Video 1. Simulation trajectory of the Martini cell model.</i></sub>
 </div>
-
-
-
-
-[https://github.com/Luthey-Schulten-Lab/SummerSchool_2026/blob/d7d174e02c6da63deb28cc52785bd24e1cc03715/Martini/figures/06_cell_trajectory.mp4](https://github.com/Luthey-Schulten-Lab/SummerSchool_2026/blob/d7d174e02c6da63deb28cc52785bd24e1cc03715/Martini/figures/06_cell_trajectory.mp4)
 
 ---
 
