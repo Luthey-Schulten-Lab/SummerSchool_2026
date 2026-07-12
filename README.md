@@ -1,4 +1,4 @@
-# STC-QCB Summer School 2026<br><sub> *Modeling the Minimal Bacterial Cell JCVI-Syn3A*</sub>
+# STC-QCB Summer School 2026<br><sub> *Modeling the Minimal Bacterial Cell JCVI-syn3A*</sub>
 
 <table>
 <tr>
