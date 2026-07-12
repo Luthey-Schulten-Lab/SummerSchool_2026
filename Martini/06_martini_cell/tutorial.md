@@ -1,6 +1,6 @@
 # Tutorial VI: Constructing a Martini Cell Model
 
-> **Time:** ~30 minutes <br>
+> **Time:** ~90 minutes <br>
 > **Software:** _GROMACS 2024.3_ · _bentopy_ · _polyply_ · _TS2CG_ · _martinize2_ · _VMD 2_ <br>
 
 The previous tutorials introduced the Martini CG force field[^martini3] and the ecosystem
