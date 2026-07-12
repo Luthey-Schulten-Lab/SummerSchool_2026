@@ -27,7 +27,7 @@ In our current system, we will not need to convert concentration-based rate cons
 
 ## Run the Jupyter Notebook ##
 
-Run the notebook `Tut2.1-GeneticInformationProcess.ipynb` to simulate this toy model of GIP. 
+Run the notebook `Tut.2.1-GeneticInformationProcessing.ipynb` to simulate this toy model of GIP. 
 
 By default:
 - The total simulation time `simtime` is set to 6300 seconds, representing the full cell cycle of the minimal cell.
