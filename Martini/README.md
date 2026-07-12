@@ -22,8 +22,7 @@ _`GROMACS`_
 
 <img src="./figures/cell.png" width="320">
 
-<sub><i>Snapshot from a molecular dynamics simulation of the JCVI-syn3A minimal
-bacterial cell (Stevens et al., 2026).</i></sub>
+<sub><i>Snapshot from a molecular dynamics simulation of a toy JCVI-syn3A minimal cell model.</i></sub>
 
 </td>
 </tr>
