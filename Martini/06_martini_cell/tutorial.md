@@ -424,7 +424,7 @@ equilibrate with respect to one another. Over the trajectory the lipids diffuse
 in the envelope and the packed cytosol relaxes around the chromosome.
 
 <div align="center">
-<video src="../figures/06_cell_trajectory.mp4" width="65%" controls></video>
+<video src="../figures/06_cell_trajectory.mp4" width="65%" autoplay loop muted controls></video>
 <br>
 <sub><i>Video 1. Simulation trajectory of the Martini cell model.</i></sub>
 </div>
