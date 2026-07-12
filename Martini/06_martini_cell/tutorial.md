@@ -429,7 +429,7 @@ in the envelope and the packed cytosol relaxes around the chromosome.
 
 <div align="center">
 <video src="https://github.com/user-attachments/assets/d8bb36f1-4971-4c14-91b7-db10a5cf837d
-" width="65%" autoplay loop muted controls></video>
+" width="65%" autoplay loop muted playsinline controls></video>
 <br>
 <sub><i>Video 1. Simulation trajectory of the Martini cell model.</i></sub>
 </div>
