@@ -97,7 +97,7 @@ The job runs inside the **`DNA_summer2025.sif`** Apptainer image on an A100 GPU 
 
 Output appears under `~/SummerSchool_2026/DNA/files/full_cell_simulation/DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete). The Slurm log is `~/SummerSchool_2026/DNA/DNA_tutorial.log`.
 
-Each student gets a different RNG seed in the range 10–99, derived from their Delta username (printed near the top of the log as `Simulation RNG seed for ...`). To force a specific seed for testing, set `DNA_SIM_SEED` before submitting, e.g. `DNA_SIM_SEED=42 bash submit_simulation.sh`.
+Each student gets a different RNG seed in the range 10–99, derived from their Delta username (printed near the top of the log as `Simulation RNG seed for ...`). That seed also sets SMC looping parameters: `N`, `v_translocation`, and `tau_basal` are drawn once per run from Gaussian distributions centered on the defaults (40, 500 bp/s, 400 s) with σ = 10, 100, and 100 respectively. The sampled values appear in the Slurm log under `SMC parameters:` and in `scripts/loop_params_notes.txt` (defaults vs. this run). `loop_params.txt` is simulator input only and must not contain comments. To force a specific seed for testing, set `DNA_SIM_SEED` before submitting, e.g. `DNA_SIM_SEED=42 bash submit_simulation.sh`.
 
 ## 3. Check job status
 

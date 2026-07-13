@@ -5,9 +5,9 @@ Usage:
     python3 run_btree_chromo.py <seed> <run_name> [start_min] [end_min] [is_restart]
         [v_replication] [n_smc] [tau_basal] [v_translocation]
 
-SMC looping parameters (N, v_translocation, tau_basal, tau_stall, tau_bypass):
+SMC looping parameters (N, v_translocation, tau_basal, tau_bypass):
     basal_death_prob = 20 / (tau_basal * v_translocation)
-    stall_death_prob = 20 / (tau_stall * v_translocation)
+    stall_death_prob = 20 / (tau_stall * v_translocation)   # tau_stall = tau_basal
     bypass = 20 / (tau_bypass * v_translocation)
     knockoff = 1 - bypass
     numSmc = N
@@ -16,8 +16,12 @@ Fork replication and SMC translocation use separate speeds:
     v_replication = 100 bp/s  (transform / map_replication batch amounts)
     v_translocation = 350 bp/s (translocate directive and SMC loop kinetics)
 
-Summer-school defaults: N=50, v_translocation=500 bp/s, tau_basal=100 s, tau_stall=100 s,
-    tau_bypass=7 s.
+Summer-school defaults: N=50, v_translocation=500 bp/s, tau_basal=400 s (tau_stall=tau_basal),
+    tau_bypass=25 s.
+
+Unless N, tau_basal, and v_translocation are passed on the command line, each run samples
+them from Gaussian distributions centered on the defaults (sigma: N=10, v=100, tau_basal=200),
+using the simulation seed for reproducibility.
 
 Replication is batched in 60 s of bio time per minute. BD/no-BD repeat ratio depends on
 cell-cycle phase (always BD_STEPS=20000 per run_dynamics call):
@@ -78,14 +82,19 @@ N_CHROMO = 54338
 RIBOS_PER_MIN = 5
 LOOP_EQUIL = "translocate:360000,F"  # 1 h bio time at 100 beads/s
 LOOP_PARAMS_FILE = os.path.join(template_dir, "loop_params.txt")
+LOOP_PARAMS_NOTES_FILE = os.path.join(template_dir, "loop_params_notes.txt")
 
 # SMC looping parameters (see Minimal_Cell_ChromosomeSegregation submit_jobs_3d_sweep.sh)
-N_SMC_DEFAULT = 50
+N_SMC_DEFAULT = 40
 V_REPLICATION_DEFAULT = 100
 V_TRANSLOCATION_DEFAULT = 500
 TAU_BASAL_DEFAULT = 400
-TAU_STALL_DEFAULT = 400
 TAU_BYPASS_DEFAULT = 25
+
+# Per-student SMC spread (Gaussian, centered on defaults; sampled from simulation seed)
+N_SMC_SIGMA = 10
+V_TRANSLOCATION_SIGMA = 100
+TAU_BASAL_SIGMA = 100
 
 # Replication batching: 60 s bio time per minute; ratio set by cell-cycle phase
 DEFAULT_SECONDS_PER_BATCH = 2.0
@@ -111,8 +120,11 @@ class SmcParams:
     n_smc: int
     v_translocation: int
     tau_basal: int
-    tau_stall: int
     tau_bypass: int
+
+    @property
+    def tau_stall(self) -> int:
+        return self.tau_basal
 
     @property
     def basal_death_prob(self) -> float:
@@ -171,26 +183,57 @@ class PerMinuteDirectives:
     run_dynamics: str
 
 
+def sample_smc_params(seed: int) -> SmcParams:
+    """Sample SMC counts/rates from seed-dependent Gaussians (one draw per student run)."""
+    rng = np.random.default_rng(seed)
+    n_smc = max(1, int(round(rng.normal(N_SMC_DEFAULT, N_SMC_SIGMA))))
+    v_translocation = max(
+        1, int(round(rng.normal(V_TRANSLOCATION_DEFAULT, V_TRANSLOCATION_SIGMA)))
+    )
+    tau_basal = max(1, int(round(rng.normal(TAU_BASAL_DEFAULT, TAU_BASAL_SIGMA))))
+    return SmcParams(
+        n_smc=n_smc,
+        v_translocation=v_translocation,
+        tau_basal=tau_basal,
+        tau_bypass=TAU_BYPASS_DEFAULT,
+    )
+
+
+def parse_smc_params(argv: list[str], seed: int) -> SmcParams:
+    """Use explicit CLI SMC args when provided; otherwise sample from seed."""
+    if len(argv) > 9:
+        return SmcParams(
+            n_smc=int(argv[7]),
+            v_translocation=int(argv[9]),
+            tau_basal=int(argv[8]),
+            tau_bypass=TAU_BYPASS_DEFAULT,
+        )
+    return sample_smc_params(seed)
+
+
 def parse_args(argv: list[str]) -> GlobalSimulationArgs:
+    seed = int(argv[1])
     return GlobalSimulationArgs(
-        seed=int(argv[1]),
+        seed=seed,
         run_name=argv[2],
         start_time=int(argv[3]) if len(argv) > 3 else 0,
         end_time=int(argv[4]) if len(argv) > 4 else 90,
         is_restart=(argv[5].lower() == "true") if len(argv) > 5 else False,
         v_replication=int(argv[6]) if len(argv) > 6 else V_REPLICATION_DEFAULT,
-        smc=SmcParams(
-            n_smc=int(argv[7]) if len(argv) > 7 else N_SMC_DEFAULT,
-            v_translocation=int(argv[9]) if len(argv) > 9 else V_TRANSLOCATION_DEFAULT,
-            tau_basal=int(argv[8]) if len(argv) > 8 else TAU_BASAL_DEFAULT,
-            tau_stall=TAU_STALL_DEFAULT,
-            tau_bypass=TAU_BYPASS_DEFAULT,
-        ),
+        smc=parse_smc_params(argv, seed),
     )
 
 
-def write_loop_params(smc: SmcParams, path: str = LOOP_PARAMS_FILE) -> None:
-    """Write loop_params.txt from SMC parameters."""
+def write_loop_params(
+    smc: SmcParams,
+    seed: int,
+    *,
+    sampled: bool,
+    path: str = LOOP_PARAMS_FILE,
+    notes_path: str = LOOP_PARAMS_NOTES_FILE,
+) -> None:
+    """Write loop_params.txt (simulator input) and loop_params_notes.txt (human-readable)."""
+    # btree_chromo parses every '=' on each line and does not skip '#' comments.
     content = (
         f"basal_death_prob={smc.basal_death_prob:.6f}\n"
         f"step_prob=1.0\n"
@@ -203,7 +246,26 @@ def write_loop_params(smc: SmcParams, path: str = LOOP_PARAMS_FILE) -> None:
     )
     with open(path, "w") as f:
         f.write(content)
-    print(f"Wrote {path}")
+
+    source = "Gaussian sample from simulation seed" if sampled else "command line"
+    notes = (
+        "# SMC loop parameters (auto-generated by run_btree_chromo.py)\n"
+        "# loop_params.txt is read by btree_chromo and must contain key=value lines only.\n"
+        f"# Simulation seed: {seed} ({source})\n"
+        "# Per-student SMC draws (defaults are Gaussian means; sigma shown):\n"
+        f"#   numSmc (N):        default={N_SMC_DEFAULT:>4}  sigma={N_SMC_SIGMA:>3}  this_run={smc.n_smc:>4}\n"
+        f"#   v_translocation:   default={V_TRANSLOCATION_DEFAULT:>4} bp/s  "
+        f"sigma={V_TRANSLOCATION_SIGMA:>3}  this_run={smc.v_translocation:>4} bp/s\n"
+        f"#   tau_basal:         default={TAU_BASAL_DEFAULT:>4} s  "
+        f"sigma={TAU_BASAL_SIGMA:>3}  this_run={smc.tau_basal:>4} s\n"
+        f"#   tau_stall:         = tau_basal (this_run={smc.tau_stall:>4} s)\n"
+        f"#   tau_bypass:        fixed at {TAU_BYPASS_DEFAULT} s for all students\n"
+        "# Derived death probabilities in loop_params.txt use v_translocation and tau_*.\n"
+        "# N= in loop_params.txt is chromosome length in beads (not numSmc).\n"
+    )
+    with open(notes_path, "w") as f:
+        f.write(notes)
+    print(f"Wrote {path} and {notes_path}")
 
 
 def build_runtime_env() -> dict[str, str]:
@@ -511,11 +573,20 @@ def main() -> None:
     env = build_runtime_env()
     smc = args.smc
 
-    write_loop_params(smc)
+    write_loop_params(smc, args.seed, sampled=len(sys.argv) <= 9)
 
-    print(f"Running simulation: {args.run_name}")
+    print(f"Running simulation: {args.run_name} (seed={args.seed})")
     print(f"Start time: {args.start_time}, End time: {args.end_time}, Restart: {args.is_restart}")
     print(f"Replication fork speed: {args.v_replication} bp/s")
+    if len(sys.argv) > 9:
+        print("SMC parameters: fixed from command line")
+    else:
+        print(
+            "SMC parameters: sampled from seed "
+            f"(Gaussian: N~{N_SMC_DEFAULT}±{N_SMC_SIGMA}, "
+            f"v~{V_TRANSLOCATION_DEFAULT}±{V_TRANSLOCATION_SIGMA}, "
+            f"tau_basal~{TAU_BASAL_DEFAULT}±{TAU_BASAL_SIGMA})"
+        )
     print(
         f"SMC parameters: N={smc.n_smc}, v_translocation={smc.v_translocation} bp/s, "
         f"tau_basal={smc.tau_basal} s, tau_stall={smc.tau_stall} s, "
