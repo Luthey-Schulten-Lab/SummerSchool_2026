@@ -25,6 +25,7 @@ We will walk you through how to set up and run a LAMMPS simulation using GPUs on
 10. A closer look at SMC dynamics
 11. Understanding btree_chromo commands
 12. Visualization with VMD
+13. Trajectory analysis (contact maps and partitioning)
 
 > **Tuesday evening:** open a Delta terminal (OOD Desktop or SSH login), run the submit script (section 2), and let the job run overnight. **Wednesday:** read sections 6–11 while the job finishes (if needed), then visualize in section 12.
 
@@ -95,6 +96,8 @@ The job runs inside the **`DNA_summer2025.sif`** Apptainer image on an A100 GPU 
 > Submit Tuesday evening so the run finishes Wednesday morning (~14 h walltime). You can read sections 6–11 while it runs.
 
 Output appears under `~/SummerSchool_2026/DNA/files/full_cell_simulation/DNA_SummerSchool_2026/data/` (including `summerschool.lammpstrj` when complete). The Slurm log is `~/SummerSchool_2026/DNA/DNA_tutorial.log`.
+
+Each student gets a different RNG seed in the range 10–99, derived from their Delta username (printed near the top of the log as `Simulation RNG seed for ...`). To force a specific seed for testing, set `DNA_SIM_SEED` before submitting, e.g. `DNA_SIM_SEED=42 bash submit_simulation.sh`.
 
 ## 3. Check job status
 
@@ -346,38 +349,26 @@ module use /projects/bgvl/alfiaparvez/modulefiles
 module load vmd/2.0.0
 
 cd ~/SummerSchool_2026/DNA/files/full_cell_simulation/DNA_SummerSchool_2026/data/
-python3 modify_lammpstrj.py
-cp /projects/bgvl/SummerSchool_2026/DNA/files/vmd/load_btree_chromo.tcl .
+python3 modify_lammpstrj.py #optional
 
 vglrun -d egl vmd
 ```
 
-`modify_lammpstrj.py` colors left, right, and mother DNA differently (~3 minutes). `load_btree_chromo.tcl` sets up the VMD representation.
+`modify_lammpstrj.py` relabels DNA monomer types per frame based on wether they are mother/left/right daughter from the replicated bead count (it uses the same mother/left/right daughter tracking as `plot_partitioning.py`): mother = type 3, left daughter = 13, right daughter = 14. This makes it easier to see the replication as it progresses. Alternatively, you can skip the `python3 modify_lammpstrj.py` step and instead manually create representations for the left/right daughters; for example, `index>54338` for the left daughter, `index<27169+4000 and index>27169-4000` for the right daughter after 400 seconds of replication.
 
 ### Load the LAMMPS trajectory file
 
    In the VMD "Main" window, click on "Extensions" and then "TkConsole". In the "TkConsole" window, do 
 
 ```bash
-source load_btree_chromo.tcl
+source load_btree_chromo_simple.tcl
 ```
 
-This script will take ~2 minutes to run.
-You should see a representation of the trajectory for the Minimal Cell growth and division!
+To improve the visualization, try doing the following: 
+1) Change rendermode: Display > Rendermode > Tachyon RTX RTRT
+2) Change Display Settings: Display > Display Settings > turn on Shadows and Ambient Occlusion, Cue Mode Linear, Decrease Sceen Height
 
-**Important considerations for Windows Users:**
-For those using a Windows machine, you will need to make sure your environmental variables for LAMMPS are set correctly by setting them via command line outside of VMD. Before starting VMD, in Windows Command Shell, please do the following:
-
-```bash
-setx LAMMPSDUMMYPOS "$xd,$yd,$zd"
-setx LAMMPSMAXATOMS "200000"
-setx LAMMPSREMAPFIELDS "vx=c_id_track,vy=c_type_track"
-```
-
-Each entry should produce “SUCCESS: Specified value was saved.”
-
-This workaround is only needed on Windows VMD (i.e. not on Linux and Mac VMD). This issue will be addressed in upcoming VMD releases. As of writing this, the latest VMD is Version 1.9.4.
-
+Here are the respresentations that are set by the tcl script (Feel free to customise to your own liking):
 
 | Monomer type | Color                        | Bead Size |
 | ------------ | ---------------------------- | --------- |
@@ -391,11 +382,11 @@ This workaround is only needed on Windows VMD (i.e. not on Linux and Mac VMD). T
 | SMC2         | white                        | 19.5      |
 
 
-For the presentation on the last day, it would be nice to have a movie of the trajectory on one of your slides. For those who are interested in making a movie, I will work with whoever is interested in our extra time to make it. I have some commands to render each of the frames, and then to compile it into a `.mp4`.
+For the presentation on the last day, it would be nice to have a movie of the trajectory on one of your slides. 
 
-You can use these commands to generate a higher quality movie than allowed by VMD Movie Maker:
+You can use the following commands to generate a higher quality movie than allowed by VMD Movie Maker.
 
-Set directory to save frames: set this to something reasonable
+First, set which directory to temporarily save frames. Set this to something reasonable.
 
 ```
 set outdir "/tmp"
@@ -405,11 +396,13 @@ set outdir "/tmp"
 file mkdir $outdir
 ```
 
-Set the number of frames in the trajectory
+Set the number of frames in the trajectory:
 
 ```
 set nframes [molinfo top get numframes]
 ```
+
+Loop over frames, saving each as `.tga`:
 
 ```bash
 # Loop over each frame
@@ -427,11 +420,47 @@ for {set i 0} {$i < $nframes} {incr i} {
 }
 ```
 
+Use ffmpeg to create movie:
+
 ```bash
+module load ffmpeg/7.1
 ffmpeg -framerate 30 -i frame%04d.tga -c:v libx264 -pix_fmt yuv420p -crf 18 high_quality_movie.mp4
 ```
 
+## 13. Trajectory analysis (contact maps and partitioning)
 
+After your simulation finishes, there are two Python scripts in `DNA/files/full_cell_simulation/` that we can run analyze the output. You can include the outputs in your presentation on Friday.
+
+```bash
+cd ~/SummerSchool_2026/DNA/files/full_cell_simulation
+```
+
+### SMC loop contact-map animation
+
+The first one builds an animated contact map from `loops_summerschool.txt`:
+
+```bash
+module load ffmpeg/7.1  
+python3 animate_loops_contact_map.py
+```
+
+Output: `loops_summerschool.mp4` in the current directory. On the contact map, red means both sides of the SMC are stalled, yellow meands one side, green not stalled.
+
+### Daughter-chromosome partitioning
+
+Measures how well left and right daughter chromosomes stay separated over time. By default the script reads `summerschool.lammpstrj` and will take a couple minutes to run. Partitioning is 1 when daughters never contact each other (within a 100 nm cutoff) and decreases toward 0 as they mix.
+
+```bash
+python3 plot_partitioning.py              # from .lammpstrj. Resolution = ~every 2 seconds
+python3 plot_partitioning.py --from-bins  # from data/coords/*.bin, will be much faster but resolution ~every minute.
+```
+
+Output (in `full_cell_simulation/`):
+
+- `partitioning_summerschool.txt` — frame or minute index and partitioning value
+- `partitioning_summerschool.png` — plot vs time (0–90 min). 
+
+One idea I had was to combine everyone's `partitioning_summerschool.txt` traces into one plot, which we can use for the presentation on Friday.
 
 ## References
 

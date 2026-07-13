@@ -49,6 +49,16 @@ if [[ ! -f "${BTREE_BIN}" ]]; then
   exit 1
 fi
 
+# Per-student RNG seed (stable for a given username; override with DNA_SIM_SEED if needed).
+if [[ -n "${DNA_SIM_SEED:-}" ]]; then
+  SIM_SEED="${DNA_SIM_SEED}"
+else
+  SIM_SEED="$(
+    python3 -c "import hashlib; u='${USER:-unknown}'; print(int(hashlib.sha256(u.encode()).hexdigest()[:7], 16) % 90 + 10)"
+  )"
+fi
+echo "Simulation RNG seed for ${USER}: ${SIM_SEED}"
+
 # Mount DNA/files at /ps so scripts see /ps/btree_chromo_gpu/...
 apptainer run \
   --nv \
@@ -57,4 +67,4 @@ apptainer run \
   --containall \
   --bind "${SIM_ROOT}:/mnt" \
   --bind "${FILES_ROOT}:/ps:ro" \
-  "${SIF}" /bin/bash -c "cd /mnt/scripts && bash run_sc_chain_generation.sh && python3 run_btree_chromo.py 34 summerschool 0 90"
+  "${SIF}" /bin/bash -c "export SIM_SEED=${SIM_SEED}; cd /mnt/scripts && bash run_sc_chain_generation.sh && python3 run_btree_chromo.py ${SIM_SEED} summerschool 0 90"

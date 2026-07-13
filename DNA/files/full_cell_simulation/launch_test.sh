@@ -46,6 +46,15 @@ mkdir -p "${SIM_ROOT}"
 echo "Staging simulation template into ${SIM_ROOT}"
 cp -rp "${TEMPLATE_DIR}/." "${SIM_ROOT}/"
 
+if [[ -n "${DNA_SIM_SEED:-}" ]]; then
+  SIM_SEED="${DNA_SIM_SEED}"
+else
+  SIM_SEED="$(
+    python3 -c "import hashlib; u='${USER:-unknown}'; print(int(hashlib.sha256(u.encode()).hexdigest()[:7], 16) % 90 + 10)"
+  )"
+fi
+echo "Simulation RNG seed for ${USER}: ${SIM_SEED}"
+
 apptainer run \
   --nv \
   --writable-tmpfs \
@@ -53,4 +62,4 @@ apptainer run \
   --containall \
   --bind "${SIM_ROOT}:/mnt" \
   --bind "${FILES_ROOT}:/ps:ro" \
-  "${SIF}" /bin/bash -c "cd /mnt/scripts && bash run_sc_chain_generation.sh && python3 run_btree_chromo.py 34 summerschool 0 1"
+  "${SIF}" /bin/bash -c "export SIM_SEED=${SIM_SEED}; cd /mnt/scripts && bash run_sc_chain_generation.sh && python3 run_btree_chromo.py ${SIM_SEED} summerschool 0 1"

@@ -20,9 +20,9 @@ switch_ellipsoids:F
 sys_write_sim_read_LAMMPS_data:{output_dir}data_{run_name}.lammps
 simulator_load_loop_params:loop_params.txt
 {load_loops}
-simulator_run_soft_harmonic:10000,1000,20000,{append_string}
+{initial_soft_harmonic}
 
-# if initial run, equilibrate loops for 1 hour (3600 s * 100 beads / s)
+# if initial run, equilibrate loops for 1 hour (3600 s * 100 beads / s) in 1D (no 3D dynamics)
 {equilibrate_loops}
 
 # replication with BD dynamics

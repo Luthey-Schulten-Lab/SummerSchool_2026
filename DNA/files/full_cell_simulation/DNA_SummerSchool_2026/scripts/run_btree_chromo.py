@@ -19,7 +19,11 @@ Fork replication and SMC translocation use separate speeds:
 Summer-school defaults: N=50, v_translocation=500 bp/s, tau_basal=100 s, tau_stall=100 s,
     tau_bypass=7 s.
 
-Replication is batched in 60 s of bio time per minute (12 s with BD + 48 s without).
+Replication is batched in 60 s of bio time per minute. BD/no-BD repeat ratio depends on
+cell-cycle phase (always BD_STEPS=20000 per run_dynamics call):
+    minutes 0–59:  10 BD + 20 no-BD batches @ 2 s  (20 s with BD + 40 s without)
+    minutes 60–79: 15 BD + 15 no-BD batches @ 2 s
+    minutes 80–90: 20 BD + 10 no-BD batches @ 2 s
 Per-batch amounts scale with batch duration:
     replicate_amount = v_replication/10 * seconds_per_batch  (beads)
     translocate_amount = v_translocation/20 * seconds_per_batch
@@ -69,8 +73,6 @@ H_SPAN = 2130.0
 
 BD_STEPS = 20_000
 BD_OUT_FACTOR = 2
-BD_DIV0 = 20_000
-BD_DIV1 = 200_000
 
 N_CHROMO = 54338
 RIBOS_PER_MIN = 5
@@ -81,14 +83,13 @@ LOOP_PARAMS_FILE = os.path.join(template_dir, "loop_params.txt")
 N_SMC_DEFAULT = 50
 V_REPLICATION_DEFAULT = 100
 V_TRANSLOCATION_DEFAULT = 500
-TAU_BASAL_DEFAULT = 100
-TAU_STALL_DEFAULT = 100
-TAU_BYPASS_DEFAULT = 7
+TAU_BASAL_DEFAULT = 400
+TAU_STALL_DEFAULT = 400
+TAU_BYPASS_DEFAULT = 25
 
-# Replication batching: 60 s bio time per minute = 12 s with BD + 48 s without
+# Replication batching: 60 s bio time per minute; ratio set by cell-cycle phase
 DEFAULT_SECONDS_PER_BATCH = 2.0
-BD_BIO_SECONDS = 12.0
-NO_BD_BIO_SECONDS = 48.0
+T_LATE_DIV = 80
 HIGH_RES_MINUTE = 30
 HIGH_RES_SECONDS_PER_BATCH = 0.4
 
@@ -166,7 +167,7 @@ class PerMinuteDirectives:
     input_state: str
     load_loops: str
     equilibrate_loops: str
-    append_string: str
+    initial_soft_harmonic: str
     run_dynamics: str
 
 
@@ -227,6 +228,24 @@ def transform_directive(v_replication: float, seconds_per_batch: float) -> str:
     return f"transform:m_cw{beads}_ccw{beads}"
 
 
+def replication_bio_seconds(timestep: int) -> tuple[float, float]:
+    """BD and no-BD bio-time budgets (seconds) for one biological minute."""
+    if timestep < T_DIV:
+        return 20.0, 40.0  # 10/20 @ 2 s
+    if timestep < T_LATE_DIV:
+        return 30.0, 30.0  # 15/15 @ 2 s
+    return 40.0, 20.0  # 20/10 @ 2 s
+
+
+def replication_batch_label(timestep: int) -> str:
+    """Human-readable BD/no-BD repeat ratio for logging."""
+    if timestep < T_DIV:
+        return "10/20"
+    if timestep < T_LATE_DIV:
+        return "15/15"
+    return "20/10"
+
+
 def seconds_per_batch_bd(timestep: int) -> float:
     """Batch duration for replication loops that include BD dynamics."""
     if timestep == HIGH_RES_MINUTE:
@@ -240,8 +259,9 @@ def compute_replication_batching(
     """Derive repeat counts and per-batch amounts for one biological minute."""
     spb_bd = seconds_per_batch_bd(timestep)
     spb_no_bd = DEFAULT_SECONDS_PER_BATCH
-    repeat_bd = int(round(BD_BIO_SECONDS / spb_bd))
-    repeat_no_bd = int(round(NO_BD_BIO_SECONDS / spb_no_bd))
+    bd_bio_seconds, no_bd_bio_seconds = replication_bio_seconds(timestep)
+    repeat_bd = int(round(bd_bio_seconds / spb_bd))
+    repeat_no_bd = int(round(no_bd_bio_seconds / spb_no_bd))
     return ReplicationBatching(
         seconds_per_batch_bd=spb_bd,
         seconds_per_batch_no_bd=spb_no_bd,
@@ -349,15 +369,9 @@ def _soft_harmonic_dynamics(bd_steps: int) -> str:
     return f"simulator_run_soft_harmonic:{bd_steps},1000,{output_steps},append,nofirst"
 
 
-def compute_run_dynamics(timestep: int) -> str:
-    """BD step count for the post-replication equilibration (scales up during division)."""
-    div_span = T_END - T_DIV
-    if timestep >= T_DIV:
-        dt = timestep - T_DIV
-        bd_steps = int(BD_DIV0 + dt * (BD_DIV1 - BD_DIV0) / div_span)
-    else:
-        bd_steps = BD_STEPS
-    return _soft_harmonic_dynamics(bd_steps)
+def compute_run_dynamics() -> str:
+    """BD step count for post-replication LAMMPS equilibration (fixed at BD_STEPS)."""
+    return _soft_harmonic_dynamics(BD_STEPS)
 
 
 def compute_cell_boundary(timestep: int, dna_monomers_path: str) -> CellBoundary:
@@ -389,14 +403,14 @@ def compute_cell_boundary(timestep: int, dna_monomers_path: str) -> CellBoundary
 
 def directives_for_minute(run_name: str, timestep: int) -> PerMinuteDirectives:
     """Replication, looping, and dynamics settings for one biological minute."""
-    run_dynamics = compute_run_dynamics(timestep)
+    run_dynamics = compute_run_dynamics()
 
     if timestep == 0:
         return PerMinuteDirectives(
             input_state=f"input_state:{template_dir}rep_state_initial.txt",
             load_loops="",
             equilibrate_loops=LOOP_EQUIL,
-            append_string="noappend,first",
+            initial_soft_harmonic="simulator_run_soft_harmonic:10000,1000,20000,noappend,first",
             run_dynamics=run_dynamics,
         )
 
@@ -404,7 +418,7 @@ def directives_for_minute(run_name: str, timestep: int) -> PerMinuteDirectives:
         input_state=f"input_state:{output_dir}rep_states/rep_state_{run_name}_{timestep}.txt",
         load_loops=f"load_loops:{output_dir}loops/loops_{run_name}_{timestep}.txt",
         equilibrate_loops="",
-        append_string="append,nofirst",
+        initial_soft_harmonic="",
         run_dynamics=run_dynamics,
     )
 
@@ -445,7 +459,7 @@ def create_directives(
         load_boundary=boundary.load_boundary,
         load_loops=minute.load_loops,
         equilibrate_loops=minute.equilibrate_loops,
-        append_string=minute.append_string,
+        initial_soft_harmonic=minute.initial_soft_harmonic,
         run_dynamics=minute.run_dynamics,
         repeat_bd=batching.repeat_bd,
         repeat_no_bd=batching.repeat_no_bd,
@@ -512,14 +526,18 @@ def main() -> None:
         f"stall_death_prob={smc.stall_death_prob:.6f}, "
         f"bypass={smc.bypass:.6f}, knockoff={smc.knockoff:.6f}"
     )
+    print(f"BD dynamics: {BD_STEPS} steps per run_dynamics call (all minutes)")
     print(
-        f"Replication batching (default): {int(BD_BIO_SECONDS / DEFAULT_SECONDS_PER_BATCH)} BD "
-        f"+ {int(NO_BD_BIO_SECONDS / DEFAULT_SECONDS_PER_BATCH)} no-BD batches @ "
-        f"{DEFAULT_SECONDS_PER_BATCH:g} s"
+        "Replication batching by cell-cycle phase @ "
+        f"{DEFAULT_SECONDS_PER_BATCH:g} s per batch (60 s bio/min):"
     )
+    print("  minutes 0–59:  10 BD + 20 no-BD")
+    print("  minutes 60–79: 15 BD + 15 no-BD")
+    print("  minutes 80–90: 20 BD + 10 no-BD")
+    high_res_bd_bio, _ = replication_bio_seconds(HIGH_RES_MINUTE)
     print(
         f"  minute {HIGH_RES_MINUTE} BD section: "
-        f"{int(BD_BIO_SECONDS / HIGH_RES_SECONDS_PER_BATCH)} batches @ "
+        f"{int(round(high_res_bd_bio / HIGH_RES_SECONDS_PER_BATCH))} batches @ "
         f"{HIGH_RES_SECONDS_PER_BATCH:g} s"
     )
     default_beads = replicate_amount(args.v_replication, DEFAULT_SECONDS_PER_BATCH)
@@ -530,15 +548,23 @@ def main() -> None:
     )
 
     for timestep in range(args.start_time, args.end_time + 1):
-        if timestep == HIGH_RES_MINUTE:
-            batching = compute_replication_batching(
-                timestep, args.v_replication, smc.v_translocation
-            )
-            print(
-                f"Minute {timestep}: high-res BD — {batching.repeat_bd} batches @ "
-                f"{batching.seconds_per_batch_bd:g} s "
-                f"({batching.transform_bd}, translocate {batching.translocate_bd})"
-            )
+        batching = compute_replication_batching(
+            timestep, args.v_replication, smc.v_translocation
+        )
+        if timestep in (args.start_time, T_DIV, T_LATE_DIV, HIGH_RES_MINUTE):
+            label = replication_batch_label(timestep)
+            if timestep == HIGH_RES_MINUTE:
+                print(
+                    f"Minute {timestep}: {label} — high-res BD "
+                    f"{batching.repeat_bd} batches @ {batching.seconds_per_batch_bd:g} s "
+                    f"({batching.transform_bd}, translocate {batching.translocate_bd})"
+                )
+            else:
+                print(
+                    f"Minute {timestep}: {label} — "
+                    f"{batching.repeat_bd} BD + {batching.repeat_no_bd} no-BD batches @ "
+                    f"{DEFAULT_SECONDS_PER_BATCH:g} s"
+                )
         run_simulation_minute(
             args.run_name, args.seed, timestep, env, smc, args.v_replication
         )

@@ -26,7 +26,7 @@ RUN_NAME = "summerschool"
 OUT_TXT = Path("partitioning_summerschool.txt")
 OUT_PNG = Path("partitioning_summerschool.png")
 END_MINUTE = 90.0
-CUTOFF = 120.0
+CUTOFF = 110.0
 TITLE = "Daughter chromosome partitioning vs time"
 YLIM = (0.0, 1.0)
 
