@@ -377,11 +377,9 @@ As indicated by the comments, we only run dynamics with LAMMPS for 1/3 of the bi
 
 The `repeat` commands are exactly like for loops. Each iteration represents 2 seconds of biological time, during which we replicate on both sides by 20 beads (`transform:m_cw20_ccw20`) and translocate SMCs by 50 beads (`translocate:50,T`. What this really means is we attempt 50 moves; whether a loop updates or not depends on whether its blocked by another loop, and the parameters we set for the blocking, bypassing, and basal birth/death rates for the SMCs).
 
-The command `simulator_form_loops:F` reads in the loop state from `btree_chromo` into the LAMMPS simulation object. The command `simulator_minimize_topoDNA_harmonic:1000` runs a minimization with strand crossing permitted, `simulator_set_delta_t:2.5E+7` sets the timestep to 25 ns, and `{run_dynamics}` runs Brownian dynamics with strand crossings forbidden.
+The command `simulator_form_loops:F` reads in the loop state from `btree_chromo` into the LAMMPS simulation object. The command `simulator_minimize_topoDNA_harmonic:1000` runs a minimization with strand crossing permitted, `simulator_set_delta_t:2.5E+7` sets the timestep to 25 ns, and `simulator_run_soft_harmonic` runs Brownian dynamics with strand crossings forbidden.
 
 ## 12. Visualization with VMD
-
-Section 12 uses the **Open OnDemand Desktop** (graphical session), not Jupyter. Follow the shared [VMD guide](../vmd_guide.md) for OOD Desktop setup and VirtualGL, then use the DNA-specific steps below.
 
 ### Preprocess trajectory and load VMD
 
