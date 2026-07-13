@@ -346,7 +346,7 @@ gmx make_ndx -f eq/eq.gro
 Then compute the density along the bilayer normal:
 
 ```sh
-gmx density -f eq/eq.xtc -s eq/eq.tpr -b 15000 -trestart 500 \
+gmx density -f eq/eq.xtc -s eq/eq.tpr -b 15000 \
 		    -n index.ndx -o analysis/p-density.xvg
     > P*         [Enter]
 ```
@@ -384,7 +384,7 @@ only to the linear regime of the mean-square-displacement curve  (`-beginfit`
 and `-endfit`):
 
 ```sh
-gmx msd -f eq/nojump.xtc -s eq/eq.tpr -lateral z -b 15000 \
+gmx msd -f eq/nojump.xtc -s eq/eq.tpr -lateral z -b 15000 -trestart 500\
         -o analysis/msd.xvg
     > POPC       [Enter, Ctrl-D]
 ```
