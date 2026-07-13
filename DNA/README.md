@@ -187,8 +187,8 @@ $$U= \sum_{i=1}^{N_{\mathrm{DNA}}}\left[U_i^b+U_i^s\right] +\sum_{i=1}^{N_{\math
 The energies for the bending, stretching and excluded volume interactions are shown below.
 
 
-| **Bending:**                                                  | **Stretching**                                                                                                                                                                                                                                    | **Excluded Volume**                                                                                                                                                                                                     |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Bending:** | **Stretching** | **Excluded Volume** |
+|:--:|:--:|:--:|
 | <img src="./figures/4. Modeling chromosome dynamics/DNA_model_bending_0.png" width="300"/> | <img src="./figures/4. Modeling chromosome dynamics/DNA_model_stretching_0.png" width="200"/> | <img src="./figures/4. Modeling chromosome dynamics/DNA_model_LJ_0.png" width="120"/> |
 | $U_i^b=\kappa_b\left[1-\cos \left(\pi-\theta_i\right)\right]$ | $U_i^s= -\frac{\kappa_s L_0^2}{2} \log \left[1-\left(l_i / L_0\right)^2\right]$ $+4 \epsilon_s\left[\left(\frac{\sigma_s^s}{l_i}\right)^{12}-\left(\frac{\sigma_s}{l_i}\right)^6\right]$ $\times \Theta\left(2^{\frac{1}{6}} \sigma_s-l_i\right)$ | $U_{i j}^{e . v .}= 4 \epsilon_{e . v}\left[\left(\frac{\sigma_{e . v}}{r_{i j}}\right)^{12}-\left(\frac{\sigma_{e . v}}{r_{i j}}\right)^6\right]$ $\times \Theta\left(2^{\frac{1}{6}} \sigma_{{e.v. }}-r_{i j}\right)$ |
 
