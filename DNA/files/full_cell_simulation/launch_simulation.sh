@@ -59,12 +59,20 @@ else
 fi
 echo "Simulation RNG seed for ${USER}: ${SIM_SEED}"
 
+# Open OnDemand Desktop nests Apptainer with binds like $OOD_CWD:/cwd and
+# $TMPDIR:/TMPDIR. If those appear in APPTAINER_BINDPATH / SINGULARITY_BINDPATH
+# when the job is submitted from an OOD terminal, the compute-node Apptainer
+# tries to mount host paths /cwd and /TMPDIR (which do not exist) and fails.
+unset APPTAINER_BIND APPTAINER_BINDPATH SINGULARITY_BIND SINGULARITY_BINDPATH || true
+unset APPTAINER_TMPDIR SINGULARITY_TMPDIR || true
+
 # Mount DNA/files at /ps so scripts see /ps/btree_chromo_gpu/...
 apptainer run \
   --nv \
   --writable-tmpfs \
   --no-home \
   --containall \
+  --pwd /mnt/scripts \
   --bind "${SIM_ROOT}:/mnt" \
   --bind "${FILES_ROOT}:/ps:ro" \
-  "${SIF}" /bin/bash -c "export SIM_SEED=${SIM_SEED}; cd /mnt/scripts && bash run_sc_chain_generation.sh && python3 run_btree_chromo.py ${SIM_SEED} summerschool 0 90"
+  "${SIF}" /bin/bash -c "export SIM_SEED=${SIM_SEED}; bash run_sc_chain_generation.sh && python3 run_btree_chromo.py ${SIM_SEED} summerschool 0 90"

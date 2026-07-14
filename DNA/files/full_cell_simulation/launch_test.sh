@@ -55,11 +55,16 @@ else
 fi
 echo "Simulation RNG seed for ${USER}: ${SIM_SEED}"
 
+# Drop OOD Desktop-inherited Apptainer binds (/cwd, /TMPDIR) — see launch_simulation.sh.
+unset APPTAINER_BIND APPTAINER_BINDPATH SINGULARITY_BIND SINGULARITY_BINDPATH || true
+unset APPTAINER_TMPDIR SINGULARITY_TMPDIR || true
+
 apptainer run \
   --nv \
   --writable-tmpfs \
   --no-home \
   --containall \
+  --pwd /mnt/scripts \
   --bind "${SIM_ROOT}:/mnt" \
   --bind "${FILES_ROOT}:/ps:ro" \
-  "${SIF}" /bin/bash -c "export SIM_SEED=${SIM_SEED}; cd /mnt/scripts && bash run_sc_chain_generation.sh && python3 run_btree_chromo.py ${SIM_SEED} summerschool 0 1"
+  "${SIF}" /bin/bash -c "export SIM_SEED=${SIM_SEED}; bash run_sc_chain_generation.sh && python3 run_btree_chromo.py ${SIM_SEED} summerschool 0 1"
