@@ -119,8 +119,10 @@ resolution 0.5
 
 [ includes ]
 "martini_v3.0.0/martini_v3.0.0.itp"
+"martini_v3.0.0/martini_v3.0.0_ffbonded_v2.itp"
 "martini_v3.0.0/martini_v3.0.0_ions_v1.itp"
 "martini_v3.0.0/martini_v3.0.0_solvents_v1.itp"
+"martini_v3.0.0/martini_v3.0.0_phospholipids_PC_v2.itp"
 "structures/lysozyme.itp"
 
 [ compartments ]
