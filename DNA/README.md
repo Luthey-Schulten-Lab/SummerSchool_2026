@@ -31,7 +31,7 @@ We will walk you through how to set up and run a LAMMPS simulation using GPUs on
 
 > **Tuesday evening:** open a Delta terminal (OOD Desktop or SSH login), run the submit script (section 2), and let the job run overnight. **Wednesday:** read sections 6–11 while the job finishes (if needed), then visualize and analyze in sections 12–13.
 
-Most of the content of this tutorial, including the implementation of energy terms for the DNA polymer, DNA disentanglement, and general procedure for simulating Brownian dynamics and energy minimization with LAMMPS on a GPU, is also explained in our recent manuscript[^thornburg2026]. The content on SMC blocking/bypassing and daughter chromosome partitioning without the need for an additional fictitious force is explained in our recent paper[^maytin2026].
+Most of the content of this tutorial, including the implementation of energy terms for the DNA polymer, DNA disentanglement, and general procedure for simulating Brownian dynamics and energy minimization with LAMMPS on a GPU, is also explained in our recent Cell paper[^thornburg2026]. The content on SMC blocking/bypassing and daughter chromosome partitioning without the need for an additional fictitious force is explained in our recent Protein Science paper[^maytin2026].
 
 ## 1. Set up on Delta
 
