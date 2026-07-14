@@ -16,7 +16,7 @@ We will walk you through how to set up and run a LAMMPS simulation using GPUs on
 
 1. Set up on Delta (clone the repository — skip if you did Martini)
 2. **Submit the full-cell simulation** (~14 h GPU job — run overnight)
-3. Check job status (Wednesday morning)
+3. Check job status (until Wednesday morning)
 
 **Background and analysis (Wednesday)**
 
@@ -120,7 +120,7 @@ ls ~/SummerSchool_2026/DNA/files/full_cell_simulation/DNA_SummerSchool_2026/data
 
 To cancel: `scancel JOBID`.
 
-If the log shows `mount source /cwd doesn't exist`, you likely submitted from an Open OnDemand Desktop session that left behind Apptainer bind settings. Update the launch script (`git pull` in `~/SummerSchool_2026`), cancel the failed job, and resubmit with `bash submit_simulation.sh`.
+If the log shows that the job crashed, talk to one of the TAs and we can debug+resubmit. It could be something with OOD, or that you got unlucky with your RNG seed.
 
 ---
 
@@ -262,13 +262,16 @@ There is also the question of the step size of the SMC's. It turns out the exact
 
 | Parameter                       | Description                                                                                                                                                                                                     |
 | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Total number of loops           | Number of active anchor+hinge pairs that are extruding loops. We know that there are ~100 SMC dimers[^gilbert2023]. In our simulations we estimate around half of them are bound at one time.                   |
-| Loop extrusion frequency (s^-1) | How often does loop extrusion occur? Our best estimate is around every 0.4 s[^nomidis2022]. In our simulations we update the loops every 2 s.                                                                   |
-| Unbind/Rebind frequency (s^-1)  | How fast are SMC unbind and rebinding? In our simulations, dwell times are on the order of minutes. We assume the unbinding and rebinding frequencies are equal, so that half of the SMCs are bound at one time |
-| Extrusion step size (bp)        | ~200 bp[^ryu2022]. In our simulations we update loops every 5 extrusion steps, corresponding to 1kbp or 500 bp on each side for bidirectional extrusion.                                                        |
+| Total number of loops ($N$)           | Number of active anchor+hinge pairs that are extruding loops. We know that there are ~100 SMC dimers[^gilbert2023]. In our simulations we estimate around half of them are bound at one time ($N$=50).                   |
+| Loop extrusion frequency (s^-1) $f_\mathrm{loop}$| How often does loop extrusion occur? Our best estimate is around every 0.4 s[^nomidis2022]. In our simulations we update the loops every 2 s.                                                                   |
+| Unbind/Rebind frequency (s^-1)  ($k_\mathrm{off}$,$k_\mathrm{on}$)| How fast are SMC unbind and rebinding? In our simulations, dwell times are on the order of minutes. We assume the unbinding and rebinding frequencies are equal, so that half of the SMCs are bound at one time. |
+| Extrusion step size (bp)        $L_\mathrm{step}$| ~200 bp[^ryu2022]. In our simulations we update loops every 5 extrusion steps, corresponding to 1kbp or 500 bp on each side for bidirectional extrusion.                                                        |
 
+The last three parameters in the table can be reinterpreted as an effective SMC translocation speed $v=f_\mathrm{loop}\cdot L_\mathrm{step} and dwell time on the DNA $\tau=1/k_\mathrm{off}$.
 
-In order to get the daughter chromosomes to partition, it turns out it is necessary to model another type of SMC behavior, namely blocking/bypassing. When SMCs encounter each other in our simulations, they block each other from translocating any further, and there is some rate for bypassing each other. Similarly, there is some rate for SMCs to bypass replication forks, but for these simulations we set that to zero.
+In our paper[^maytin2026] we found that the control parameter that determines partitioning outcomes is the loop coverage, which can be defined as $N v \tau$, where $N$ is the number of active SMC complexes that are extruding loops, $v$ is SMC translocation speed, and $\tau$ is the SMC dwell time. 
+
+In order to get the daughter chromosomes to partition, what might imagine that it is important that the SMC proteins don't block/stall each other model on the chromosome. However, we found that SMC blocking doesn't affect partitioning outcomes that much. When the SMCs encounter each other they block each other from translocating any further: for these summer school simulations, we set the bypass rate so SMCs stay blocked for an average of 25 s. Experiments suggest that number is closer to 7 s, but it makes for a less interesting visualization. Similarly, there is some rate for SMCs to bypass replication forks, but for these simulations we set that to zero.
 
 <img align="center" width=600 src="./figures/4. Modeling chromosome dynamics/extrude_block_bypass.png">
 
