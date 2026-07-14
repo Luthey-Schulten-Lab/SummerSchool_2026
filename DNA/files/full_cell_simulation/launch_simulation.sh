@@ -2,7 +2,7 @@
 #SBATCH --account=bgvl-delta-gpu
 #SBATCH --job-name=DNA_tutorial
 #SBATCH --partition=gpuA100x4
-#SBATCH --time=15:00:00
+#SBATCH --time=24:00:00
 #SBATCH --mem=32g
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
