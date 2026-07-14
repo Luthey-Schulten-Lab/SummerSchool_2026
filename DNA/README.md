@@ -262,14 +262,14 @@ There is also the question of the step size of the SMC's. It turns out the exact
 
 | Parameter                       | Description                                                                                                                                                                                                     |
 | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Total number of loops ($N$)           | Number of active anchor+hinge pairs that are extruding loops. We know that there are ~100 SMC dimers[^gilbert2023]. In our simulations we estimate around half of them are bound at one time ($N$=50).                   |
-| Loop extrusion frequency (s^-1) $f_\mathrm{loop}$| How often does loop extrusion occur? Our best estimate is around every 0.4 s[^nomidis2022]. In our simulations we update the loops every 2 s.                                                                   |
-| Unbind/Rebind frequency (s^-1)  ($k_\mathrm{off}$,$k_\mathrm{on}$)| How fast are SMC unbind and rebinding? In our simulations, dwell times are on the order of minutes. We assume the unbinding and rebinding frequencies are equal, so that half of the SMCs are bound at one time. |
+| Total number of loops: $N$          | Number of active anchor+hinge pairs that are extruding loops. We know that there are ~100 SMC dimers[^gilbert2023]. In our simulations we estimate around half of them are bound at one time ($N$=50).                   |
+| Loop extrusion frequency: $f_\mathrm{loop}\,s^{-1}$| How often does loop extrusion occur? Our best estimate is around every 0.4 s[^nomidis2022]. In our simulations we update the loops every 2 s.                                                                   |
+| Unbind/Rebind frequency ($k_\mathrm{off}, k_\mathrm{on}\,s^{-1}$)| How fast are SMC unbind and rebinding? In our simulations, dwell times are on the order of minutes. We assume the unbinding and rebinding frequencies are equal, so that half of the SMCs are bound at one time. |
 | Extrusion step size (bp)        $L_\mathrm{step}$| ~200 bp[^ryu2022]. In our simulations we update loops every 5 extrusion steps, corresponding to 1kbp or 500 bp on each side for bidirectional extrusion.                                                        |
 
-The last three parameters in the table can be reinterpreted as an effective SMC translocation speed $v=f_\mathrm{loop}\cdot L_\mathrm{step} and dwell time on the DNA $\tau=1/k_\mathrm{off}$.
+The last three parameters in the table can be reinterpreted as an effective SMC translocation speed $v=f_\mathrm{loop}\cdot L_\mathrm{step}$ and dwell time on the DNA $\tau=1/k_\mathrm{off}$.
 
-In our paper[^maytin2026] we found that the control parameter that determines partitioning outcomes is the loop coverage, which can be defined as $N v \tau$, where $N$ is the number of active SMC complexes that are extruding loops, $v$ is SMC translocation speed, and $\tau$ is the SMC dwell time. 
+In our paper[^maytin2026] we found that the control parameter that determines partitioning outcomes is the loop coverage, which can be defined as $N v \tau$, where $N$ is the number of active SMC complexes that are extruding loops, $v$ is SMC translocation speed, and $\tau$ is the SMC dwell time. In our simulations, each student has slightly different SMC looping parameters `N`, `v_translocation`, and `tau_basal` (they are drawn from Gaussian distributions centered on the defaults (40, 500 bp/s, 400 s) with σ = 10, 100, and 100 respectively) based on their unique RNG seed. In the analysis below, you will find out if your cell partitioned successfully!
 
 In order to get the daughter chromosomes to partition, what might imagine that it is important that the SMC proteins don't block/stall each other model on the chromosome. However, we found that SMC blocking doesn't affect partitioning outcomes that much. When the SMCs encounter each other they block each other from translocating any further: for these summer school simulations, we set the bypass rate so SMCs stay blocked for an average of 25 s. Experiments suggest that number is closer to 7 s, but it makes for a less interesting visualization. Similarly, there is some rate for SMCs to bypass replication forks, but for these simulations we set that to zero.
 
@@ -277,7 +277,7 @@ In order to get the daughter chromosomes to partition, what might imagine that i
 
 
 
-Also found to be essential were topoisomerases. There is evidence for coordination between topoisomerases and SMC complexes[^zawadzki2015]. For our simulations, topoisomerase is modeled by periodically running a set of minimizations and Brownian dynamics steps with DNA-DNA pair interactions replaced by soft potentials, which permits strand-crossings.
+Also essential for partitioning (both in terms of transposon mutagenesis and from a simulation perspective) are topoisomerases. There is even evidence for coordination between topoisomerases and SMC complexes[^zawadzki2015]. For our simulations, topoisomerase is modeled by periodically running a set of minimizations and Brownian dynamics steps with DNA-DNA pair interactions replaced by soft potentials, which permits strand-crossings.
 
 We don't have a great way of keeping track of strand crossings, but they usually happen when the SMC loops update, pulling strands of DNA taught against one another.
 
