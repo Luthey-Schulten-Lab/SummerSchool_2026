@@ -260,12 +260,12 @@ We take an extrusion rate of 500 bp/s, split into 250 bp/s for each side. This s
 There is also the question of the step size of the SMC's. It turns out the exact step size does not matter much in our simulations with respect to partitioning of the daughter chromosomes, but here update the SMC positions in our LAMMPS simulations every 2 biological seconds, which corresponds to extruding 500 bp on each side.
 
 
-| Parameter                       | Description                                                                                                                                                                                                     |
+| Parameter (symbols,units)                | Description                                                                                                                                                                                                     |
 | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Total number of loops: $N$          | Number of active anchor+hinge pairs that are extruding loops. We know that there are ~100 SMC dimers[^gilbert2023]. In our simulations we estimate around half of them are bound at one time ($N$=50).                   |
 | Loop extrusion frequency: $f_\mathrm{loop}\,s^{-1}$| How often does loop extrusion occur? Our best estimate is around every 0.4 s[^nomidis2022]. In our simulations we update the loops every 2 s.                                                                   |
-| Unbind/Rebind frequency ($k_\mathrm{off}, k_\mathrm{on}\,s^{-1}$)| How fast are SMC unbind and rebinding? In our simulations, dwell times are on the order of minutes. We assume the unbinding and rebinding frequencies are equal, so that half of the SMCs are bound at one time. |
-| Extrusion step size (bp)        $L_\mathrm{step}$| ~200 bp[^ryu2022]. In our simulations we update loops every 5 extrusion steps, corresponding to 1kbp or 500 bp on each side for bidirectional extrusion.                                                        |
+| Unbind/Rebind frequency: $k_\mathrm{off}, k_\mathrm{on}\,s^{-1}$| How fast are SMC unbind and rebinding? In our simulations, dwell times are on the order of minutes. We assume the unbinding and rebinding frequencies are equal, so that half of the SMCs are bound at one time. |
+| Extrusion step size: $L_\mathrm{step}$,bp| ~200 bp[^ryu2022]. In our simulations we update loops every 5 extrusion steps, corresponding to 1kbp or 500 bp on each side for bidirectional extrusion.                                                        |
 
 The last three parameters in the table can be reinterpreted as an effective SMC translocation speed $v=f_\mathrm{loop}\cdot L_\mathrm{step}$ and dwell time on the DNA $\tau=1/k_\mathrm{off}$.
 
