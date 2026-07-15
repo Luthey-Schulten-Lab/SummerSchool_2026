@@ -5,9 +5,9 @@
 #SBATCH --cpus-per-task=6
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
-#SBATCH --time=04:00:00
+#SBATCH --time=06:00:00
 #SBATCH --mem=32g
-#SBATCH --partition=gpuA100x4
+#SBATCH --partition=gpuA40x4
 #SBATCH --mail-user=YOUR_EMAIL_ADDRESS
 #SBATCH --mail-type=BEGIN,FAIL,END
 #SBATCH --output=%x-%N-%j.out
