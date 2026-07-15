@@ -52,7 +52,7 @@ On Delta, `$USER` is your NCSA username (e.g. login as `jdoe` → `/projects/bgv
 
 **Do the `cd` bash**:
 ```bash
-cd /u/$USER/SummerSchool_2026/CMEODE_WCM/programs
+cd /projects/bgvl/$USER/SummerSchool_2026/CMEODE_WCM/programs/
 ```
 
 Edit the sbatch.sh to **replace** the **YOUR_EMAIL_ADDRESS** with your actual email with ```vim```, so that you will receive job launch and finish notification from Delta. A small trick to work with HPCs.
