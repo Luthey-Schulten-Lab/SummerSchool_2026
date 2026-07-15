@@ -38,11 +38,17 @@ ssh YOUR_NCSA_USERNAME@login.delta.ncsa.illinois.edu
 
 Complete DUO authentication to log onto Delta.
 
+```bash
+cd /projects/bgvl/$USER/
+git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
+```
+
 #### 2. Edit the sbatch file
 
 Given that you have cloned the summerschool Git repo to your personal folder, you should be able to locate the `SummerSchool_2026/CMEODE_WCM`.
 
 On Delta, `$USER` is your NCSA username (e.g. login as `jdoe` → `/projects/bgvl/jdoe`).
+
 
 **Do the `cd` bash**:
 ```bash
