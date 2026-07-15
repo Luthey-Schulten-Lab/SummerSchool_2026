@@ -481,8 +481,8 @@ for {set i 0} {$i < $nframes} {incr i} {
     # Format the output filename with zero-padded index
     set fname [format "%s/frame%04d.tga" $outdir $i]
 
-    # Render with TachyonInternal at high resolution and antialiasing
-    render TachyonInternal $fname -res 1920 1080 -aa 12
+    # Render with Tachyon at high resolution and antialiasing
+    render Tachyon $fname -res 1920 1080 -aa 12
 
     puts "Rendered frame $i to $fname"
 }
