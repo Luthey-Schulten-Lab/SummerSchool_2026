@@ -28,7 +28,7 @@ This year, we further remove the slow Python overhead of unnecessary creating LM
 
 You will launch the job by `sbatch` to Delta HPC directly, not through the Gateway:
 
-#### Log in to Delta
+#### 1. Log in to Delta
 
 Replace YOUR_NCSA_USERNAME.
 
@@ -38,16 +38,19 @@ ssh YOUR_NCSA_USERNAME@login.delta.ncsa.illinois.edu
 
 Complete DUO authentication to log onto Delta.
 
-#### Edit the sbatch file
+#### 2. Edit the sbatch file
 
 Given that you have cloned the summerschool Git repo to your personal folder, you should be able to locate the `SummerSchool_2026/CMEODE_WCM`.
 
+On Delta, `$USER` is your NCSA username (e.g. login as `jdoe` → `/projects/bgvl/jdoe`).
+
 **Do the `cd` bash**:
 ```bash
-cd /projects/bgvl/$USER/SummerSchool_2026/CMEODE_WCM/programs
+cd /u/$USER/SummerSchool_2026/CMEODE_WCM/programs
 ```
 
-Edit the sbatch.sh to **replace** the YOUR_EMAIL_ADDRESS with your actual email, so that you will receive job info from Delta.
+Edit the sbatch.sh to **replace** the **YOUR_EMAIL_ADDRESS** with your actual email with ```vim```, so that you will receive job launch and finish notification from Delta. A small trick to work with HPCs.
+
 ```bash
 vi sbatch.sh
 ```
@@ -60,18 +63,20 @@ vi sbatch.sh
 #SBATCH --cpus-per-task=6
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
-#SBATCH --time=04:00:00
+#SBATCH --time=06:00:00
 #SBATCH --mem=32g
-#SBATCH --partition=gpuA100x4
+#SBATCH --partition=gpuA40x4
 #SBATCH --mail-user=YOUR_EMAIL_ADDRESS
 #SBATCH --mail-type=BEGIN,FAIL,END
 #SBATCH --output=%x-%N-%j.out
 #SBATCH --error=%x-%N-%j.err
 ```
 
-Here, we ask for 6 CPUs and 32 GB RAM for 3 cell replicates over 4 hours, which is adequate to finish the CMEODE WCM.
+Here, we ask for 6 CPUs and 32 GB RAM for 3 cell replicates over 6 hours, which is adequate to finish the CMEODE WCM.
 
-The output files will be under `/projects/bgvl/$USER/SummerSchool_2026/CMEODE_WCM/output_3replicates` as wrote in the `sbatch.sh`. We ask to simulate 7200 seconds, output CSV files per 60 seconds, and do hook per second (discussed later).
+The output files will be under `/projects/bgvl/$USER/SummerSchool_2026/CMEODE_WCM/output_3replicates` as wrote in the `sbatch.sh`. We output files to shared `/projects/bgvl/` folder so that I can so the compliling and serializing easily.
+
+We ask to simulate 7200 seconds, output CSV files per 60 seconds, and do hook per second (discussed later).
 
 ```bash
 WCM=/projects/bgvl/$USER/SummerSchool_2026/CMEODE_WCM
@@ -80,9 +85,7 @@ mpirun -np 3 python ./WCM_CMEODE_Hook.py \
       -in $WCM/input_data/ -st cme-ode -t 7200 -o 60 -hi 1 -f $OUTPUT_DIR
 ```
 
-On Delta, `$USER` is your NCSA username (e.g. login as `jdoe` → `/projects/bgvl/jdoe`).
-
-#### Submit the sbatch file
+#### 3. Submit the sbatch file
 
 Submit and check if job running:
 
@@ -423,14 +426,16 @@ One extra thing to notice is that the CME rates are also updated per second afte
 
 ### Run Notebook `WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb` on Serialized 50 Cell Replicates
 
-+ **First**: In the Jupyter file browser, open [`WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb`](`WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb`) and select the **`LM 2.5 (Python 3.7)`** kernel.
++ **First**: Launch Gateway by following the first three steps as `QCB_Gateway_setup.md` on the Github webpage.
 
-+ **Second**: Run the notebook, and compare the generated plots with the figures in this README file.
++ **Second**: In the Jupyter file browser, open [`WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb`](`WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb`) and select the **`LM 2.5 (Python 3.7)`** kernel.
+
++ **Third**: Run the notebook, and compare the generated plots with the figures in this README file.
 
 > [!NOTE]
 > The 50 replicates are too large for git, so the notebook reads them from the shared read-only folder `/projects/bgvl/SummerSchool_2026/CMEODE_WCM/trajs_healthy/`.
 
-***The following figures are plotted of ~ 100 cell replicates to make accurate statistics.***
+***The following figures are plotted of ~ 100 cell replicates to make more accurate statistics.***
 
 ### DNA Replication, and Doubling of Cell Volume and Surface Area
 

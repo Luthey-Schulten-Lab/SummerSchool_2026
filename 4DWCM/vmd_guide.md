@@ -53,10 +53,11 @@ Pre-computed spatial trajectories live in the shared bgvl data folder:
 /projects/bgvl/SummerSchool_2026/4DWCM/trajectory/Mar31_1/DNA/chromosome.lammpstrj
 ```
 
-Load in the traj by source TCL script:
+Load in the traj by source TCL script. Set `indir` to the trajectory run directory (default `Mar31_1`) before sourcing:
 
 ```bash
 cd /projects/bgvl/SummerSchool_2026/4DWCM/render/
+set indir /projects/bgvl/SummerSchool_2026/4DWCM/trajectory/Mar31_1
 source load_and_sync.tcl
 ```
 
@@ -83,15 +84,16 @@ https://github.com/user-attachments/assets/257d09f5-e3fc-4b90-82ac-8b0f173c0b21
 
 [Download mincell.mp4](render/mincell.mp4)
 
-Finally, let's make a cool movie to see the dynamics over the cell cycle. Personalize your `$MovieName`. 
+Finally, let's make a cool movie to see the dynamics over the cell cycle. Personalize your `$MovieName`, and set `outdir` to where the rendered image frames should be written (default `/projects/bgvl/SummerSchool_2026/4DWCM/render/movies/$USER`):
 
 ```bash
 set movie_name $MovieName
-source make_movie.tcl 
+set outdir /u/$USER/SummerSchool_2026/4DWCM/
+source make_movie.tcl
 ```
 
-Run this command on your laptop to download the Movie:
+Run this command on your laptop to download the Movie to local. Replace `USER` and `MovieName`.
 
 ```bash
-scp $DeltaUserName@login.delta.ncsa.illinois.edu:/projects/bgvl/SummerSchool_2026/4DWCM/render/$MovieName.mp4 ./
+scp $DeltaUserName@login.delta.ncsa.illinois.edu:/u/$USER/SummerSchool_2026/4DWCM/$MovieName.mp4 ./
 ```

@@ -36,6 +36,10 @@ if {[info exists movie_name] && $movie_name ne ""} {
 } else {
     set basename mincell
 }
+# Per-movie frame directory: each movie_name gets its own subfolder so different
+# movies don't share or clobber frames.  Frames -> $outdir/$basename/$basename.NNNNN.tga
+# The final .mp4 is written to $outdir/$basename.mp4 (alongside the frame folder).
+set framedir [file join $outdir $basename]
 set renderer   auto                    ;# auto = pick best available; or force one:
                                         ;#   TachyonLOptiXInternal  (A100 GPU)
                                         ;#   TachyonLOSPRayInternal (CPU, high quality)
@@ -119,15 +123,16 @@ set last [expr {[molinfo top get numframes]-1}]
 # renderers report a misleading "Could not open file ... for writing!" (and the
 # script then claims "no working renderer") when the outdir isn't writable --
 # usually because VMD was launched from someone else's directory.
-if {[catch {file mkdir $outdir} _e]} {
-    error "make_movie: cannot create output dir '$outdir': $_e\
+if {[catch {file mkdir $framedir} _e]} {
+    error "make_movie: cannot create output dir '$framedir': $_e\
           \n  Fix: setenv MOVIE_OUTDIR /projects/bgvl/$::env(USER)/mincell_movie\
           \n       (or 'cd' to a directory you own), then re-source."
 }
-set outdir [file normalize $outdir]
-set _probe [file join $outdir .write_test]
+set outdir   [file normalize $outdir]
+set framedir [file normalize $framedir]
+set _probe [file join $framedir .write_test]
 if {[catch {set _fh [open $_probe w]} _e]} {
-    error "make_movie: output dir is not writable by you: $outdir\
+    error "make_movie: output dir is not writable by you: $framedir\
           \n  ($_e)\
           \n  Fix: setenv MOVIE_OUTDIR /projects/bgvl/$::env(USER)/mincell_movie\
           \n       (or 'cd' to a directory you own), then re-source."
@@ -139,13 +144,13 @@ file delete -- $_probe
 set frames {}
 for {set f 0} {$f <= $last} {incr f $stride} { lappend frames $f }
 set total [llength $frames]
-puts "make_movie: $total frames (0..$last stride $stride) -> $outdir/  resume=$resume"
+puts "make_movie: $total frames (0..$last stride $stride) -> $framedir/  resume=$resume"
 
 set active ""
 set done   0
 set t0     [clock seconds]
 foreach f $frames {
-    set fn [format "%s/%s.%05d.tga" $outdir $basename $f]
+    set fn [format "%s/%s.%05d.tga" $framedir $basename $f]
 
     # resume: skip frames already rendered
     if {$resume && [file exists $fn] && [file size $fn] > 0} {
@@ -176,7 +181,7 @@ foreach f $frames {
         puts [format "  %d/%d  frame %d  elapsed %ds  eta ~%ds" $done $total $f $el $eta]
     }
 }
-puts "make_movie: done, $total images in $outdir/"
+puts "make_movie: done, $total images in $framedir/"
 
 
 # --------------------------------- ENCODE ------------------------------------
@@ -222,12 +227,12 @@ if not ok:                                # animated GIF via Pillow -- no ffmpeg
 }
 
 if {$encode} {
-    set out ${basename}.mp4
+    set out [file join $outdir ${basename}.mp4]
     set ff  [auto_execok ffmpeg]
     if {[llength $ff]} {
         puts "make_movie: encoding $out with [lindex $ff 0] ..."
         exec [lindex $ff 0] -y -framerate $fps -pattern_type glob \
-             -i "$outdir/$basename.*.tga" \
+             -i "$framedir/$basename.*.tga" \
              -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" \
              -c:v libx264 -pix_fmt yuv420p -crf $crf $out 2>@ stdout
         puts "make_movie: wrote $out"
@@ -238,10 +243,10 @@ if {$encode} {
             if {[llength $p]} { set py [lindex $p 0]; break }
         }
         if {$py eq ""} {
-            puts "make_movie: no ffmpeg and no python found; frames are in $outdir/"
+            puts "make_movie: no ffmpeg and no python found; frames are in $framedir/"
         } else {
             puts "make_movie: ffmpeg not on PATH; encoding via Python ($py) ..."
-            exec $py -c $_encode_py $outdir $basename $fps $crf $out 2>@ stdout
+            exec $py -c $_encode_py $framedir $basename $fps $crf $out 2>@ stdout
         }
     }
 }

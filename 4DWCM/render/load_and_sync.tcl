@@ -31,10 +31,12 @@ set lm_freq    60
 # you need perfect sync all the way to the end.)
 set duration   7200
 
-# Input files for this run -- edit per run.
-set run_dir    /projects/bgvl/SummerSchool_2026/4DWCM/trajectory/Mar31_1/
-set lm_file    /projects/bgvl/SummerSchool_2026/4DWCM/trajectory/Mar31_1/MinCell.lm
-set dna_file   /projects/bgvl/SummerSchool_2026/4DWCM/trajectory/Mar31_1/DNA/chromosome.lammpstrj
+# Input directory for this run -- override by `set indir <path>` before sourcing.
+if {![info exists indir] || $indir eq ""} {
+    set indir /projects/bgvl/SummerSchool_2026/4DWCM/trajectory/Mar31_1
+}
+set lm_file    [file join $indir MinCell.lm]
+set dna_file   [file join $indir DNA/chromosome.lammpstrj]
 
 # Apply representations.tcl automatically after loading?  (1 = yes, 0 = no)
 # Kept 0: load + sync only.  Apply visuals yourself with `source representations.tcl`.
