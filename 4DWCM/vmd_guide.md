@@ -61,6 +61,18 @@ set indir /projects/bgvl/SummerSchool_2026/4DWCM/trajectory/Mar31_1
 source load_and_sync.tcl
 ```
 
+OR
+
+You can also render your group’s own simulation. Replace `$GroupNumber` with your group number, i.e. (`Group1`, `Group2`, or `Group3`):
+
+
+```bash
+cd /projects/bgvl/SummerSchool_2026/4DWCM/render/
+set indir /projects/bgvl/Groups_4DWCM/$GroupNumber/4dwcm_run/Optimize_4DWCM_Minimal_Cell/Data/4dwcm_7200
+source load_and_sync.tcl
+```
+
+
 The given TCL script load in the frames at a per-minute frenquency, a downsample of the actual 4D simulation for easy visualization.
 
 By default, all the particles in both files are rendered as Points, which are not pretty and intuitive to understand.
