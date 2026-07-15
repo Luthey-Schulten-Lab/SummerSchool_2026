@@ -63,6 +63,21 @@ source load_and_sync.tcl
 
 OR
 
+**Group leaders:** `Group1`, `Group2`, and `Group3` already exist under `/projects/bgvl/Groups_4DWCM/`. After your `4dwcm_7200` job finishes, **move** (do not copy) your run into your group folder. This avoids duplicating ~40 GB on `/projects/bgvl`.
+
+```bash
+GROUP=Group1   # Group1, Group2, or Group3 — use your assigned group
+
+mv /projects/bgvl/${USER}/4dwcm_run \
+   /projects/bgvl/Groups_4DWCM/${GROUP}/
+```
+
+Members then visualize from:
+
+```
+/projects/bgvl/Groups_4DWCM/Group1/4dwcm_run/Optimize_4DWCM_Minimal_Cell/Data/4dwcm_7200
+```
+
 You can also render your group’s own simulation. Replace `$GroupNumber` with your group number, i.e. (`Group1`, `Group2`, or `Group3`):
 
 
