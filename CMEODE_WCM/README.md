@@ -38,17 +38,20 @@ ssh YOUR_NCSA_USERNAME@login.delta.ncsa.illinois.edu
 
 Complete DUO authentication to log onto Delta.
 
+Git clone to your personal folder under /projects/bgvl/:
+
 ```bash
 cd /projects/bgvl/$USER/
 git clone https://github.com/Luthey-Schulten-Lab/SummerSchool_2026.git
 ```
+
+If you already `git clone`, either remove and re clone or `git pull --rebase` to pull the latest Github repo.
 
 #### 2. Edit the sbatch file
 
 Given that you have cloned the summerschool Git repo to your personal folder, you should be able to locate the `SummerSchool_2026/CMEODE_WCM`.
 
 On Delta, `$USER` is your NCSA username (e.g. login as `jdoe` → `/projects/bgvl/jdoe`).
-
 
 **Do the `cd` bash**:
 ```bash
@@ -69,7 +72,7 @@ vi sbatch.sh
 #SBATCH --cpus-per-task=6
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
-#SBATCH --time=06:00:00
+#SBATCH --time=04:00:00
 #SBATCH --mem=32g
 #SBATCH --partition=gpuA40x4
 #SBATCH --mail-user=YOUR_EMAIL_ADDRESS
@@ -78,7 +81,7 @@ vi sbatch.sh
 #SBATCH --error=%x-%N-%j.err
 ```
 
-Here, we ask for 6 CPUs and 32 GB RAM for 3 cell replicates over 6 hours, which is adequate to finish the CMEODE WCM.
+Here, we ask for 6 CPUs and 32 GB RAM for 3 cell replicates over 4 hours, which is adequate to finish the CMEODE WCM.
 
 The output files will be under `/projects/bgvl/$USER/SummerSchool_2026/CMEODE_WCM/output_3replicates` as wrote in the `sbatch.sh`. We output files to shared `/projects/bgvl/` folder so that I can so the compliling and serializing easily.
 
@@ -92,6 +95,8 @@ mpirun -np 3 python ./WCM_CMEODE_Hook.py \
 ```
 
 #### 3. Submit the sbatch file
+
+If you already submitted a job, do `scancel ****` to cancel it and resubmit the new job.
 
 Submit and check if job running:
 
