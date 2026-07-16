@@ -19,6 +19,7 @@ In the ***4D Whole-Cell Model (4DWCM) of JCVI-syn3A*** tutorial, you will explor
 6. [Complex assembly and their activities](#6-complex-assembly-and-their-activities)
 7. [Proteomics doubling at the end of cell cycle](#7-proteomics-doubling-at-the-end-of-cell-cycle)
 8. [Whole-cell energetics: ATP production and expenditure](#8-whole-cell-energetics-atp-production-and-expenditure)
+9. [(Optional) Visualize using Minecraft](minecraft/README.md)
 
 ## 1. File Organization
 
