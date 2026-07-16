@@ -1,0 +1,17 @@
+{
+  "display": "minecraft:lime_stained_glass",
+  "settings": {
+    "biome": "minecraft:plains",
+    "lakes": false,
+    "features": false,
+    "layers": [
+      {
+        "height": 0,
+        "block": "minecraft:air"
+      }
+    ],
+    "structure_overrides": [
+      
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "function": "minecraft:set_damage",
+    "damage": {
+      "type": "minecraft:score",
+      "target": "this",
+      "score": "cg.motion_tick",
+      "scale": 0.0333333333333
+    },
+    "add": false,
+    "conditions": []
+  },
+  {
+    "function": "minecraft:set_name",
+    "entity": "this",
+    "target": "custom_name",
+    "name": [
+        { "text": "Set Frame: ", "italic": false },
+        { "score": { "name": "@s", "objective": "cg.motion_tick" }, "italic": false },
+        { "text": " / 30", "italic": false }
+    ]
+  }
+]

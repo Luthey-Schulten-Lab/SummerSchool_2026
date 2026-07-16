@@ -1,0 +1,8 @@
+{
+    "replace": true,
+    "values": [
+        "#concrete",
+        "#impermeable",
+        "#wool"
+    ]
+}

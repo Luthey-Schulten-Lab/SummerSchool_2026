@@ -1,0 +1,11 @@
+# Generated animation schematics (output goes to /projects/bgvl/$USER/minecraft/)
+**/structure/animate/lm_sim*.nbt
+
+# Minecraft runtime files
+session.lock
+level.dat_old
+
+# Python build artifacts
+src/*.egg-info/
+__pycache__/
+*.pyc

@@ -1,0 +1,44 @@
+{
+  "type": "minecraft:notice",
+  "title": {
+    "text": "Ribosomes",
+    "color": "#e02e2e"
+  },
+  "external_title": {
+    "text": "Ribosomes"
+  },
+  "body": [
+    {
+      "type": "minecraft:item",
+      "item": {
+        "id": "minecraft:red_concrete",
+        "count": 1
+      },
+      "width": 4,
+      "height": 12
+    },
+    {
+      "type": "minecraft:item",
+      "item": {
+        "id": "minecraft:red_stained_glass",
+        "count": 1
+      },
+      "width": 4,
+      "height": 12
+    },
+    {
+      "type": "minecraft:plain_message",
+      "contents": {
+        "text": "Red concrete and red stained glass represents the ribosomes of the minimal cell. The ribosomes float around the cell and create proteins with amino acids based on the instructions from the DNA.",
+        "type": "text"
+      }
+    }
+  ],
+  "inputs": [],
+  "can_close_with_escape": true,
+  "pause": true,
+  "after_action": "close",
+  "action": {
+    "label": "Close"
+  }
+}

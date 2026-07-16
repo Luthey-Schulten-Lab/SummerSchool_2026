@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "forward": {
+      "trigger": "minecraft:using_item",
+      "conditions": {
+        "item": {
+          "predicates": {
+            "minecraft:custom_data": {
+              "cg.forward": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "function": "cellgen:tools/animate/forward"
+  }
+}

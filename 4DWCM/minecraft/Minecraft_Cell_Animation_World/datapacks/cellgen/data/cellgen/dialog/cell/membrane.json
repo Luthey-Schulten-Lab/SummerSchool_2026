@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:notice",
+  "title": {
+    "text": "Cell Membrane",
+    "color": "#58d432"
+  },
+  "external_title": {
+    "text": "External"
+  },
+  "body": [
+    {
+      "type": "minecraft:item",
+      "item": {
+        "id": "minecraft:lime_stained_glass",
+        "count": 1
+      },
+      "width": 16,
+      "height": 16
+    },
+    {
+      "type": "minecraft:plain_message",
+      "contents": {
+        "text": "Lime stained glass represents the nuclear membrane in this cell. The membrane allows some materials (such as water and sugar) to flow in and others to flow out. Larger materials may need to be allowed in by membrane proteins called transporters.",
+        "type": "text"
+      }
+    }
+  ],
+  "inputs": [],
+  "can_close_with_escape": true,
+  "pause": true,
+  "after_action": "close",
+  "action": {
+    "label": "Close"
+  }
+}

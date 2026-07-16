@@ -1,0 +1,15 @@
+# Shared bgvl Minecraft world-generator environment (Python 3.10).
+# Created at: /projects/bgvl/SummerSchool_2026/conda-envs/minecraft
+# Run: bash setup_shared_env.sh
+
+name: bgvl-minecraft
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - h5py
+  - scipy
+  - pillow
+  - ipykernel

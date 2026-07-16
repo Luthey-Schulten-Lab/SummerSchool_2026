@@ -1,0 +1,12 @@
+[
+  {
+    "function": "minecraft:set_name",
+    "entity": "this",
+    "target": "custom_name",
+    "name": [
+        { "text": "Change Ticks/Frame: ", "italic": false, "color": "#f5a742"},
+        { "score": { "name": "#animate_tick", "objective": "cg.rule" }, "italic": false , "color": "#f5a742"},
+        { "text": "", "italic": false , "color": "#f5a742"}
+    ]
+  }
+]

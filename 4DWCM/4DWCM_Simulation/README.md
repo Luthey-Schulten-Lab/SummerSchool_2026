@@ -157,3 +157,4 @@ Science data appends to the same `Data/4dwcm_7200/` folder. Slurm log: `logs/4dw
 - [Thornburg *et al.*, *Cell* 2026](https://www.cell.com/cell/fulltext/S0092-8674(26)00174-1)
 - [4DWCM_ssh README](4DWCM_ssh/README.md)
 - [4DWCM analysis tutorial](../README.md)
+- [Minecraft world generator](../minecraft/README.md)

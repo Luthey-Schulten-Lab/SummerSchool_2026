@@ -72,3 +72,35 @@ In a **code cell**, run:
 
 - **Tutorials:** open the tutorial folder for respective module and follow its `README.md`
 
+---
+
+**Step 5 (optional): Minecraft world from 4DWCM — terminal**
+
+After a **completed 4DWCM Slurm run**, your group leader moves `4dwcm_run` into `/projects/bgvl/Groups_4DWCM/Group1` (or `Group2` / `Group3`). Any group member can build the world from a **Delta login node** or **Gateway terminal** (no Jupyter needed):
+
+```bash
+bash /projects/bgvl/alfiaparvez/SummerSchool_2026/4DWCM/minecraft/run_generate_world.sh --group Group1
+```
+
+Output goes to **your own folder**:
+
+```
+/projects/bgvl/$USER/minecraft/Minecraft_Cell_Animation_World/
+```
+
+**Demo** (before your group run finishes):
+
+```bash
+bash /projects/bgvl/alfiaparvez/SummerSchool_2026/4DWCM/minecraft/run_generate_world.sh --shared
+```
+
+**Your own run** (still under `/projects/bgvl/$USER/4dwcm_run/`):
+
+```bash
+bash /projects/bgvl/alfiaparvez/SummerSchool_2026/4DWCM/minecraft/run_generate_world.sh
+```
+
+Copy that `Minecraft_Cell_Animation_World` folder to your laptop Minecraft `saves/` folder to play.
+
+Shared env (instructor, once): `bash .../setup_shared_env.sh` → `/projects/bgvl/SummerSchool_2026/conda-envs/minecraft`
+

@@ -1,0 +1,17 @@
+{
+  "criteria": {
+    "back": {
+      "trigger": "minecraft:using_item",
+      "conditions": {
+        "item": {
+          "predicates": {
+            "minecraft:custom_data": "{cg.back:1}"
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "function": "cellgen:tools/animate/back"
+  }
+}

@@ -5,3 +5,7 @@ RDME/__pycache__/
 trajectory/
 *.tga
 data/
+!minecraft/Minecraft_Cell_Animation_World/datapacks/cellgen/data/
+!minecraft/Minecraft_Cell_Animation_World/datapacks/cellgen/data/**
+!minecraft/src/mcschematic_plus/data/
+!minecraft/src/mcschematic_plus/data/**

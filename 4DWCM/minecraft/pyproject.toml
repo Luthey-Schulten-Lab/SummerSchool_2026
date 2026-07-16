@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcschematic-plus"
+version = "0.0.1"
+description = "Generate Minecraft schem and nbt structures from 3D image data"
+authors = [{ name = "Kevin Tan" }]
+requires-python = ">=3.9"
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = [
+    "numpy",
+    "tifffile",
+    "pyvista",
+    "mcschematic",
+    "scipy",
+    "pillow",
+    "h5py",
+]
+
+[project.optional-dependencies]
+mesh-to-sdf = ["trimesh", "mesh_to_sdf"]
+amulet = ["amulet-core"]
+jupyter = ["jupyterlab", "pyvista[jupyter]"]
+all = ["mcschematic-plus[amulet,jupyter,mesh-to-sdf]"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+mcschematic_plus = ["data/block_colormaps/*.csv"]

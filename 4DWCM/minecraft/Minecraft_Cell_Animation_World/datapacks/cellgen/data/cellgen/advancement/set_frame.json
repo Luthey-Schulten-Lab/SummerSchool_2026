@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "set_frame": {
+      "trigger": "minecraft:using_item",
+      "conditions": {
+        "item": {
+          "predicates": {
+            "minecraft:custom_data": {
+              "cg.set_frame": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "function": "cellgen:tools/animate/set"
+  }
+}

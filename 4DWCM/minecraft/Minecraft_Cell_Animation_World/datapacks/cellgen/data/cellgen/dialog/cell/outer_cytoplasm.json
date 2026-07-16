@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:notice",
+  "title": {
+    "text": "Outer Cytoplasm",
+    "color": "#aad4e5"
+  },
+  "external_title": {
+    "text": "External"
+  },
+  "body": [
+    {
+      "type": "minecraft:item",
+      "item": {
+        "id": "minecraft:glass",
+        "count": 1
+      },
+      "width": 16,
+      "height": 16
+    },
+    {
+      "type": "minecraft:plain_message",
+      "contents": {
+        "text": "Glass represents the outer cytoplasm, the fluid environment that fills the cell and surrounds its internal components. The cytoplasm is where many of the cell's chemical reactions take place.",
+        "type": "text"
+      }
+    }
+  ],
+  "inputs": [],
+  "can_close_with_escape": true,
+  "pause": true,
+  "after_action": "close",
+  "action": {
+    "label": "Close"
+  }
+}

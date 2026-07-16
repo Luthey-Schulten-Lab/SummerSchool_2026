@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "play": {
+      "trigger": "minecraft:using_item",
+      "conditions": {
+        "item": {
+          "predicates": {
+            "minecraft:custom_data": {
+              "cg.play_pause": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "function": "cellgen:tools/animate/play_pause"
+  }
+}

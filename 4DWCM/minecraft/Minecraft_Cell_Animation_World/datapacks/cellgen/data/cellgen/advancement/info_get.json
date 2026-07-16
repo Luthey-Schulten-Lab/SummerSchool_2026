@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "set_frame": {
+      "trigger": "minecraft:using_item",
+      "conditions": {
+        "item": {
+          "predicates": {
+            "minecraft:custom_data": {
+              "cg.info_get": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "function": "cellgen:tools/eye_ray/start"
+  }
+}

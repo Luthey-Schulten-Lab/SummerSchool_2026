@@ -1,0 +1,13 @@
+{
+  "pack": {
+    "description": "Import cells straight to Minecraft World",
+    "min_format": [
+      101,
+      1
+    ],
+    "max_format": [
+      107,
+      1
+    ]
+  }
+}

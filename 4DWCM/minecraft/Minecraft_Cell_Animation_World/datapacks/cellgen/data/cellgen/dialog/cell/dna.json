@@ -1,0 +1,42 @@
+{
+  "type": "minecraft:notice",
+  "title": {
+    "text": "DNA",
+    "color": "#eade31"
+  },
+  "external_title": {
+    "text": "External"
+  },
+  "body": [
+    {
+      "type": "minecraft:item",
+      "item": {
+        "id": "minecraft:yellow_concrete",
+        "count": 1
+      },
+      "width": 16,
+      "height": 16
+    },
+    {
+      "type": "minecraft:plain_message",
+      "contents": {
+        "text": "DNA, or deoxyribonucleic acid, contains the genetic information of the cell. It provides the blueprints to replicate various components of the cell.",
+        "type": "text"
+      }
+    },
+    {
+      "type": "minecraft:plain_message",
+      "contents": {
+        "text": "In a minimal cell, the DNA is free-floating circular polymer throughout the cell, rather than contained within a nucleus.",
+        "type": "text"
+      }
+    }
+  ],
+  "inputs": [],
+  "can_close_with_escape": true,
+  "pause": true,
+  "after_action": "close",
+  "action": {
+    "label": "Close"
+  }
+}
