@@ -437,14 +437,14 @@ One extra thing to notice is that the CME rates are also updated per second afte
 
 ### Run Notebook `WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb` on Serialized 50 Cell Replicates
 
-+ **First**: Launch Gateway by following the first three steps as `QCB_Gateway_setup.md` on the Github webpage.
++ **First**: Launch Gateway by following the first three steps as `QCB_Gateway_setup.md` on the Github webpage. In the cloned github repo, run `git pull` to update the `analysis.ipynb.`
 
 + **Second**: In the Jupyter file browser, open [`WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb`](`WCM_analysis/SummerSchool_CMEODE_WCM_analysis.ipynb`) and select the **`LM 2.5 (Python 3.7)`** kernel.
 
 + **Third**: Run the notebook, and compare the generated plots with the figures in this README file.
 
 > [!NOTE]
-> The 50 replicates are too large for git, so the notebook reads them from the shared read-only folder `/projects/bgvl/SummerSchool_2026/CMEODE_WCM/trajs_healthy/`.
+> The 50 replicates are too large for git, so the notebook reads them from the shared folder `/projects/bgvl/SummerSchool_2026/CMEODE_WCM/trajs_healthy/`.
 
 ***The following figures are plotted of ~ 100 cell replicates to make more accurate statistics.***
 
